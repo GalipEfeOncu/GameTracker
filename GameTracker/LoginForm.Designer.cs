@@ -98,6 +98,8 @@
             // 
             // LoginForm
             // 
+            this.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(26)))), ((int)(((byte)(29)))), ((int)(((byte)(41)))));
+            this.Appearance.Options.UseBackColor = true;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(591, 338);
@@ -108,6 +110,7 @@
             this.Controls.Add(this.checkRememberMe);
             this.Controls.Add(this.txtPassword);
             this.Controls.Add(this.txtEmail);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Name = "LoginForm";
             this.Text = "Form1";
             ((System.ComponentModel.ISupportInitialize)(this.txtEmail.Properties)).EndInit();

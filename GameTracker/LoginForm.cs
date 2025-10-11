@@ -69,17 +69,9 @@ namespace GameTracker
                     Session.Username = Convert.ToString(user["username"]);
                     Session.Email = Convert.ToString(user["email"]);
 
-                    // Başarı mesajı göster
-                    DevExpress.XtraEditors.XtraMessageBox.Show(
-                        $"Hoş geldin {Session.Username}!",
-                        "Başarılı",
-                        System.Windows.Forms.MessageBoxButtons.OK,
-                        System.Windows.Forms.MessageBoxIcon.Information);
-
-                    // TODO: Ana forma geç (henüz MainForm yok, sonra ekleriz)
-                    // MainForm mainForm = new MainForm();
-                    // mainForm.Show();
-                    // this.Hide();
+                    MainForm mainForm = new MainForm();
+                    mainForm.Show();
+                    this.Hide();
                 }
                 else
                 {
