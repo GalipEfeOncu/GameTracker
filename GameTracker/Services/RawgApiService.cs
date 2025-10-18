@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using GameTracker.Models;
 
 public class RawgApiService
 {
-    private readonly string _apiKey = "e05bb5b0ad0b4391b17c84790dbcd2e0"; 
+    private readonly string _apiKey = "e05bb5b0ad0b4391b17c84790dbcd2e0";
     private readonly string _baseUrl = "https://api.rawg.io/api";
     private readonly HttpClient _httpClient;
 
@@ -83,29 +84,4 @@ public class RawgApiService
             throw new Exception($"Oyunlar çekilirken hata oluştu: {ex.Message}", ex);
         }
     }
-}
-
-public class Game
-{
-    public int id { get; set; }
-    public string name { get; set; }
-    public string background_image { get; set; }
-    public double rating { get; set; }
-    public string released { get; set; }
-    public List<Platform> platforms { get; set; }
-}
-
-public class Platform
-{
-    public PlatformInfo platform { get; set; }
-}
-
-public class PlatformInfo
-{
-    public string name { get; set; }
-}
-
-public class GameResponse
-{
-    public List<Game> results { get; set; }
 }

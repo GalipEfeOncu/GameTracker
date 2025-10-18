@@ -2,25 +2,122 @@
 using DevExpress.XtraEditors.Controls;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
-using System.Drawing;
 using System.Linq;
-using System.Text;
+using System.Net.Http;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using GameTracker.Models;
 
 namespace GameTracker
 {
     public partial class MainForm : DevExpress.XtraEditors.XtraForm
     {
         private RawgApiService rawgapi;
+        private static readonly HttpClient httpClient = new HttpClient();
 
         public MainForm()
         {
             InitializeComponent();
             rawgapi = new RawgApiService();
             SetupSearchControl();
+
+            this.MinimumSize = new System.Drawing.Size(1200, 675);
+
+            this.Load += async (s, e) =>
+            {
+                await LoadPopulerGames();
+                DynamicCards(flowLayoutPanel2);
+                DynamicCards(flowLayoutPanel3);
+            };
+
+            // FlowLayoutPanel resize olduğunda tekrar düzenle
+            this.Resize += (s, e) =>
+            {
+                DynamicCards(flowLayoutPanel2);
+                DynamicCards(flowLayoutPanel3);
+            };
+        }
+
+        private void DynamicCards(FlowLayoutPanel flowPanel)
+        {
+            int cardWidth;
+            int cardHeight;
+            int spaceBetweenCards = 10;
+            int margin = 20; // Sol ve sağ boşluk
+
+            flowPanel.SuspendLayout();
+
+            // flowPanelin genişliğini XtraScrollableControl'ün genişliğine eşitler
+            if (flowPanel.Parent is XtraScrollableControl scrollControl) // flowPanelin parenti XtraScrollableControl mü?
+            {
+                flowPanel.Width = scrollControl.ClientSize.Width - margin;
+            }
+
+            // Kart sayısını hesapla (flowPanel içinde kaç kart var)
+            int cardCount = flowPanel.Controls.Count;
+            if (cardCount == 0)
+            {
+                flowPanel.ResumeLayout();
+                return;
+            }
+
+            // Kullanılabilir genişlik
+            int availableWidth = flowPanel.Width - (margin * 2);
+
+            #region --- KART BOYUTU HESAPLAMA ---
+            int minCardWidth = 250;
+            int maxCardWidth = 350;
+            cardWidth = maxCardWidth;
+
+            int cardsPerRow = 1;
+
+            // Boyut hesaplama döngüsü
+            for (int i = 1; i <= cardCount; i++)
+            {
+                int testWidth = (availableWidth - (spaceBetweenCards * (i - 1))) / i;
+
+                if (testWidth >= minCardWidth)
+                {
+                    cardsPerRow = i;
+                    cardWidth = Math.Min(testWidth, maxCardWidth);
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            // 3:2 kart boyutu oranı
+            cardHeight = (cardWidth * 2) / 3;
+            flowPanel.Height = cardHeight + (margin * 2);
+            #endregion
+
+            // Tüm kartları yeniden boyutlandırır ve görünürlüğü ayarlar
+            int visibleCardIndex = 0;
+            foreach (Control ctrl in flowPanel.Controls) // flowPaneldeki tüm controlleri dolaşıp ctrl değişkenine atar
+            {
+                if (ctrl is PanelControl panel) // ctrl değişkeni bir panel türünde mi? eğer öyleyse panel değişkenine atar
+                {
+                    panel.Size = new System.Drawing.Size(cardWidth, cardHeight);
+                    panel.Margin = new Padding(spaceBetweenCards / 2);
+
+                    // panel satıra sığıyor ise true sığmıyor ise false
+                    panel.Visible = visibleCardIndex < cardsPerRow;
+                    visibleCardIndex++;
+
+                    // Panel içindeki resimleri yeniden boyutlandır
+                    foreach (Control picture in panel.Controls) // Panel içindeki her controlü alır
+                    {
+                        if (picture is PictureEdit pic && pic.Dock == DockStyle.Top) // Sadece PictureEditleri alır
+                        {
+                            pic.Height = cardHeight - 30; // Label için 30px yer ayırır
+                        }
+                    }
+                }
+            }
+
+            flowPanel.ResumeLayout();
         }
 
         private void SetupSearchControl()
@@ -46,11 +143,6 @@ namespace GameTracker
                     await SearchGames(searchControlLibrary.Text);
                 }
             };
-
-            this.Load += async (s, e) =>
-            {
-                await LoadPopulerGames();
-            };
         }
 
         private async Task SearchGames(string searchText)
@@ -62,8 +154,8 @@ namespace GameTracker
 
             try
             {
-                var games = await rawgapi.GetGamesBySearchAsync(searchText, 3); // API'dan oyunları çeker 20 adet.
-                DisplayGames(games, flowLayoutPanel3);
+                var games = await rawgapi.GetGamesBySearchAsync(searchText, 5); // API'dan oyunları çeker 5 adet.
+                await DisplayGames(games, flowLayoutPanel3);
             }
             catch (Exception ex)
             {
@@ -76,8 +168,8 @@ namespace GameTracker
         {
             try
             {
-                var games = await rawgapi.GetPopularGamesAsync(3); // API'dan populer 20 oyun çek
-                DisplayGames(games, flowLayoutPanel2);
+                var games = await rawgapi.GetPopularGamesAsync(5); // API'dan populer 20 oyun çek
+                await DisplayGames(games, flowLayoutPanel2);
             }
             catch (Exception ex)
             {
@@ -86,21 +178,22 @@ namespace GameTracker
             }
         }
 
-        private void DisplayGames(List<Game> games, FlowLayoutPanel panel)
+        private async Task DisplayGames(List<Game> games, FlowLayoutPanel panel)
         {
             panel.Controls.Clear();
 
-            foreach (var game in games)
-            {
-                var gameCard = CreateGameCard(game);
-                panel.Controls.Add(gameCard);
-            }
+            // tüm kartları paralel olarak oluşturur
+            var tasks = games.Select(g => CreateGameCard(g));
+            var cards = await Task.WhenAll(tasks);
+            panel.Controls.AddRange(cards);
+
+            DynamicCards(panel);
         }
 
-        private PanelControl CreateGameCard(Game game)
+        private async Task<PanelControl> CreateGameCard(Game game)
         {
             var panel = new PanelControl();
-            panel.Size = new System.Drawing.Size(200, 330);
+            panel.Size = new System.Drawing.Size(350, 230);
             panel.BorderStyle = BorderStyles.NoBorder;
             panel.Appearance.BackColor = System.Drawing.Color.FromArgb(26, 29, 41);
             panel.Appearance.Options.UseBackColor = true;
@@ -108,7 +201,8 @@ namespace GameTracker
             // Oyun Resmi
             var pictureEdit = new PictureEdit();
             pictureEdit.Dock = DockStyle.Top;
-            pictureEdit.Size = new System.Drawing.Size(200, 300);
+            pictureEdit.Size = new System.Drawing.Size(panel.Width, 200);
+            pictureEdit.Properties.SizeMode = DevExpress.XtraEditors.Controls.PictureSizeMode.Stretch;
 
             if (!string.IsNullOrEmpty(game.background_image))
             {
@@ -117,15 +211,12 @@ namespace GameTracker
                     // HttpClient internetten veri indirmek için kullanılan bir araç
                     // using iş bitince otomatik olarak kaynakları temizler
                     // memory leak önlemi için
-                    using (var client = new System.Net.Http.HttpClient())
+                    var imageData = await httpClient.GetByteArrayAsync(game.background_image);
+                    using (var ms = new System.IO.MemoryStream(imageData))
                     {
-                        // URL deki resmi indirir // .Result async işin bitmesini bekler
-                        var imageData = client.GetByteArrayAsync(game.background_image).Result;
-                        // İndirilen resmi belleğe koyar
-                        var ms = new System.IO.MemoryStream(imageData);
-                        // Bellekteki byte verisini resme çevirip pictureEdit controlüne atar
                         pictureEdit.Image = System.Drawing.Image.FromStream(ms);
                     }
+
                 }
                 catch { }
             }
@@ -134,14 +225,28 @@ namespace GameTracker
 
             // Oyun Adı
             var label = new DevExpress.XtraEditors.LabelControl();
+
+            // Dock ve boyut
             label.Dock = DockStyle.Bottom;
-            label.Size = new System.Drawing.Size(200, 30);
+            label.Size = new System.Drawing.Size(panel.Width, 30);
             label.AutoSizeMode = DevExpress.XtraEditors.LabelAutoSizeMode.None;
+
+            // Yazı içeriği
             label.Text = game.name;
-            label.Appearance.Font = new System.Drawing.Font("Segoe UI", 10F);
+            label.Appearance.TextOptions.HAlignment = DevExpress.Utils.HorzAlignment.Center;
+            label.Appearance.TextOptions.VAlignment = DevExpress.Utils.VertAlignment.Center;
+
+            // Görünüm
+            label.Appearance.Font = new System.Drawing.Font("Segoe UI Semibold", 10.5F);
             label.Appearance.ForeColor = System.Drawing.Color.White;
+            label.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
+            label.Padding = new Padding(0);
+            label.Margin = new Padding(0);
+
+            // Stil seçeneklerinin uygulanması
             label.Appearance.Options.UseFont = true;
             label.Appearance.Options.UseForeColor = true;
+            label.Appearance.Options.UseTextOptions = true;
 
             panel.Controls.Add(label);
 
