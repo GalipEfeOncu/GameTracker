@@ -9,17 +9,21 @@ public class RawgApiService
 {
     private readonly string _apiKey = "e05bb5b0ad0b4391b17c84790dbcd2e0";
     private readonly string _baseUrl = "https://api.rawg.io/api";
-    private readonly HttpClient _httpClient = new HttpClient()
-    {
-        Timeout = TimeSpan.FromSeconds(10)
-    };
+    private readonly HttpClient _httpClient;
 
-    public async Task<List<Game>> GetGamesBySearchAsync(string searchTerm, int pageSize = 20, int page = 1)
+    public RawgApiService()
+    {
+        _httpClient = new HttpClient();
+    }
+
+    /// <summary>
+    /// Oyunları arayarak getirir
+    /// </summary>
+    public async Task<List<Game>> GetGamesBySearchAsync(string searchTerm, int pageSize = 20)
     {
         try
         {
-            // &page={page} parametresi eklendi
-            string url = $"{_baseUrl}/games?key={_apiKey}&search={searchTerm}&page_size={pageSize}&page={page}";
+            string url = $"{_baseUrl}/games?key={_apiKey}&search={searchTerm}&page_size={pageSize}";
 
             HttpResponseMessage response = await _httpClient.GetAsync(url);
             response.EnsureSuccessStatusCode();
@@ -35,12 +39,14 @@ public class RawgApiService
         }
     }
 
-    public async Task<List<Game>> GetPopularGamesAsync(int pageSize = 20, int page = 1)
+    /// <summary>
+    /// Popüler oyunları getirir
+    /// </summary>
+    public async Task<List<Game>> GetPopularGamesAsync(int pageSize = 20)
     {
         try
         {
-            // &page={page} parametresi eklendi
-            string url = $"{_baseUrl}/games?key={_apiKey}&ordering=-rating&page_size={pageSize}&page={page}";
+            string url = $"{_baseUrl}/games?key={_apiKey}&ordering=-rating&page_size={pageSize}";
 
             HttpResponseMessage response = await _httpClient.GetAsync(url);
             response.EnsureSuccessStatusCode();
@@ -57,14 +63,13 @@ public class RawgApiService
     }
 
     /// <summary>
-    /// Belirli bir türün oyunlarını getirir
+    /// Belirli bir yapımcının oyunlarını getirir
     /// </summary>
-    public async Task<List<Game>> GetGamesByGenreAsync(string genre, int pageSize = 20, int page = 1)
+    public async Task<List<Game>> GetGamesByGenreAsync(string genre, int pageSize = 20)
     {
         try
         {
-            // &page={page} parametresi eklendi
-            string url = $"{_baseUrl}/games?key={_apiKey}&genres={genre}&page_size={pageSize}&page={page}";
+            string url = $"{_baseUrl}/games?key={_apiKey}&genres={genre}&page_size={pageSize}";
 
             HttpResponseMessage response = await _httpClient.GetAsync(url);
             response.EnsureSuccessStatusCode();

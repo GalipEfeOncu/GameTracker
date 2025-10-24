@@ -16,99 +16,35 @@ namespace GameTracker
         private RawgApiService rawgapi;
         private static readonly HttpClient httpClient = new HttpClient();
 
-        // Populer games değişkenleri
-        private int currentPopularPage = 1;
-        private bool isLoadingMorePopular = false;
-
         public MainForm()
         {
             InitializeComponent();
             rawgapi = new RawgApiService();
             SetupSearchControl();
-            SetupScrollListener();
 
             this.MinimumSize = new System.Drawing.Size(1200, 675);
 
             this.Load += async (s, e) =>
             {
                 await LoadPopulerGames();
-                ApplyDynamicLayout();
+                DynamicCards(flowLayoutPanel2);
+                DynamicCards(flowLayoutPanel3);
             };
 
             // FlowLayoutPanel resize olduğunda tekrar düzenle
             this.Resize += (s, e) =>
             {
-                ApplyDynamicLayout();
+                DynamicCards(flowLayoutPanel2);
+                DynamicCards(flowLayoutPanel3);
             };
         }
 
-        private void SetupScrollListener()
-        {
-            xtraScrollableControlHome.MouseWheel += async (s, e) =>
-            {
-                var scrollControl = s as XtraScrollableControl;
-                if (scrollControl == null) return;
-
-                int scrollPos = scrollControl.VerticalScroll.Value; // Scroll çubuğunun şuanki pozisyonu
-                int scrollMax = scrollControl.VerticalScroll.Maximum - scrollControl.VerticalScroll.LargeChange; // Scroll çubuğunun maksimum pozisyonu
-
-                // Scroll çubuğu en alta %80 yaklaştığında daha fazla oyun yükler
-                if (scrollPos >= scrollMax * 0.7 && !isLoadingMorePopular)
-                {
-                    await LoadMorePopularGames();
-                }
-            };
-        }
-
-        private async Task LoadMorePopularGames()
-        {
-            // Anlık olarak yükleme yapılıyorsa çıkar
-            if (isLoadingMorePopular)
-                return;
-
-            isLoadingMorePopular = true; // Yükleme işlemi başladığını belirtir
-
-            try
-            {
-                // Sonraki sayfadan oyunları çek (API'den sürekli yeni oyunlar gelir)
-                currentPopularPage++;
-                var newGames = await rawgapi.GetPopularGamesAsync(20, currentPopularPage);
-
-                if (newGames.Count > 0)
-                {
-                    // Her oyun için paralel olarak CreateGameCard methodunu çağırması için Select ile görevler oluşturur
-                    var tasks = newGames.Select(g => CreateGameCard(g));
-                    // Task.WhenAll ile tüm görevlerin paralel çalıştırır ve tamamlanmasını bekler (await)
-                    var cards = await Task.WhenAll(tasks);
-                    flowLayoutPanelPopulerGames.Controls.AddRange(cards);
-
-                    DynamicCards(flowLayoutPanelPopulerGames, multiRow: true);
-                }
-            }
-            catch (Exception ex)
-            {
-                XtraMessageBox.Show($"Daha fazla oyun yüklenirken hata: {ex.Message}", "Hata",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-            finally
-            {
-                isLoadingMorePopular = false;   // Hata olsa da olmasa da yükleme işlemi bittiğinde bayrağı indirir
-            }
-        }
-
-        private void ApplyDynamicLayout()
-        {
-            DynamicCards(flowLayoutPanelPopulerGames, true);
-            DynamicCards(flowLayoutPanelSuggests, false);
-            DynamicCards(flowLayoutPanelLibrary, true);
-        }
-
-        private void DynamicCards(FlowLayoutPanel flowPanel, bool multiRow = false)
+        private void DynamicCards(FlowLayoutPanel flowPanel)
         {
             int cardWidth;
             int cardHeight;
             int spaceBetweenCards = 10;
-            int margin = 20;
+            int margin = 20; // Sol ve sağ boşluk
 
             flowPanel.SuspendLayout();
 
@@ -154,14 +90,7 @@ namespace GameTracker
 
             // 3:2 kart boyutu oranı
             cardHeight = (cardWidth * 2) / 3;
-
-            if (multiRow)
-            {
-                int rows = (int)Math.Ceiling((double)cardCount / cardsPerRow); // Her zaman üste yuvarlanması için cast kullanıldı
-                flowPanel.Height = (cardHeight * rows) + (spaceBetweenCards * (rows - 1)) + (margin * 2);
-            }
-            else
-                flowPanel.Height = cardHeight + (margin * 2);
+            flowPanel.Height = cardHeight + (margin * 2);
             #endregion
 
             // Tüm kartları yeniden boyutlandırır ve görünürlüğü ayarlar
@@ -173,11 +102,8 @@ namespace GameTracker
                     panel.Size = new System.Drawing.Size(cardWidth, cardHeight);
                     panel.Margin = new Padding(spaceBetweenCards / 2);
 
-                    // Çok satırlı ise tüm paneller görünür
-                    if (multiRow) panel.Visible = true;
-                    // Tek satırlı ise sadece sığan paneller görünür
-                    else panel.Visible = visibleCardIndex < cardsPerRow;
-
+                    // panel satıra sığıyor ise true sığmıyor ise false
+                    panel.Visible = visibleCardIndex < cardsPerRow;
                     visibleCardIndex++;
 
                     // Panel içindeki resimleri yeniden boyutlandır
@@ -229,7 +155,7 @@ namespace GameTracker
             try
             {
                 var games = await rawgapi.GetGamesBySearchAsync(searchText, 5); // API'dan oyunları çeker 5 adet.
-                await DisplayGames(games, flowLayoutPanelSuggests);
+                await DisplayGames(games, flowLayoutPanel3);
             }
             catch (Exception ex)
             {
@@ -240,13 +166,10 @@ namespace GameTracker
 
         private async Task LoadPopulerGames()
         {
-
             try
             {
-                currentPopularPage = 1; // İlk sayfaya ayarlar
-                var games = await rawgapi.GetPopularGamesAsync(20, currentPopularPage); // API'dan populer 20 oyun çek
-                await DisplayGames(games, flowLayoutPanelPopulerGames, true);
-
+                var games = await rawgapi.GetPopularGamesAsync(5); // API'dan populer 20 oyun çek
+                await DisplayGames(games, flowLayoutPanel2);
             }
             catch (Exception ex)
             {
@@ -255,7 +178,7 @@ namespace GameTracker
             }
         }
 
-        private async Task DisplayGames(List<Game> games, FlowLayoutPanel panel, bool multiRow = false)
+        private async Task DisplayGames(List<Game> games, FlowLayoutPanel panel)
         {
             panel.Controls.Clear();
 
@@ -264,10 +187,8 @@ namespace GameTracker
             var cards = await Task.WhenAll(tasks);
             panel.Controls.AddRange(cards);
 
-            DynamicCards(panel, multiRow);
+            DynamicCards(panel);
         }
-
-        private static readonly Dictionary<string, System.Drawing.Image> imageCache = new Dictionary<string, System.Drawing.Image>();
 
         private async Task<PanelControl> CreateGameCard(Game game)
         {
@@ -287,23 +208,16 @@ namespace GameTracker
             {
                 try
                 {
-                    if (imageCache.ContainsKey(game.background_image))
+                    // HttpClient internetten veri indirmek için kullanılan bir araç
+                    // using iş bitince otomatik olarak kaynakları temizler
+                    // memory leak önlemi için
+                    var imageData = await httpClient.GetByteArrayAsync(game.background_image);
+                    using (var ms = new System.IO.MemoryStream(imageData))
                     {
-                        pictureEdit.Image = imageCache[game.background_image];
+                        pictureEdit.Image = System.Drawing.Image.FromStream(ms);
                     }
-                    else
-                    {
-                        // HttpClient internetten veri indirmek için kullanılan bir araç
-                        // using iş bitince otomatik olarak kaynakları temizler
-                        // memory leak önlemi için
-                        var imageData = await httpClient.GetByteArrayAsync(game.background_image);
-                        using (var ms = new System.IO.MemoryStream(imageData))
-                        {
-                            pictureEdit.Image = System.Drawing.Image.FromStream(ms);
-                        }
-                    }
-                }
 
+                }
                 catch { }
             }
 
