@@ -33,21 +33,10 @@
             this.btnLibrary = new DevExpress.XtraEditors.SimpleButton();
             this.btnHomeMenu = new DevExpress.XtraEditors.SimpleButton();
             this.lblTitle = new DevExpress.XtraEditors.LabelControl();
-            this.searchControlMainMenu = new DevExpress.XtraEditors.SearchControl();
-            this.labelControl1 = new DevExpress.XtraEditors.LabelControl();
             this.navigationFrame1 = new DevExpress.XtraBars.Navigation.NavigationFrame();
             this.pageHome = new DevExpress.XtraBars.Navigation.NavigationPage();
-            this.xtraScrollableControl1 = new DevExpress.XtraEditors.XtraScrollableControl();
-            this.flowLayoutPanel2 = new System.Windows.Forms.FlowLayoutPanel();
-            this.panelControl3 = new DevExpress.XtraEditors.PanelControl();
-            this.labelControl7 = new DevExpress.XtraEditors.LabelControl();
-            this.pictureEdit1 = new DevExpress.XtraEditors.PictureEdit();
-            this.labelControl3 = new DevExpress.XtraEditors.LabelControl();
-            this.flowLayoutPanel3 = new System.Windows.Forms.FlowLayoutPanel();
-            this.panelControl2 = new DevExpress.XtraEditors.PanelControl();
-            this.labelControl5 = new DevExpress.XtraEditors.LabelControl();
-            this.pictureEdit4 = new DevExpress.XtraEditors.PictureEdit();
-            this.labelControl2 = new DevExpress.XtraEditors.LabelControl();
+            this.lblPopulerGames = new DevExpress.XtraEditors.LabelControl();
+            this.flowLayoutPanelPopulerGames = new System.Windows.Forms.FlowLayoutPanel();
             this.pageLibrary = new DevExpress.XtraBars.Navigation.NavigationPage();
             this.xtraScrollableControl2 = new DevExpress.XtraEditors.XtraScrollableControl();
             this.labelControl6 = new DevExpress.XtraEditors.LabelControl();
@@ -60,21 +49,20 @@
             this.searchControlLibrary = new DevExpress.XtraEditors.SearchControl();
             this.simpleButton6 = new DevExpress.XtraEditors.SimpleButton();
             this.simpleButton5 = new DevExpress.XtraEditors.SimpleButton();
+            this.panelControl2 = new DevExpress.XtraEditors.PanelControl();
+            this.labelControl5 = new DevExpress.XtraEditors.LabelControl();
+            this.pictureEdit4 = new DevExpress.XtraEditors.PictureEdit();
+            this.panelControl4 = new DevExpress.XtraEditors.PanelControl();
+            this.labelControl8 = new DevExpress.XtraEditors.LabelControl();
+            this.pictureEdit2 = new DevExpress.XtraEditors.PictureEdit();
+            this.panelControl5 = new DevExpress.XtraEditors.PanelControl();
+            this.btnPrevious = new DevExpress.XtraEditors.SimpleButton();
+            this.btnNext = new DevExpress.XtraEditors.SimpleButton();
             ((System.ComponentModel.ISupportInitialize)(this.panelControl1)).BeginInit();
             this.panelControl1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.searchControlMainMenu.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.navigationFrame1)).BeginInit();
             this.navigationFrame1.SuspendLayout();
             this.pageHome.SuspendLayout();
-            this.xtraScrollableControl1.SuspendLayout();
-            this.flowLayoutPanel2.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.panelControl3)).BeginInit();
-            this.panelControl3.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureEdit1.Properties)).BeginInit();
-            this.flowLayoutPanel3.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.panelControl2)).BeginInit();
-            this.panelControl2.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureEdit4.Properties)).BeginInit();
             this.pageLibrary.SuspendLayout();
             this.xtraScrollableControl2.SuspendLayout();
             this.flowLayoutPanelLibrary.SuspendLayout();
@@ -82,6 +70,14 @@
             this.panelGameCard.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureEdit3.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.searchControlLibrary.Properties)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.panelControl2)).BeginInit();
+            this.panelControl2.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureEdit4.Properties)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.panelControl4)).BeginInit();
+            this.panelControl4.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureEdit2.Properties)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.panelControl5)).BeginInit();
+            this.panelControl5.SuspendLayout();
             this.SuspendLayout();
             // 
             // panelControl1
@@ -96,7 +92,7 @@
             this.panelControl1.Dock = System.Windows.Forms.DockStyle.Left;
             this.panelControl1.Location = new System.Drawing.Point(0, 0);
             this.panelControl1.Name = "panelControl1";
-            this.panelControl1.Size = new System.Drawing.Size(187, 688);
+            this.panelControl1.Size = new System.Drawing.Size(190, 640);
             this.panelControl1.TabIndex = 0;
             // 
             // simpleButton1
@@ -165,188 +161,60 @@
             this.lblTitle.TabIndex = 0;
             this.lblTitle.Text = "Game Tracker";
             // 
-            // searchControlMainMenu
-            // 
-            this.searchControlMainMenu.Location = new System.Drawing.Point(273, 40);
-            this.searchControlMainMenu.Name = "searchControlMainMenu";
-            this.searchControlMainMenu.Properties.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(37)))), ((int)(((byte)(40)))), ((int)(((byte)(55)))));
-            this.searchControlMainMenu.Properties.Appearance.ForeColor = System.Drawing.Color.White;
-            this.searchControlMainMenu.Properties.Appearance.Options.UseBackColor = true;
-            this.searchControlMainMenu.Properties.Appearance.Options.UseForeColor = true;
-            this.searchControlMainMenu.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
-            new DevExpress.XtraEditors.Repository.ClearButton(),
-            new DevExpress.XtraEditors.Repository.SearchButton()});
-            this.searchControlMainMenu.Size = new System.Drawing.Size(300, 20);
-            this.searchControlMainMenu.TabIndex = 5;
-            // 
-            // labelControl1
-            // 
-            this.labelControl1.Appearance.Font = new System.Drawing.Font("Segoe UI", 32.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.labelControl1.Appearance.Options.UseFont = true;
-            this.labelControl1.Location = new System.Drawing.Point(6, 12);
-            this.labelControl1.Name = "labelControl1";
-            this.labelControl1.Size = new System.Drawing.Size(135, 59);
-            this.labelControl1.TabIndex = 4;
-            this.labelControl1.Text = "Games";
-            // 
             // navigationFrame1
             // 
             this.navigationFrame1.AllowTransitionAnimation = DevExpress.Utils.DefaultBoolean.False;
             this.navigationFrame1.Controls.Add(this.pageHome);
             this.navigationFrame1.Controls.Add(this.pageLibrary);
             this.navigationFrame1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.navigationFrame1.Location = new System.Drawing.Point(187, 0);
+            this.navigationFrame1.Location = new System.Drawing.Point(190, 0);
             this.navigationFrame1.Name = "navigationFrame1";
             this.navigationFrame1.Pages.AddRange(new DevExpress.XtraBars.Navigation.NavigationPageBase[] {
             this.pageHome,
             this.pageLibrary});
             this.navigationFrame1.SelectedPage = this.pageHome;
-            this.navigationFrame1.Size = new System.Drawing.Size(1059, 688);
+            this.navigationFrame1.Size = new System.Drawing.Size(1270, 640);
             this.navigationFrame1.TabIndex = 11;
             this.navigationFrame1.Text = "navigationFrame1";
             this.navigationFrame1.TransitionType = DevExpress.Utils.Animation.Transitions.Push;
             // 
             // pageHome
             // 
-            this.pageHome.Controls.Add(this.xtraScrollableControl1);
+            this.pageHome.Controls.Add(this.flowLayoutPanelPopulerGames);
+            this.pageHome.Controls.Add(this.panelControl5);
+            this.pageHome.Controls.Add(this.lblPopulerGames);
             this.pageHome.Name = "pageHome";
-            this.pageHome.Size = new System.Drawing.Size(1059, 688);
+            this.pageHome.Size = new System.Drawing.Size(1270, 640);
             // 
-            // xtraScrollableControl1
+            // lblPopulerGames
             // 
-            this.xtraScrollableControl1.Controls.Add(this.labelControl1);
-            this.xtraScrollableControl1.Controls.Add(this.flowLayoutPanel2);
-            this.xtraScrollableControl1.Controls.Add(this.labelControl3);
-            this.xtraScrollableControl1.Controls.Add(this.searchControlMainMenu);
-            this.xtraScrollableControl1.Controls.Add(this.flowLayoutPanel3);
-            this.xtraScrollableControl1.Controls.Add(this.labelControl2);
-            this.xtraScrollableControl1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.xtraScrollableControl1.Location = new System.Drawing.Point(0, 0);
-            this.xtraScrollableControl1.Name = "xtraScrollableControl1";
-            this.xtraScrollableControl1.Size = new System.Drawing.Size(1059, 688);
-            this.xtraScrollableControl1.TabIndex = 23;
+            this.lblPopulerGames.Appearance.Font = new System.Drawing.Font("Segoe UI", 24F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblPopulerGames.Appearance.Options.UseFont = true;
+            this.lblPopulerGames.Appearance.Options.UseTextOptions = true;
+            this.lblPopulerGames.Appearance.TextOptions.HAlignment = DevExpress.Utils.HorzAlignment.Center;
+            this.lblPopulerGames.Appearance.TextOptions.VAlignment = DevExpress.Utils.VertAlignment.Center;
+            this.lblPopulerGames.AutoSizeMode = DevExpress.XtraEditors.LabelAutoSizeMode.None;
+            this.lblPopulerGames.Dock = System.Windows.Forms.DockStyle.Top;
+            this.lblPopulerGames.Location = new System.Drawing.Point(0, 0);
+            this.lblPopulerGames.Name = "lblPopulerGames";
+            this.lblPopulerGames.Size = new System.Drawing.Size(1270, 59);
+            this.lblPopulerGames.TabIndex = 22;
+            this.lblPopulerGames.Text = "Populer Games";
             // 
-            // flowLayoutPanel2
+            // flowLayoutPanelPopulerGames
             // 
-            this.flowLayoutPanel2.Controls.Add(this.panelControl3);
-            this.flowLayoutPanel2.Location = new System.Drawing.Point(6, 463);
-            this.flowLayoutPanel2.Name = "flowLayoutPanel2";
-            this.flowLayoutPanel2.Size = new System.Drawing.Size(579, 250);
-            this.flowLayoutPanel2.TabIndex = 20;
-            this.flowLayoutPanel2.WrapContents = false;
-            // 
-            // panelControl3
-            // 
-            this.panelControl3.Appearance.BackColor = System.Drawing.Color.Transparent;
-            this.panelControl3.Appearance.Options.UseBackColor = true;
-            this.panelControl3.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
-            this.panelControl3.Controls.Add(this.labelControl7);
-            this.panelControl3.Controls.Add(this.pictureEdit1);
-            this.panelControl3.Location = new System.Drawing.Point(10, 10);
-            this.panelControl3.LookAndFeel.UseDefaultLookAndFeel = false;
-            this.panelControl3.Margin = new System.Windows.Forms.Padding(10);
-            this.panelControl3.Name = "panelControl3";
-            this.panelControl3.Size = new System.Drawing.Size(350, 230);
-            this.panelControl3.TabIndex = 3;
-            // 
-            // labelControl7
-            // 
-            this.labelControl7.Appearance.Options.UseTextOptions = true;
-            this.labelControl7.Appearance.TextOptions.HAlignment = DevExpress.Utils.HorzAlignment.Center;
-            this.labelControl7.Appearance.TextOptions.VAlignment = DevExpress.Utils.VertAlignment.Center;
-            this.labelControl7.AutoSizeMode = DevExpress.XtraEditors.LabelAutoSizeMode.None;
-            this.labelControl7.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.labelControl7.Location = new System.Drawing.Point(0, 200);
-            this.labelControl7.Margin = new System.Windows.Forms.Padding(0);
-            this.labelControl7.Name = "labelControl7";
-            this.labelControl7.Size = new System.Drawing.Size(350, 30);
-            this.labelControl7.TabIndex = 1;
-            this.labelControl7.Text = "God of War";
-            // 
-            // pictureEdit1
-            // 
-            this.pictureEdit1.Dock = System.Windows.Forms.DockStyle.Top;
-            this.pictureEdit1.Location = new System.Drawing.Point(0, 0);
-            this.pictureEdit1.Margin = new System.Windows.Forms.Padding(0);
-            this.pictureEdit1.Name = "pictureEdit1";
-            this.pictureEdit1.Properties.ShowCameraMenuItem = DevExpress.XtraEditors.Controls.CameraMenuItemVisibility.Auto;
-            this.pictureEdit1.Size = new System.Drawing.Size(350, 200);
-            this.pictureEdit1.TabIndex = 0;
-            // 
-            // labelControl3
-            // 
-            this.labelControl3.Appearance.Font = new System.Drawing.Font("Segoe UI", 24F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.labelControl3.Appearance.Options.UseFont = true;
-            this.labelControl3.Location = new System.Drawing.Point(6, 412);
-            this.labelControl3.Name = "labelControl3";
-            this.labelControl3.Size = new System.Drawing.Size(216, 45);
-            this.labelControl3.TabIndex = 22;
-            this.labelControl3.Text = "Populer Games";
-            // 
-            // flowLayoutPanel3
-            // 
-            this.flowLayoutPanel3.Controls.Add(this.panelControl2);
-            this.flowLayoutPanel3.Location = new System.Drawing.Point(6, 153);
-            this.flowLayoutPanel3.Margin = new System.Windows.Forms.Padding(0);
-            this.flowLayoutPanel3.Name = "flowLayoutPanel3";
-            this.flowLayoutPanel3.Size = new System.Drawing.Size(523, 250);
-            this.flowLayoutPanel3.TabIndex = 19;
-            this.flowLayoutPanel3.WrapContents = false;
-            // 
-            // panelControl2
-            // 
-            this.panelControl2.Appearance.BackColor = System.Drawing.Color.Transparent;
-            this.panelControl2.Appearance.Options.UseBackColor = true;
-            this.panelControl2.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
-            this.panelControl2.Controls.Add(this.labelControl5);
-            this.panelControl2.Controls.Add(this.pictureEdit4);
-            this.panelControl2.Location = new System.Drawing.Point(10, 10);
-            this.panelControl2.LookAndFeel.UseDefaultLookAndFeel = false;
-            this.panelControl2.Margin = new System.Windows.Forms.Padding(10);
-            this.panelControl2.Name = "panelControl2";
-            this.panelControl2.Size = new System.Drawing.Size(350, 230);
-            this.panelControl2.TabIndex = 2;
-            // 
-            // labelControl5
-            // 
-            this.labelControl5.Appearance.Options.UseTextOptions = true;
-            this.labelControl5.Appearance.TextOptions.HAlignment = DevExpress.Utils.HorzAlignment.Center;
-            this.labelControl5.Appearance.TextOptions.VAlignment = DevExpress.Utils.VertAlignment.Center;
-            this.labelControl5.AutoSizeMode = DevExpress.XtraEditors.LabelAutoSizeMode.None;
-            this.labelControl5.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.labelControl5.Location = new System.Drawing.Point(0, 200);
-            this.labelControl5.Margin = new System.Windows.Forms.Padding(0);
-            this.labelControl5.Name = "labelControl5";
-            this.labelControl5.Size = new System.Drawing.Size(350, 30);
-            this.labelControl5.TabIndex = 1;
-            this.labelControl5.Text = "God of War";
-            // 
-            // pictureEdit4
-            // 
-            this.pictureEdit4.Dock = System.Windows.Forms.DockStyle.Top;
-            this.pictureEdit4.Location = new System.Drawing.Point(0, 0);
-            this.pictureEdit4.Margin = new System.Windows.Forms.Padding(0);
-            this.pictureEdit4.Name = "pictureEdit4";
-            this.pictureEdit4.Properties.ShowCameraMenuItem = DevExpress.XtraEditors.Controls.CameraMenuItemVisibility.Auto;
-            this.pictureEdit4.Size = new System.Drawing.Size(350, 200);
-            this.pictureEdit4.TabIndex = 0;
-            // 
-            // labelControl2
-            // 
-            this.labelControl2.Appearance.Font = new System.Drawing.Font("Segoe UI", 24F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.labelControl2.Appearance.Options.UseFont = true;
-            this.labelControl2.Location = new System.Drawing.Point(9, 101);
-            this.labelControl2.Name = "labelControl2";
-            this.labelControl2.Size = new System.Drawing.Size(97, 45);
-            this.labelControl2.TabIndex = 20;
-            this.labelControl2.Text = "Games";
+            this.flowLayoutPanelPopulerGames.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.flowLayoutPanelPopulerGames.Location = new System.Drawing.Point(0, 59);
+            this.flowLayoutPanelPopulerGames.Name = "flowLayoutPanelPopulerGames";
+            this.flowLayoutPanelPopulerGames.Size = new System.Drawing.Size(1270, 531);
+            this.flowLayoutPanelPopulerGames.TabIndex = 20;
+            this.flowLayoutPanelPopulerGames.WrapContents = false;
             // 
             // pageLibrary
             // 
-            this.pageLibrary.Caption = "pageLibrary";
             this.pageLibrary.Controls.Add(this.xtraScrollableControl2);
             this.pageLibrary.Name = "pageLibrary";
-            this.pageLibrary.Size = new System.Drawing.Size(1059, 688);
+            this.pageLibrary.Size = new System.Drawing.Size(1270, 640);
             // 
             // xtraScrollableControl2
             // 
@@ -360,7 +228,7 @@
             this.xtraScrollableControl2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.xtraScrollableControl2.Location = new System.Drawing.Point(0, 0);
             this.xtraScrollableControl2.Name = "xtraScrollableControl2";
-            this.xtraScrollableControl2.Size = new System.Drawing.Size(1059, 688);
+            this.xtraScrollableControl2.Size = new System.Drawing.Size(1270, 640);
             this.xtraScrollableControl2.TabIndex = 19;
             // 
             // labelControl6
@@ -498,6 +366,114 @@
             this.simpleButton5.TabIndex = 17;
             this.simpleButton5.Text = "Unplayed";
             // 
+            // panelControl2
+            // 
+            this.panelControl2.Appearance.BackColor = System.Drawing.Color.Transparent;
+            this.panelControl2.Appearance.Options.UseBackColor = true;
+            this.panelControl2.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
+            this.panelControl2.Controls.Add(this.labelControl5);
+            this.panelControl2.Controls.Add(this.pictureEdit4);
+            this.panelControl2.Location = new System.Drawing.Point(10, 10);
+            this.panelControl2.LookAndFeel.UseDefaultLookAndFeel = false;
+            this.panelControl2.Margin = new System.Windows.Forms.Padding(10);
+            this.panelControl2.Name = "panelControl2";
+            this.panelControl2.Size = new System.Drawing.Size(350, 230);
+            this.panelControl2.TabIndex = 2;
+            // 
+            // labelControl5
+            // 
+            this.labelControl5.Appearance.Options.UseTextOptions = true;
+            this.labelControl5.Appearance.TextOptions.HAlignment = DevExpress.Utils.HorzAlignment.Center;
+            this.labelControl5.Appearance.TextOptions.VAlignment = DevExpress.Utils.VertAlignment.Center;
+            this.labelControl5.AutoSizeMode = DevExpress.XtraEditors.LabelAutoSizeMode.None;
+            this.labelControl5.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.labelControl5.Location = new System.Drawing.Point(0, 200);
+            this.labelControl5.Margin = new System.Windows.Forms.Padding(0);
+            this.labelControl5.Name = "labelControl5";
+            this.labelControl5.Size = new System.Drawing.Size(350, 30);
+            this.labelControl5.TabIndex = 1;
+            this.labelControl5.Text = "God of War";
+            // 
+            // pictureEdit4
+            // 
+            this.pictureEdit4.Dock = System.Windows.Forms.DockStyle.Top;
+            this.pictureEdit4.Location = new System.Drawing.Point(0, 0);
+            this.pictureEdit4.Margin = new System.Windows.Forms.Padding(0);
+            this.pictureEdit4.Name = "pictureEdit4";
+            this.pictureEdit4.Properties.ShowCameraMenuItem = DevExpress.XtraEditors.Controls.CameraMenuItemVisibility.Auto;
+            this.pictureEdit4.Size = new System.Drawing.Size(350, 200);
+            this.pictureEdit4.TabIndex = 0;
+            // 
+            // panelControl4
+            // 
+            this.panelControl4.Appearance.BackColor = System.Drawing.Color.Transparent;
+            this.panelControl4.Appearance.Options.UseBackColor = true;
+            this.panelControl4.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
+            this.panelControl4.Controls.Add(this.labelControl8);
+            this.panelControl4.Controls.Add(this.pictureEdit2);
+            this.panelControl4.Location = new System.Drawing.Point(370, 10);
+            this.panelControl4.LookAndFeel.UseDefaultLookAndFeel = false;
+            this.panelControl4.Margin = new System.Windows.Forms.Padding(10);
+            this.panelControl4.Name = "panelControl4";
+            this.panelControl4.Size = new System.Drawing.Size(350, 230);
+            this.panelControl4.TabIndex = 3;
+            // 
+            // labelControl8
+            // 
+            this.labelControl8.Appearance.Options.UseTextOptions = true;
+            this.labelControl8.Appearance.TextOptions.HAlignment = DevExpress.Utils.HorzAlignment.Center;
+            this.labelControl8.Appearance.TextOptions.VAlignment = DevExpress.Utils.VertAlignment.Center;
+            this.labelControl8.AutoSizeMode = DevExpress.XtraEditors.LabelAutoSizeMode.None;
+            this.labelControl8.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.labelControl8.Location = new System.Drawing.Point(0, 200);
+            this.labelControl8.Margin = new System.Windows.Forms.Padding(0);
+            this.labelControl8.Name = "labelControl8";
+            this.labelControl8.Size = new System.Drawing.Size(350, 30);
+            this.labelControl8.TabIndex = 1;
+            this.labelControl8.Text = "God of War";
+            // 
+            // pictureEdit2
+            // 
+            this.pictureEdit2.Dock = System.Windows.Forms.DockStyle.Top;
+            this.pictureEdit2.Location = new System.Drawing.Point(0, 0);
+            this.pictureEdit2.Margin = new System.Windows.Forms.Padding(0);
+            this.pictureEdit2.Name = "pictureEdit2";
+            this.pictureEdit2.Properties.ShowCameraMenuItem = DevExpress.XtraEditors.Controls.CameraMenuItemVisibility.Auto;
+            this.pictureEdit2.Size = new System.Drawing.Size(350, 200);
+            this.pictureEdit2.TabIndex = 0;
+            // 
+            // panelControl5
+            // 
+            this.panelControl5.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(26)))), ((int)(((byte)(29)))), ((int)(((byte)(41)))));
+            this.panelControl5.Appearance.Options.UseBackColor = true;
+            this.panelControl5.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
+            this.panelControl5.Controls.Add(this.btnNext);
+            this.panelControl5.Controls.Add(this.btnPrevious);
+            this.panelControl5.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.panelControl5.Location = new System.Drawing.Point(0, 590);
+            this.panelControl5.Name = "panelControl5";
+            this.panelControl5.Size = new System.Drawing.Size(1270, 50);
+            this.panelControl5.TabIndex = 4;
+            // 
+            // btnPrevious
+            // 
+            this.btnPrevious.Location = new System.Drawing.Point(10, 15);
+            this.btnPrevious.Name = "btnPrevious";
+            this.btnPrevious.Size = new System.Drawing.Size(75, 23);
+            this.btnPrevious.TabIndex = 0;
+            this.btnPrevious.Text = "pre";
+            this.btnPrevious.Click += new System.EventHandler(this.btnPrevious_Click);
+            // 
+            // btnNext
+            // 
+            this.btnNext.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnNext.Location = new System.Drawing.Point(1183, 15);
+            this.btnNext.Name = "btnNext";
+            this.btnNext.Size = new System.Drawing.Size(75, 23);
+            this.btnNext.TabIndex = 1;
+            this.btnNext.Text = "next";
+            this.btnNext.Click += new System.EventHandler(this.btnNext_Click);
+            // 
             // MainForm
             // 
             this.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(26)))), ((int)(((byte)(29)))), ((int)(((byte)(41)))));
@@ -506,29 +482,20 @@
             this.Appearance.Options.UseForeColor = true;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1246, 688);
+            this.ClientSize = new System.Drawing.Size(1460, 640);
             this.Controls.Add(this.navigationFrame1);
             this.Controls.Add(this.panelControl1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Name = "MainForm";
             this.Text = "MainForm";
+            this.Load += new System.EventHandler(this.MainForm_Load);
+            this.Resize += new System.EventHandler(this.MainForm_Resize);
             ((System.ComponentModel.ISupportInitialize)(this.panelControl1)).EndInit();
             this.panelControl1.ResumeLayout(false);
             this.panelControl1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.searchControlMainMenu.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.navigationFrame1)).EndInit();
             this.navigationFrame1.ResumeLayout(false);
             this.pageHome.ResumeLayout(false);
-            this.xtraScrollableControl1.ResumeLayout(false);
-            this.xtraScrollableControl1.PerformLayout();
-            this.flowLayoutPanel2.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.panelControl3)).EndInit();
-            this.panelControl3.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.pictureEdit1.Properties)).EndInit();
-            this.flowLayoutPanel3.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.panelControl2)).EndInit();
-            this.panelControl2.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.pictureEdit4.Properties)).EndInit();
             this.pageLibrary.ResumeLayout(false);
             this.xtraScrollableControl2.ResumeLayout(false);
             this.xtraScrollableControl2.PerformLayout();
@@ -537,6 +504,14 @@
             this.panelGameCard.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.pictureEdit3.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.searchControlLibrary.Properties)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.panelControl2)).EndInit();
+            this.panelControl2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.pictureEdit4.Properties)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.panelControl4)).EndInit();
+            this.panelControl4.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.pictureEdit2.Properties)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.panelControl5)).EndInit();
+            this.panelControl5.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -548,14 +523,9 @@
         private DevExpress.XtraEditors.LabelControl lblTitle;
         private DevExpress.XtraEditors.SimpleButton simpleButton1;
         private DevExpress.XtraEditors.SimpleButton btnLibrary;
-        private DevExpress.XtraEditors.SearchControl searchControlMainMenu;
-        private DevExpress.XtraEditors.LabelControl labelControl1;
         private DevExpress.XtraBars.Navigation.NavigationFrame navigationFrame1;
         private DevExpress.XtraBars.Navigation.NavigationPage pageHome;
         private DevExpress.XtraBars.Navigation.NavigationPage pageLibrary;
-        private DevExpress.XtraEditors.LabelControl labelControl3;
-        private DevExpress.XtraEditors.LabelControl labelControl2;
-        private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel3;
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanelLibrary;
         private DevExpress.XtraEditors.LabelControl labelControl6;
         private DevExpress.XtraEditors.SearchControl searchControlLibrary;
@@ -563,17 +533,20 @@
         private DevExpress.XtraEditors.SimpleButton simpleButton6;
         private DevExpress.XtraEditors.SimpleButton simpleButton7;
         private DevExpress.XtraEditors.SimpleButton simpleButton8;
-        private DevExpress.XtraEditors.XtraScrollableControl xtraScrollableControl1;
         private DevExpress.XtraEditors.XtraScrollableControl xtraScrollableControl2;
         private DevExpress.XtraEditors.PictureEdit pictureEdit3;
         private DevExpress.XtraEditors.PanelControl panelGameCard;
         private DevExpress.XtraEditors.LabelControl labelControl4;
-        private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel2;
         private DevExpress.XtraEditors.PanelControl panelControl2;
         private DevExpress.XtraEditors.LabelControl labelControl5;
         private DevExpress.XtraEditors.PictureEdit pictureEdit4;
-        private DevExpress.XtraEditors.PanelControl panelControl3;
-        private DevExpress.XtraEditors.LabelControl labelControl7;
-        private DevExpress.XtraEditors.PictureEdit pictureEdit1;
+        private DevExpress.XtraEditors.PanelControl panelControl4;
+        private DevExpress.XtraEditors.LabelControl labelControl8;
+        private DevExpress.XtraEditors.PictureEdit pictureEdit2;
+        private System.Windows.Forms.FlowLayoutPanel flowLayoutPanelPopulerGames;
+        private DevExpress.XtraEditors.LabelControl lblPopulerGames;
+        private DevExpress.XtraEditors.PanelControl panelControl5;
+        private DevExpress.XtraEditors.SimpleButton btnNext;
+        private DevExpress.XtraEditors.SimpleButton btnPrevious;
     }
 }
