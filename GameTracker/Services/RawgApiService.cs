@@ -45,9 +45,9 @@ public class RawgApiService
     /// <summary>
     /// Popüler oyunları getirir
     /// </summary>
-    public async Task<List<Game>> GetPopularGamesAsync(int pageSize = 20)
+    public async Task<List<Game>> GetPopularGamesAsync(int pageNumber, int pageSize = 20)
     {
-        string url = $"{_baseUrl}/games?key={_apiKey}&dates=2025-01-01,2025-12-31&ordering=-metacritic&page_size={pageSize}";
+        string url = $"{_baseUrl}/games?key={_apiKey}&ordering=-added,-rating&dates=2024-01-01,2025-12-31&page_size={pageSize}&exclude_additions=true&page={pageNumber}";
         return await GetGamesAsync(url);
     }
 }

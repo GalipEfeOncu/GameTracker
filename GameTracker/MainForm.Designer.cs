@@ -35,8 +35,11 @@
             this.lblTitle = new DevExpress.XtraEditors.LabelControl();
             this.navigationFrame1 = new DevExpress.XtraBars.Navigation.NavigationFrame();
             this.pageHome = new DevExpress.XtraBars.Navigation.NavigationPage();
-            this.lblPopulerGames = new DevExpress.XtraEditors.LabelControl();
             this.flowLayoutPanelPopulerGames = new System.Windows.Forms.FlowLayoutPanel();
+            this.panelControl5 = new DevExpress.XtraEditors.PanelControl();
+            this.btnNext = new DevExpress.XtraEditors.SimpleButton();
+            this.btnPrevious = new DevExpress.XtraEditors.SimpleButton();
+            this.lblPopulerGames = new DevExpress.XtraEditors.LabelControl();
             this.pageLibrary = new DevExpress.XtraBars.Navigation.NavigationPage();
             this.xtraScrollableControl2 = new DevExpress.XtraEditors.XtraScrollableControl();
             this.labelControl6 = new DevExpress.XtraEditors.LabelControl();
@@ -55,14 +58,13 @@
             this.panelControl4 = new DevExpress.XtraEditors.PanelControl();
             this.labelControl8 = new DevExpress.XtraEditors.LabelControl();
             this.pictureEdit2 = new DevExpress.XtraEditors.PictureEdit();
-            this.panelControl5 = new DevExpress.XtraEditors.PanelControl();
-            this.btnPrevious = new DevExpress.XtraEditors.SimpleButton();
-            this.btnNext = new DevExpress.XtraEditors.SimpleButton();
             ((System.ComponentModel.ISupportInitialize)(this.panelControl1)).BeginInit();
             this.panelControl1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.navigationFrame1)).BeginInit();
             this.navigationFrame1.SuspendLayout();
             this.pageHome.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.panelControl5)).BeginInit();
+            this.panelControl5.SuspendLayout();
             this.pageLibrary.SuspendLayout();
             this.xtraScrollableControl2.SuspendLayout();
             this.flowLayoutPanelLibrary.SuspendLayout();
@@ -76,8 +78,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.panelControl4)).BeginInit();
             this.panelControl4.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureEdit2.Properties)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.panelControl5)).BeginInit();
-            this.panelControl5.SuspendLayout();
             this.SuspendLayout();
             // 
             // panelControl1
@@ -180,11 +180,53 @@
             // 
             // pageHome
             // 
+            this.pageHome.Caption = "pageHome";
             this.pageHome.Controls.Add(this.flowLayoutPanelPopulerGames);
             this.pageHome.Controls.Add(this.panelControl5);
             this.pageHome.Controls.Add(this.lblPopulerGames);
             this.pageHome.Name = "pageHome";
             this.pageHome.Size = new System.Drawing.Size(1270, 640);
+            // 
+            // flowLayoutPanelPopulerGames
+            // 
+            this.flowLayoutPanelPopulerGames.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.flowLayoutPanelPopulerGames.Location = new System.Drawing.Point(0, 59);
+            this.flowLayoutPanelPopulerGames.Name = "flowLayoutPanelPopulerGames";
+            this.flowLayoutPanelPopulerGames.Size = new System.Drawing.Size(1270, 531);
+            this.flowLayoutPanelPopulerGames.TabIndex = 20;
+            this.flowLayoutPanelPopulerGames.WrapContents = false;
+            // 
+            // panelControl5
+            // 
+            this.panelControl5.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(26)))), ((int)(((byte)(29)))), ((int)(((byte)(41)))));
+            this.panelControl5.Appearance.Options.UseBackColor = true;
+            this.panelControl5.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
+            this.panelControl5.Controls.Add(this.btnNext);
+            this.panelControl5.Controls.Add(this.btnPrevious);
+            this.panelControl5.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.panelControl5.Location = new System.Drawing.Point(0, 590);
+            this.panelControl5.Name = "panelControl5";
+            this.panelControl5.Size = new System.Drawing.Size(1270, 50);
+            this.panelControl5.TabIndex = 4;
+            // 
+            // btnNext
+            // 
+            this.btnNext.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnNext.Location = new System.Drawing.Point(1183, 15);
+            this.btnNext.Name = "btnNext";
+            this.btnNext.Size = new System.Drawing.Size(75, 23);
+            this.btnNext.TabIndex = 1;
+            this.btnNext.Text = "next";
+            this.btnNext.Click += new System.EventHandler(this.btnNext_Click);
+            // 
+            // btnPrevious
+            // 
+            this.btnPrevious.Location = new System.Drawing.Point(10, 15);
+            this.btnPrevious.Name = "btnPrevious";
+            this.btnPrevious.Size = new System.Drawing.Size(75, 23);
+            this.btnPrevious.TabIndex = 0;
+            this.btnPrevious.Text = "pre";
+            this.btnPrevious.Click += new System.EventHandler(this.btnPrevious_Click);
             // 
             // lblPopulerGames
             // 
@@ -201,17 +243,9 @@
             this.lblPopulerGames.TabIndex = 22;
             this.lblPopulerGames.Text = "Populer Games";
             // 
-            // flowLayoutPanelPopulerGames
-            // 
-            this.flowLayoutPanelPopulerGames.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.flowLayoutPanelPopulerGames.Location = new System.Drawing.Point(0, 59);
-            this.flowLayoutPanelPopulerGames.Name = "flowLayoutPanelPopulerGames";
-            this.flowLayoutPanelPopulerGames.Size = new System.Drawing.Size(1270, 531);
-            this.flowLayoutPanelPopulerGames.TabIndex = 20;
-            this.flowLayoutPanelPopulerGames.WrapContents = false;
-            // 
             // pageLibrary
             // 
+            this.pageLibrary.Caption = "pageLibrary";
             this.pageLibrary.Controls.Add(this.xtraScrollableControl2);
             this.pageLibrary.Name = "pageLibrary";
             this.pageLibrary.Size = new System.Drawing.Size(1270, 640);
@@ -442,38 +476,6 @@
             this.pictureEdit2.Size = new System.Drawing.Size(350, 200);
             this.pictureEdit2.TabIndex = 0;
             // 
-            // panelControl5
-            // 
-            this.panelControl5.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(26)))), ((int)(((byte)(29)))), ((int)(((byte)(41)))));
-            this.panelControl5.Appearance.Options.UseBackColor = true;
-            this.panelControl5.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
-            this.panelControl5.Controls.Add(this.btnNext);
-            this.panelControl5.Controls.Add(this.btnPrevious);
-            this.panelControl5.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.panelControl5.Location = new System.Drawing.Point(0, 590);
-            this.panelControl5.Name = "panelControl5";
-            this.panelControl5.Size = new System.Drawing.Size(1270, 50);
-            this.panelControl5.TabIndex = 4;
-            // 
-            // btnPrevious
-            // 
-            this.btnPrevious.Location = new System.Drawing.Point(10, 15);
-            this.btnPrevious.Name = "btnPrevious";
-            this.btnPrevious.Size = new System.Drawing.Size(75, 23);
-            this.btnPrevious.TabIndex = 0;
-            this.btnPrevious.Text = "pre";
-            this.btnPrevious.Click += new System.EventHandler(this.btnPrevious_Click);
-            // 
-            // btnNext
-            // 
-            this.btnNext.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnNext.Location = new System.Drawing.Point(1183, 15);
-            this.btnNext.Name = "btnNext";
-            this.btnNext.Size = new System.Drawing.Size(75, 23);
-            this.btnNext.TabIndex = 1;
-            this.btnNext.Text = "next";
-            this.btnNext.Click += new System.EventHandler(this.btnNext_Click);
-            // 
             // MainForm
             // 
             this.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(26)))), ((int)(((byte)(29)))), ((int)(((byte)(41)))));
@@ -496,6 +498,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.navigationFrame1)).EndInit();
             this.navigationFrame1.ResumeLayout(false);
             this.pageHome.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.panelControl5)).EndInit();
+            this.panelControl5.ResumeLayout(false);
             this.pageLibrary.ResumeLayout(false);
             this.xtraScrollableControl2.ResumeLayout(false);
             this.xtraScrollableControl2.PerformLayout();
@@ -510,8 +514,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.panelControl4)).EndInit();
             this.panelControl4.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.pictureEdit2.Properties)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.panelControl5)).EndInit();
-            this.panelControl5.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
