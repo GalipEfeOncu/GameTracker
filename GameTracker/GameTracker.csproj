@@ -100,6 +100,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DatabaseHelper.cs" />
+    <Compile Include="ImageManager.cs" />
+    <Compile Include="LayoutCalculator.cs" />
     <Compile Include="LoginForm.cs">
       <SubType>Form</SubType>
     </Compile>
