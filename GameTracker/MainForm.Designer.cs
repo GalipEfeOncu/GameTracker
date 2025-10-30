@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             this.panelControl1 = new DevExpress.XtraEditors.PanelControl();
+            this.simpleButton2 = new DevExpress.XtraEditors.SimpleButton();
             this.simpleButton1 = new DevExpress.XtraEditors.SimpleButton();
             this.btnLibrary = new DevExpress.XtraEditors.SimpleButton();
             this.btnHomeMenu = new DevExpress.XtraEditors.SimpleButton();
@@ -37,21 +38,23 @@
             this.pageHome = new DevExpress.XtraBars.Navigation.NavigationPage();
             this.flowLayoutPanelPopulerGames = new System.Windows.Forms.FlowLayoutPanel();
             this.panelControl5 = new DevExpress.XtraEditors.PanelControl();
+            this.lblPage = new DevExpress.XtraEditors.LabelControl();
             this.btnNext = new DevExpress.XtraEditors.SimpleButton();
             this.btnPrevious = new DevExpress.XtraEditors.SimpleButton();
             this.lblPopulerGames = new DevExpress.XtraEditors.LabelControl();
             this.pageLibrary = new DevExpress.XtraBars.Navigation.NavigationPage();
-            this.xtraScrollableControl2 = new DevExpress.XtraEditors.XtraScrollableControl();
-            this.labelControl6 = new DevExpress.XtraEditors.LabelControl();
             this.flowLayoutPanelLibrary = new System.Windows.Forms.FlowLayoutPanel();
-            this.panelGameCard = new DevExpress.XtraEditors.PanelControl();
-            this.labelControl4 = new DevExpress.XtraEditors.LabelControl();
-            this.pictureEdit3 = new DevExpress.XtraEditors.PictureEdit();
+            this.panelControl6 = new DevExpress.XtraEditors.PanelControl();
             this.simpleButton8 = new DevExpress.XtraEditors.SimpleButton();
+            this.labelControl6 = new DevExpress.XtraEditors.LabelControl();
             this.simpleButton7 = new DevExpress.XtraEditors.SimpleButton();
-            this.searchControlLibrary = new DevExpress.XtraEditors.SearchControl();
             this.simpleButton6 = new DevExpress.XtraEditors.SimpleButton();
             this.simpleButton5 = new DevExpress.XtraEditors.SimpleButton();
+            this.panelControl3 = new DevExpress.XtraEditors.PanelControl();
+            this.pageSearch = new DevExpress.XtraBars.Navigation.NavigationPage();
+            this.flowLayoutPanelSearch = new System.Windows.Forms.FlowLayoutPanel();
+            this.panelControl7 = new DevExpress.XtraEditors.PanelControl();
+            this.searchControlSearchPage = new DevExpress.XtraEditors.SearchControl();
             this.panelControl2 = new DevExpress.XtraEditors.PanelControl();
             this.labelControl5 = new DevExpress.XtraEditors.LabelControl();
             this.pictureEdit4 = new DevExpress.XtraEditors.PictureEdit();
@@ -66,12 +69,13 @@
             ((System.ComponentModel.ISupportInitialize)(this.panelControl5)).BeginInit();
             this.panelControl5.SuspendLayout();
             this.pageLibrary.SuspendLayout();
-            this.xtraScrollableControl2.SuspendLayout();
-            this.flowLayoutPanelLibrary.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.panelGameCard)).BeginInit();
-            this.panelGameCard.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureEdit3.Properties)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.searchControlLibrary.Properties)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.panelControl6)).BeginInit();
+            this.panelControl6.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.panelControl3)).BeginInit();
+            this.pageSearch.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.panelControl7)).BeginInit();
+            this.panelControl7.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.searchControlSearchPage.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.panelControl2)).BeginInit();
             this.panelControl2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureEdit4.Properties)).BeginInit();
@@ -85,6 +89,7 @@
             this.panelControl1.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(26)))), ((int)(((byte)(29)))), ((int)(((byte)(41)))));
             this.panelControl1.Appearance.Options.UseBackColor = true;
             this.panelControl1.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
+            this.panelControl1.Controls.Add(this.simpleButton2);
             this.panelControl1.Controls.Add(this.simpleButton1);
             this.panelControl1.Controls.Add(this.btnLibrary);
             this.panelControl1.Controls.Add(this.btnHomeMenu);
@@ -94,6 +99,24 @@
             this.panelControl1.Name = "panelControl1";
             this.panelControl1.Size = new System.Drawing.Size(190, 640);
             this.panelControl1.TabIndex = 0;
+            // 
+            // simpleButton2
+            // 
+            this.simpleButton2.AllowFocus = false;
+            this.simpleButton2.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(26)))), ((int)(((byte)(29)))), ((int)(((byte)(41)))));
+            this.simpleButton2.Appearance.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(26)))), ((int)(((byte)(29)))), ((int)(((byte)(41)))));
+            this.simpleButton2.Appearance.Font = new System.Drawing.Font("Segoe UI", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.simpleButton2.Appearance.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(139)))), ((int)(((byte)(146)))), ((int)(((byte)(168)))));
+            this.simpleButton2.Appearance.Options.UseBackColor = true;
+            this.simpleButton2.Appearance.Options.UseBorderColor = true;
+            this.simpleButton2.Appearance.Options.UseFont = true;
+            this.simpleButton2.Appearance.Options.UseForeColor = true;
+            this.simpleButton2.Location = new System.Drawing.Point(12, 56);
+            this.simpleButton2.Name = "simpleButton2";
+            this.simpleButton2.ShowFocusRectangle = DevExpress.Utils.DefaultBoolean.False;
+            this.simpleButton2.Size = new System.Drawing.Size(157, 46);
+            this.simpleButton2.TabIndex = 4;
+            this.simpleButton2.Text = "Search";
             // 
             // simpleButton1
             // 
@@ -106,7 +129,7 @@
             this.simpleButton1.Appearance.Options.UseBorderColor = true;
             this.simpleButton1.Appearance.Options.UseFont = true;
             this.simpleButton1.Appearance.Options.UseForeColor = true;
-            this.simpleButton1.Location = new System.Drawing.Point(12, 165);
+            this.simpleButton1.Location = new System.Drawing.Point(12, 206);
             this.simpleButton1.Name = "simpleButton1";
             this.simpleButton1.ShowFocusRectangle = DevExpress.Utils.DefaultBoolean.False;
             this.simpleButton1.Size = new System.Drawing.Size(157, 46);
@@ -124,12 +147,12 @@
             this.btnLibrary.Appearance.Options.UseBorderColor = true;
             this.btnLibrary.Appearance.Options.UseFont = true;
             this.btnLibrary.Appearance.Options.UseForeColor = true;
-            this.btnLibrary.Location = new System.Drawing.Point(12, 113);
+            this.btnLibrary.Location = new System.Drawing.Point(12, 154);
             this.btnLibrary.Name = "btnLibrary";
             this.btnLibrary.ShowFocusRectangle = DevExpress.Utils.DefaultBoolean.False;
             this.btnLibrary.Size = new System.Drawing.Size(157, 46);
             this.btnLibrary.TabIndex = 2;
-            this.btnLibrary.Text = "📚  Library";
+            this.btnLibrary.Text = "Library";
             this.btnLibrary.Click += new System.EventHandler(this.btnLibrary_Click);
             // 
             // btnHomeMenu
@@ -143,12 +166,12 @@
             this.btnHomeMenu.Appearance.Options.UseBorderColor = true;
             this.btnHomeMenu.Appearance.Options.UseFont = true;
             this.btnHomeMenu.Appearance.Options.UseForeColor = true;
-            this.btnHomeMenu.Location = new System.Drawing.Point(12, 61);
+            this.btnHomeMenu.Location = new System.Drawing.Point(12, 102);
             this.btnHomeMenu.Name = "btnHomeMenu";
             this.btnHomeMenu.ShowFocusRectangle = DevExpress.Utils.DefaultBoolean.False;
             this.btnHomeMenu.Size = new System.Drawing.Size(157, 46);
             this.btnHomeMenu.TabIndex = 1;
-            this.btnHomeMenu.Text = "🏠  Home Menu";
+            this.btnHomeMenu.Text = "Populer Games";
             this.btnHomeMenu.Click += new System.EventHandler(this.btnHomeMenu_Click);
             // 
             // lblTitle
@@ -166,14 +189,16 @@
             this.navigationFrame1.AllowTransitionAnimation = DevExpress.Utils.DefaultBoolean.False;
             this.navigationFrame1.Controls.Add(this.pageHome);
             this.navigationFrame1.Controls.Add(this.pageLibrary);
+            this.navigationFrame1.Controls.Add(this.pageSearch);
             this.navigationFrame1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.navigationFrame1.Location = new System.Drawing.Point(190, 0);
             this.navigationFrame1.Name = "navigationFrame1";
             this.navigationFrame1.Pages.AddRange(new DevExpress.XtraBars.Navigation.NavigationPageBase[] {
             this.pageHome,
-            this.pageLibrary});
+            this.pageLibrary,
+            this.pageSearch});
             this.navigationFrame1.SelectedPage = this.pageHome;
-            this.navigationFrame1.Size = new System.Drawing.Size(1270, 640);
+            this.navigationFrame1.Size = new System.Drawing.Size(1262, 640);
             this.navigationFrame1.TabIndex = 11;
             this.navigationFrame1.Text = "navigationFrame1";
             this.navigationFrame1.TransitionType = DevExpress.Utils.Animation.Transitions.Push;
@@ -185,14 +210,16 @@
             this.pageHome.Controls.Add(this.panelControl5);
             this.pageHome.Controls.Add(this.lblPopulerGames);
             this.pageHome.Name = "pageHome";
-            this.pageHome.Size = new System.Drawing.Size(1270, 640);
+            this.pageHome.Size = new System.Drawing.Size(1262, 640);
             // 
             // flowLayoutPanelPopulerGames
             // 
             this.flowLayoutPanelPopulerGames.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flowLayoutPanelPopulerGames.Location = new System.Drawing.Point(0, 59);
+            this.flowLayoutPanelPopulerGames.Margin = new System.Windows.Forms.Padding(0);
             this.flowLayoutPanelPopulerGames.Name = "flowLayoutPanelPopulerGames";
-            this.flowLayoutPanelPopulerGames.Size = new System.Drawing.Size(1270, 531);
+            this.flowLayoutPanelPopulerGames.Padding = new System.Windows.Forms.Padding(0, 0, 10, 0);
+            this.flowLayoutPanelPopulerGames.Size = new System.Drawing.Size(1262, 531);
             this.flowLayoutPanelPopulerGames.TabIndex = 20;
             this.flowLayoutPanelPopulerGames.WrapContents = false;
             // 
@@ -201,18 +228,29 @@
             this.panelControl5.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(26)))), ((int)(((byte)(29)))), ((int)(((byte)(41)))));
             this.panelControl5.Appearance.Options.UseBackColor = true;
             this.panelControl5.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
+            this.panelControl5.Controls.Add(this.lblPage);
             this.panelControl5.Controls.Add(this.btnNext);
             this.panelControl5.Controls.Add(this.btnPrevious);
             this.panelControl5.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.panelControl5.Location = new System.Drawing.Point(0, 590);
             this.panelControl5.Name = "panelControl5";
-            this.panelControl5.Size = new System.Drawing.Size(1270, 50);
+            this.panelControl5.Size = new System.Drawing.Size(1262, 50);
             this.panelControl5.TabIndex = 4;
+            // 
+            // lblPage
+            // 
+            this.lblPage.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.lblPage.Location = new System.Drawing.Point(593, 20);
+            this.lblPage.Name = "lblPage";
+            this.lblPage.Size = new System.Drawing.Size(6, 13);
+            this.lblPage.TabIndex = 2;
+            this.lblPage.Text = "0";
             // 
             // btnNext
             // 
             this.btnNext.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnNext.Location = new System.Drawing.Point(1183, 15);
+            this.btnNext.Location = new System.Drawing.Point(1175, 15);
             this.btnNext.Name = "btnNext";
             this.btnNext.Size = new System.Drawing.Size(75, 23);
             this.btnNext.TabIndex = 1;
@@ -239,88 +277,43 @@
             this.lblPopulerGames.Dock = System.Windows.Forms.DockStyle.Top;
             this.lblPopulerGames.Location = new System.Drawing.Point(0, 0);
             this.lblPopulerGames.Name = "lblPopulerGames";
-            this.lblPopulerGames.Size = new System.Drawing.Size(1270, 59);
+            this.lblPopulerGames.Size = new System.Drawing.Size(1262, 59);
             this.lblPopulerGames.TabIndex = 22;
             this.lblPopulerGames.Text = "Populer Games";
             // 
             // pageLibrary
             // 
             this.pageLibrary.Caption = "pageLibrary";
-            this.pageLibrary.Controls.Add(this.xtraScrollableControl2);
+            this.pageLibrary.Controls.Add(this.flowLayoutPanelLibrary);
+            this.pageLibrary.Controls.Add(this.panelControl6);
+            this.pageLibrary.Controls.Add(this.panelControl3);
             this.pageLibrary.Name = "pageLibrary";
-            this.pageLibrary.Size = new System.Drawing.Size(1270, 640);
-            // 
-            // xtraScrollableControl2
-            // 
-            this.xtraScrollableControl2.Controls.Add(this.labelControl6);
-            this.xtraScrollableControl2.Controls.Add(this.flowLayoutPanelLibrary);
-            this.xtraScrollableControl2.Controls.Add(this.simpleButton8);
-            this.xtraScrollableControl2.Controls.Add(this.simpleButton7);
-            this.xtraScrollableControl2.Controls.Add(this.searchControlLibrary);
-            this.xtraScrollableControl2.Controls.Add(this.simpleButton6);
-            this.xtraScrollableControl2.Controls.Add(this.simpleButton5);
-            this.xtraScrollableControl2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.xtraScrollableControl2.Location = new System.Drawing.Point(0, 0);
-            this.xtraScrollableControl2.Name = "xtraScrollableControl2";
-            this.xtraScrollableControl2.Size = new System.Drawing.Size(1270, 640);
-            this.xtraScrollableControl2.TabIndex = 19;
-            // 
-            // labelControl6
-            // 
-            this.labelControl6.Appearance.Font = new System.Drawing.Font("Segoe UI", 32.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.labelControl6.Appearance.Options.UseFont = true;
-            this.labelControl6.Location = new System.Drawing.Point(6, 12);
-            this.labelControl6.Name = "labelControl6";
-            this.labelControl6.Size = new System.Drawing.Size(218, 59);
-            this.labelControl6.TabIndex = 12;
-            this.labelControl6.Text = "My Library";
+            this.pageLibrary.Size = new System.Drawing.Size(1262, 640);
             // 
             // flowLayoutPanelLibrary
             // 
-            this.flowLayoutPanelLibrary.Controls.Add(this.panelGameCard);
-            this.flowLayoutPanelLibrary.Location = new System.Drawing.Point(6, 136);
+            this.flowLayoutPanelLibrary.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.flowLayoutPanelLibrary.Location = new System.Drawing.Point(0, 50);
             this.flowLayoutPanelLibrary.Name = "flowLayoutPanelLibrary";
-            this.flowLayoutPanelLibrary.Size = new System.Drawing.Size(1048, 496);
+            this.flowLayoutPanelLibrary.Size = new System.Drawing.Size(1262, 540);
             this.flowLayoutPanelLibrary.TabIndex = 18;
             this.flowLayoutPanelLibrary.WrapContents = false;
             // 
-            // panelGameCard
+            // panelControl6
             // 
-            this.panelGameCard.Appearance.BackColor = System.Drawing.Color.Transparent;
-            this.panelGameCard.Appearance.Options.UseBackColor = true;
-            this.panelGameCard.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
-            this.panelGameCard.Controls.Add(this.labelControl4);
-            this.panelGameCard.Controls.Add(this.pictureEdit3);
-            this.panelGameCard.Location = new System.Drawing.Point(10, 10);
-            this.panelGameCard.LookAndFeel.UseDefaultLookAndFeel = false;
-            this.panelGameCard.Margin = new System.Windows.Forms.Padding(10);
-            this.panelGameCard.Name = "panelGameCard";
-            this.panelGameCard.Size = new System.Drawing.Size(200, 330);
-            this.panelGameCard.TabIndex = 1;
-            // 
-            // labelControl4
-            // 
-            this.labelControl4.Appearance.Options.UseTextOptions = true;
-            this.labelControl4.Appearance.TextOptions.HAlignment = DevExpress.Utils.HorzAlignment.Center;
-            this.labelControl4.Appearance.TextOptions.VAlignment = DevExpress.Utils.VertAlignment.Center;
-            this.labelControl4.AutoSizeMode = DevExpress.XtraEditors.LabelAutoSizeMode.None;
-            this.labelControl4.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.labelControl4.Location = new System.Drawing.Point(0, 300);
-            this.labelControl4.Margin = new System.Windows.Forms.Padding(0);
-            this.labelControl4.Name = "labelControl4";
-            this.labelControl4.Size = new System.Drawing.Size(200, 30);
-            this.labelControl4.TabIndex = 1;
-            this.labelControl4.Text = "God of War";
-            // 
-            // pictureEdit3
-            // 
-            this.pictureEdit3.Dock = System.Windows.Forms.DockStyle.Top;
-            this.pictureEdit3.Location = new System.Drawing.Point(0, 0);
-            this.pictureEdit3.Margin = new System.Windows.Forms.Padding(0);
-            this.pictureEdit3.Name = "pictureEdit3";
-            this.pictureEdit3.Properties.ShowCameraMenuItem = DevExpress.XtraEditors.Controls.CameraMenuItemVisibility.Auto;
-            this.pictureEdit3.Size = new System.Drawing.Size(200, 300);
-            this.pictureEdit3.TabIndex = 0;
+            this.panelControl6.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(26)))), ((int)(((byte)(29)))), ((int)(((byte)(41)))));
+            this.panelControl6.Appearance.Options.UseBackColor = true;
+            this.panelControl6.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
+            this.panelControl6.Controls.Add(this.simpleButton8);
+            this.panelControl6.Controls.Add(this.labelControl6);
+            this.panelControl6.Controls.Add(this.simpleButton7);
+            this.panelControl6.Controls.Add(this.simpleButton6);
+            this.panelControl6.Controls.Add(this.simpleButton5);
+            this.panelControl6.Dock = System.Windows.Forms.DockStyle.Top;
+            this.panelControl6.Location = new System.Drawing.Point(0, 0);
+            this.panelControl6.Name = "panelControl6";
+            this.panelControl6.Size = new System.Drawing.Size(1262, 50);
+            this.panelControl6.TabIndex = 0;
             // 
             // simpleButton8
             // 
@@ -332,11 +325,21 @@
             this.simpleButton8.Appearance.Options.UseBorderColor = true;
             this.simpleButton8.Appearance.Options.UseFont = true;
             this.simpleButton8.Appearance.Options.UseForeColor = true;
-            this.simpleButton8.Location = new System.Drawing.Point(112, 95);
+            this.simpleButton8.Location = new System.Drawing.Point(351, 9);
             this.simpleButton8.Name = "simpleButton8";
             this.simpleButton8.Size = new System.Drawing.Size(100, 35);
             this.simpleButton8.TabIndex = 15;
             this.simpleButton8.Text = "Played";
+            // 
+            // labelControl6
+            // 
+            this.labelControl6.Appearance.Font = new System.Drawing.Font("Segoe UI", 24F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.labelControl6.Appearance.Options.UseFont = true;
+            this.labelControl6.Location = new System.Drawing.Point(1, -2);
+            this.labelControl6.Name = "labelControl6";
+            this.labelControl6.Size = new System.Drawing.Size(163, 45);
+            this.labelControl6.TabIndex = 12;
+            this.labelControl6.Text = "My Library";
             // 
             // simpleButton7
             // 
@@ -348,25 +351,11 @@
             this.simpleButton7.Appearance.Options.UseBorderColor = true;
             this.simpleButton7.Appearance.Options.UseFont = true;
             this.simpleButton7.Appearance.Options.UseForeColor = true;
-            this.simpleButton7.Location = new System.Drawing.Point(218, 95);
+            this.simpleButton7.Location = new System.Drawing.Point(457, 9);
             this.simpleButton7.Name = "simpleButton7";
             this.simpleButton7.Size = new System.Drawing.Size(100, 35);
             this.simpleButton7.TabIndex = 16;
             this.simpleButton7.Text = "Playing";
-            // 
-            // searchControlLibrary
-            // 
-            this.searchControlLibrary.Location = new System.Drawing.Point(273, 40);
-            this.searchControlLibrary.Name = "searchControlLibrary";
-            this.searchControlLibrary.Properties.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(37)))), ((int)(((byte)(40)))), ((int)(((byte)(55)))));
-            this.searchControlLibrary.Properties.Appearance.ForeColor = System.Drawing.Color.White;
-            this.searchControlLibrary.Properties.Appearance.Options.UseBackColor = true;
-            this.searchControlLibrary.Properties.Appearance.Options.UseForeColor = true;
-            this.searchControlLibrary.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
-            new DevExpress.XtraEditors.Repository.ClearButton(),
-            new DevExpress.XtraEditors.Repository.SearchButton()});
-            this.searchControlLibrary.Size = new System.Drawing.Size(300, 20);
-            this.searchControlLibrary.TabIndex = 14;
             // 
             // simpleButton6
             // 
@@ -378,7 +367,7 @@
             this.simpleButton6.Appearance.Options.UseBorderColor = true;
             this.simpleButton6.Appearance.Options.UseFont = true;
             this.simpleButton6.Appearance.Options.UseForeColor = true;
-            this.simpleButton6.Location = new System.Drawing.Point(6, 95);
+            this.simpleButton6.Location = new System.Drawing.Point(245, 9);
             this.simpleButton6.Name = "simpleButton6";
             this.simpleButton6.Size = new System.Drawing.Size(100, 35);
             this.simpleButton6.TabIndex = 13;
@@ -394,11 +383,64 @@
             this.simpleButton5.Appearance.Options.UseBorderColor = true;
             this.simpleButton5.Appearance.Options.UseFont = true;
             this.simpleButton5.Appearance.Options.UseForeColor = true;
-            this.simpleButton5.Location = new System.Drawing.Point(324, 95);
+            this.simpleButton5.Location = new System.Drawing.Point(563, 9);
             this.simpleButton5.Name = "simpleButton5";
             this.simpleButton5.Size = new System.Drawing.Size(100, 35);
             this.simpleButton5.TabIndex = 17;
             this.simpleButton5.Text = "Unplayed";
+            // 
+            // panelControl3
+            // 
+            this.panelControl3.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(26)))), ((int)(((byte)(29)))), ((int)(((byte)(41)))));
+            this.panelControl3.Appearance.Options.UseBackColor = true;
+            this.panelControl3.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
+            this.panelControl3.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.panelControl3.Location = new System.Drawing.Point(0, 590);
+            this.panelControl3.Name = "panelControl3";
+            this.panelControl3.Size = new System.Drawing.Size(1262, 50);
+            this.panelControl3.TabIndex = 2;
+            // 
+            // pageSearch
+            // 
+            this.pageSearch.Caption = "pageSearch";
+            this.pageSearch.Controls.Add(this.flowLayoutPanelSearch);
+            this.pageSearch.Controls.Add(this.panelControl7);
+            this.pageSearch.Name = "pageSearch";
+            this.pageSearch.Size = new System.Drawing.Size(1262, 640);
+            // 
+            // flowLayoutPanelSearch
+            // 
+            this.flowLayoutPanelSearch.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.flowLayoutPanelSearch.Location = new System.Drawing.Point(0, 50);
+            this.flowLayoutPanelSearch.Name = "flowLayoutPanelSearch";
+            this.flowLayoutPanelSearch.Size = new System.Drawing.Size(1262, 590);
+            this.flowLayoutPanelSearch.TabIndex = 16;
+            // 
+            // panelControl7
+            // 
+            this.panelControl7.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(26)))), ((int)(((byte)(29)))), ((int)(((byte)(41)))));
+            this.panelControl7.Appearance.Options.UseBackColor = true;
+            this.panelControl7.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
+            this.panelControl7.Controls.Add(this.searchControlSearchPage);
+            this.panelControl7.Dock = System.Windows.Forms.DockStyle.Top;
+            this.panelControl7.Location = new System.Drawing.Point(0, 0);
+            this.panelControl7.Name = "panelControl7";
+            this.panelControl7.Size = new System.Drawing.Size(1262, 50);
+            this.panelControl7.TabIndex = 15;
+            // 
+            // searchControlSearchPage
+            // 
+            this.searchControlSearchPage.Location = new System.Drawing.Point(443, 12);
+            this.searchControlSearchPage.Name = "searchControlSearchPage";
+            this.searchControlSearchPage.Properties.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(37)))), ((int)(((byte)(40)))), ((int)(((byte)(55)))));
+            this.searchControlSearchPage.Properties.Appearance.ForeColor = System.Drawing.Color.White;
+            this.searchControlSearchPage.Properties.Appearance.Options.UseBackColor = true;
+            this.searchControlSearchPage.Properties.Appearance.Options.UseForeColor = true;
+            this.searchControlSearchPage.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
+            new DevExpress.XtraEditors.Repository.ClearButton(),
+            new DevExpress.XtraEditors.Repository.SearchButton()});
+            this.searchControlSearchPage.Size = new System.Drawing.Size(300, 20);
+            this.searchControlSearchPage.TabIndex = 14;
             // 
             // panelControl2
             // 
@@ -484,7 +526,7 @@
             this.Appearance.Options.UseForeColor = true;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1460, 640);
+            this.ClientSize = new System.Drawing.Size(1452, 640);
             this.Controls.Add(this.navigationFrame1);
             this.Controls.Add(this.panelControl1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
@@ -500,14 +542,16 @@
             this.pageHome.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.panelControl5)).EndInit();
             this.panelControl5.ResumeLayout(false);
+            this.panelControl5.PerformLayout();
             this.pageLibrary.ResumeLayout(false);
-            this.xtraScrollableControl2.ResumeLayout(false);
-            this.xtraScrollableControl2.PerformLayout();
-            this.flowLayoutPanelLibrary.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.panelGameCard)).EndInit();
-            this.panelGameCard.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.pictureEdit3.Properties)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.searchControlLibrary.Properties)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.panelControl6)).EndInit();
+            this.panelControl6.ResumeLayout(false);
+            this.panelControl6.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.panelControl3)).EndInit();
+            this.pageSearch.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.panelControl7)).EndInit();
+            this.panelControl7.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.searchControlSearchPage.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.panelControl2)).EndInit();
             this.panelControl2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.pictureEdit4.Properties)).EndInit();
@@ -530,15 +574,11 @@
         private DevExpress.XtraBars.Navigation.NavigationPage pageLibrary;
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanelLibrary;
         private DevExpress.XtraEditors.LabelControl labelControl6;
-        private DevExpress.XtraEditors.SearchControl searchControlLibrary;
+        private DevExpress.XtraEditors.SearchControl searchControlSearchPage;
         private DevExpress.XtraEditors.SimpleButton simpleButton5;
         private DevExpress.XtraEditors.SimpleButton simpleButton6;
         private DevExpress.XtraEditors.SimpleButton simpleButton7;
         private DevExpress.XtraEditors.SimpleButton simpleButton8;
-        private DevExpress.XtraEditors.XtraScrollableControl xtraScrollableControl2;
-        private DevExpress.XtraEditors.PictureEdit pictureEdit3;
-        private DevExpress.XtraEditors.PanelControl panelGameCard;
-        private DevExpress.XtraEditors.LabelControl labelControl4;
         private DevExpress.XtraEditors.PanelControl panelControl2;
         private DevExpress.XtraEditors.LabelControl labelControl5;
         private DevExpress.XtraEditors.PictureEdit pictureEdit4;
@@ -550,5 +590,12 @@
         private DevExpress.XtraEditors.PanelControl panelControl5;
         private DevExpress.XtraEditors.SimpleButton btnNext;
         private DevExpress.XtraEditors.SimpleButton btnPrevious;
+        private DevExpress.XtraEditors.LabelControl lblPage;
+        private DevExpress.XtraEditors.SimpleButton simpleButton2;
+        private DevExpress.XtraBars.Navigation.NavigationPage pageSearch;
+        private DevExpress.XtraEditors.PanelControl panelControl3;
+        private DevExpress.XtraEditors.PanelControl panelControl6;
+        private System.Windows.Forms.FlowLayoutPanel flowLayoutPanelSearch;
+        private DevExpress.XtraEditors.PanelControl panelControl7;
     }
 }
