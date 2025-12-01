@@ -135,6 +135,29 @@ namespace GameTracker
         }
 
         /// <summary>
+        /// Kütüphanedeki oyunları veritabanından çeker ve ekrana basar.
+        /// </summary>
+        private void LoadLibraryGames()
+        {
+            flowLayoutPanelLibrary.SuspendLayout();
+            flowLayoutPanelLibrary.Controls.Clear();
+
+            // Session.UserId 0 ise giriş yapılmamıştır
+            if (Session.UserId <= 0) return;
+
+            // LibraryManager'dan oyunları çek
+            var libraryGames = LibraryManager.GetUserLibrary(Session.UserId);
+
+            foreach (var game in libraryGames)
+            {
+                var card = CreateGameCard(game);
+                flowLayoutPanelLibrary.Controls.Add(card);
+            }
+
+            flowLayoutPanelLibrary.ResumeLayout();
+        }
+
+        /// <summary>
         /// Mevcut sayfadaki oyunları 'allGames' listesinden alarak ekrana oyun kartlarını çizer ve sayfa numarasını günceller.
         /// </summary>
         private void ShowCurrentPage()
@@ -160,13 +183,14 @@ namespace GameTracker
         }
         #endregion
 
-        #region Card Creation & Image Helpers
+        #region Card Creation
 
         /// <summary>
         /// Verilen 'Game' objesi için resim, başlık ve hover efekti içeren bir UI kartı (Panel) oluşturur.
         /// </summary>
         private Panel CreateGameCard(Game game)
         {
+
             // Panel
             Panel card = new Panel();
             card.Width = currentLayoutMetrics.CardWidth;
@@ -223,13 +247,111 @@ namespace GameTracker
             lbl.BringToFront();
             card.Controls.Add(lbl);
 
+            // Sağ Tık Menüsü (Context Menu)
+            ContextMenuStrip contextMenu = new ContextMenuStrip();
+
+            // LOGIC: Eğer Kütüphane sayfasında DEĞİLSEK "Add" göster.
+            // Böylece kütüphanedeyken gereksiz yere "Ekle" çıkmaz.
+            if (navigationFrame1.SelectedPage != pageLibrary)
+            {
+                ToolStripMenuItem addToLibItem = new ToolStripMenuItem("Add to Library");
+
+                ToolStripMenuItem itemPlan = new ToolStripMenuItem("Plan to Play");
+                ToolStripMenuItem itemPlaying = new ToolStripMenuItem("Playing");
+                ToolStripMenuItem itemPlayed = new ToolStripMenuItem("Played");
+
+                itemPlan.Click += (s, e) => AddGameToDb(game, "PlanToPlay");
+                itemPlaying.Click += (s, e) => AddGameToDb(game, "Playing");
+                itemPlayed.Click += (s, e) => AddGameToDb(game, "Played");
+
+                addToLibItem.DropDownItems.Add(itemPlan);
+                addToLibItem.DropDownItems.Add(itemPlaying);
+                addToLibItem.DropDownItems.Add(itemPlayed);
+
+                contextMenu.Items.Add(addToLibItem);
+            }
+
+            // Eğer Kütüphane sayfasındaysak hem "Remove" hem de "Durum Değiştir" olsun
+            if (navigationFrame1.SelectedPage == pageLibrary)
+            {
+                // 1. Move to... (Statü Değiştirme - Bonus Özellik 😉)
+                ToolStripMenuItem changeStatusItem = new ToolStripMenuItem("Move to...");
+                ToolStripMenuItem movePlan = new ToolStripMenuItem("Plan to Play");
+                ToolStripMenuItem movePlaying = new ToolStripMenuItem("Playing");
+                ToolStripMenuItem movePlayed = new ToolStripMenuItem("Played");
+
+                // Yeni helper metodu kullanıyoruz
+                movePlan.Click += (s, e) => UpdateGameStatusDb(game, "PlanToPlay");
+                movePlaying.Click += (s, e) => UpdateGameStatusDb(game, "Playing");
+                movePlayed.Click += (s, e) => UpdateGameStatusDb(game, "Played");
+
+                changeStatusItem.DropDownItems.Add(movePlan);
+                changeStatusItem.DropDownItems.Add(movePlaying);
+                changeStatusItem.DropDownItems.Add(movePlayed);
+                contextMenu.Items.Add(changeStatusItem);
+
+                // 2. Remove
+                ToolStripMenuItem removeItem = new ToolStripMenuItem("Remove from Library");
+                removeItem.Click += (s, e) => RemoveGameFromDb(game);
+                contextMenu.Items.Add(removeItem);
+            }
+
+            // Menüyü panele ve resme bağla (Nereye sağ tıklarsa açılsın)
+            card.ContextMenuStrip = contextMenu;
+            pe.ContextMenuStrip = contextMenu; // PictureEdit'e de ekle
+            lbl.ContextMenuStrip = contextMenu; // Label'a da ekle
+
             // Async resim yükle
             imageManager.LoadImageAsync(game.BackgroundImage, pe, 420);
 
             return card;
         }
+        #endregion
 
+        #region Helper Methods
+        private void AddGameToDb(Game game, string status)
+        {
+            if (Session.UserId <= 0)
+            {
+                XtraMessageBox.Show("Please login first!", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
 
+            bool success = LibraryManager.AddGameToLibrary(Session.UserId, game, status);
+            if (success)
+            {
+                XtraMessageBox.Show($"{game.Name} added to {status} list!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            else
+            {
+                XtraMessageBox.Show($"{game.Name} is already in your library!", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+        }
+
+        // Helper metod: Oyunun statüsünü günceller (Playing -> Played vs.)
+        private void UpdateGameStatusDb(Game game, string newStatus)
+        {
+            if (Session.UserId <= 0) return;
+
+            bool success = LibraryManager.UpdateGameStatus(Session.UserId, game.Id, newStatus);
+            if (success)
+            {
+                // Kullanıcıyı çok darlamadan ufak bir bilgi verelim ya da direkt listeyi yenileyelim
+                LoadLibraryGames(); // Listeyi yenile ki oyun yeni sekmesine ışınlansın
+            }
+        }
+
+        // Helper metod: Oyunu DB'den siler
+        private void RemoveGameFromDb(Game game)
+        {
+            if (Session.UserId <= 0) return;
+
+            bool success = LibraryManager.RemoveGame(Session.UserId, game.Id);
+            if (success)
+            {
+                LoadLibraryGames(); // Listeyi yenile ki silinen gitsin
+            }
+        }
         #endregion
 
         #region Navigation & Paging Buttons
@@ -275,6 +397,7 @@ namespace GameTracker
         private void btnLibrary_Click(object sender, EventArgs e)
         {
             navigationFrame1.SelectedPage = pageLibrary;
+            LoadLibraryGames();
         }
         #endregion
     }
