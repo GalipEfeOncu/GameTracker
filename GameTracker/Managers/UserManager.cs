@@ -8,7 +8,24 @@ namespace GameTracker
 {
     public class UserManager
     {
-        // Kullanıcı Kaydı (Signup)
+        // Bu metot veritabanına sadece "Var mı?" diye sorar.
+        // Kayıt yapmaz, login yapmaz, sadece kontrol eder.
+        public static bool IsEmailExists(string email)
+        {
+            // Varsa 1 döner, yoksa boş döner.
+            string query = "SELECT TOP 1 1 FROM users WHERE email = @email";
+
+            SqlParameter[] parameters = new SqlParameter[]
+            {
+                new SqlParameter("@email", email)
+            };
+
+            DataTable dt = DatabaseHelper.ExecuteQuery(query, parameters);
+
+            // Eğer satır sayısı 0'dan büyükse, demek ki böyle bir mail var.
+            return dt.Rows.Count > 0;
+        }
+
         public static bool RegisterUser(string username, string email, string password)
         {
             try
@@ -39,7 +56,6 @@ namespace GameTracker
             }
         }
 
-        // Kullanıcı Girişi (Login)
         public static DataRow LoginUser(string usernameOrEmail, string password)
         {
             string passwordHash = HashPassword(password);
@@ -65,7 +81,6 @@ namespace GameTracker
             return null;
         }
 
-        // Şifre hash'leme (güvenlik için)
         private static string HashPassword(string password)
         {
             using (SHA256 sha256 = SHA256.Create())

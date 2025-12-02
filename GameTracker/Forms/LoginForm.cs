@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DevExpress.XtraEditors.DXErrorProvider;
+using System;
 
 namespace GameTracker
 {
@@ -7,45 +8,45 @@ namespace GameTracker
         public LoginForm()
         {
             InitializeComponent();
+            lblError.Visible = false;
+
+            // Remember Me açık ise
+            if (Properties.Settings.Default.RememberMe)
+            {
+                txtEmail.Text = Properties.Settings.Default.StoredEmail;
+                txtPassword.Text = Properties.Settings.Default.StoredPassword;
+                chckBoxRememberMe.Checked = true;
+            }
+        }
+
+        private void ShowError(string message)
+        {
+            lblError.Text = message;
+            lblError.Visible = true;
+        }
+
+        public void SetEmail(string email)
+        {
+            txtEmail.Text = email;
+            txtPassword.Focus(); // Email dolu geldiği için direkt şifreye odaklanır
         }
 
         private void BtnLogin_Click(object sender, EventArgs e)
         {
-            string email = txtEmail.Text.Trim(); // Trim baş ve sondaki boşlukları siler.
+            lblError.Visible = false;
+
+            string email = txtEmail.Text.Trim();
             string password = txtPassword.Text;
-
-            if (string.IsNullOrEmpty(email))
-            {
-                DevExpress.XtraEditors.XtraMessageBox.Show(
-                    "Email cannot be blank!",
-                    "Warning",
-                    System.Windows.Forms.MessageBoxButtons.OK,
-                    System.Windows.Forms.MessageBoxIcon.Warning);
-
-                txtEmail.Focus();
-                return;
-            }
 
             if (!email.Contains("@") || !email.Contains("."))
             {
-                DevExpress.XtraEditors.XtraMessageBox.Show(
-                    "Please enter a valid email adress",
-                    "Warning",
-                    System.Windows.Forms.MessageBoxButtons.OK,
-                    System.Windows.Forms.MessageBoxIcon.Warning);
-                txtEmail.Focus();
+                ShowError("Please enter a valid email");
                 return;
             }
 
             if (string.IsNullOrEmpty(password))
             {
-                DevExpress.XtraEditors.XtraMessageBox.Show(
-                    "Password cannot be blank!",
-                    "Warning",
-                    System.Windows.Forms.MessageBoxButtons.OK,
-                    System.Windows.Forms.MessageBoxIcon.Warning);
-
-                txtPassword.Focus();
+                ShowError("Password cannot be blank");
                 return;
             }
 
@@ -57,6 +58,21 @@ namespace GameTracker
 
                 if (user != null)
                 {
+                    if (chckBoxRememberMe.Checked)
+                    {
+                        // Kutucuk işaretliyse ayarları kaydeder
+                        Properties.Settings.Default.StoredEmail = email;
+                        Properties.Settings.Default.StoredPassword = password;
+                        Properties.Settings.Default.RememberMe = true;
+                    }
+                    else
+                    {
+                        // İşaretli değilse ayarları temizler
+                        Properties.Settings.Default.StoredEmail = "";
+                        Properties.Settings.Default.StoredPassword = "";
+                        Properties.Settings.Default.RememberMe = false;
+                    }
+
                     // Kullanıcı bilgilerini Session'a kaydet (bellekte tut)
                     Session.UserId = Convert.ToInt32(user["user_id"]);
                     Session.Username = Convert.ToString(user["username"]);
@@ -68,20 +84,14 @@ namespace GameTracker
                 }
                 else
                 {
-                    DevExpress.XtraEditors.XtraMessageBox.Show(
-                        "Email veya şifre hatalı!",
-                        "Hata",
-                        System.Windows.Forms.MessageBoxButtons.OK,
-                        System.Windows.Forms.MessageBoxIcon.Error);
+                    ShowError("Invalid email or password");
                 }
             }
             catch (Exception ex)
             {
-                DevExpress.XtraEditors.XtraMessageBox.Show(
-                    $"Giriş hatası: {ex.Message}",  // ex.Message = Hatanın açıklaması
-                    "Hata",
-                    System.Windows.Forms.MessageBoxButtons.OK,
-                    System.Windows.Forms.MessageBoxIcon.Error);
+                MyMessageBox.Show(
+                    $"An error occurred while trying to log in. Please try again later. Error: {ex.Message}",
+                    "Error");
             }
         }
 

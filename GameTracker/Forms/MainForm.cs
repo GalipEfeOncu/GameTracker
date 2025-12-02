@@ -6,6 +6,7 @@ using System.Drawing;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Reflection;
 
 namespace GameTracker
 {
@@ -48,6 +49,10 @@ namespace GameTracker
             resizeTimer = new System.Windows.Forms.Timer();
             resizeTimer.Interval = 300; // 300ms bekler
             resizeTimer.Tick += ResizeTimer_Tick;
+
+            SetDoubleBuffered(flowLayoutPanelPopulerGames);
+            SetDoubleBuffered(flowLayoutPanelLibrary);
+            SetDoubleBuffered(flowLayoutPanelSearch);
         }
 
         private async void MainForm_Load(object sender, EventArgs e)
@@ -69,6 +74,13 @@ namespace GameTracker
         {
             base.OnFormClosing(e);
             imageManager?.Dispose(); // ImageManager'daki cache'i temizle
+        }
+
+        // Form kapatılınca tüm uygulamayı (arkadaki process'leri) öldürür
+        protected override void OnFormClosed(FormClosedEventArgs e)
+        {
+            base.OnFormClosed(e);
+            Application.Exit();
         }
         #endregion
 
@@ -190,7 +202,6 @@ namespace GameTracker
         /// </summary>
         private Panel CreateGameCard(Game game)
         {
-
             // Panel
             Panel card = new Panel();
             card.Width = currentLayoutMetrics.CardWidth;
@@ -200,33 +211,54 @@ namespace GameTracker
             card.BorderStyle = BorderStyle.None;
             card.BackColor = Color.FromArgb(26, 29, 41);
 
-            // Resim
+            // Border için ekstra bir Panel
+            Panel borderPanel = new Panel();
+            borderPanel.Location = new Point(0, 0);
+            borderPanel.Width = currentLayoutMetrics.CardWidth;
+            borderPanel.Height = currentLayoutMetrics.ImageHeight;
+            borderPanel.BackColor = Color.FromArgb(26, 29, 41);  // Normalde görünmez
+            borderPanel.Padding = new Padding(0);                // Hover’da border olacak
+            borderPanel.Margin = new Padding(0);
+            borderPanel.BorderStyle = BorderStyle.None;
+            borderPanel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            card.Controls.Add(borderPanel);
+
+            // PictureEdit
             PictureEdit pe = new PictureEdit();
-            pe.Location = new Point(0, 0);
-            pe.Width = currentLayoutMetrics.CardWidth;
-            pe.Height = currentLayoutMetrics.ImageHeight;
-            pe.Margin = new Padding(0);
-            pe.Properties.Appearance.BackColor = Color.FromArgb(26, 29, 41);
+            pe.Dock = DockStyle.Fill;  // Paneli tamamen doldur
             pe.Properties.SizeMode = DevExpress.XtraEditors.Controls.PictureSizeMode.Zoom;
             pe.Properties.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
-            pe.Properties.ReadOnly = true; // kullanıcı resmi değiştiremez
-            pe.Properties.ShowMenu = false; // sağ tıklama menüsünü gizler
+            pe.Properties.ReadOnly = true;
+            pe.Properties.ShowMenu = false;
             pe.Image = Resource1.loading;
-            card.Controls.Add(pe);
+            pe.BackColor = Color.FromArgb(26, 29, 41);
+            borderPanel.Controls.Add(pe);  // PictureEdit artık panel içinde!
 
-            int addedWidth = (int)(pe.Width * 0.1);
-            int addedHeight = (int)(pe.Height * 0.1);
+            int addedWidth = (int)(borderPanel.Width * 0.1);
+            int addedHeight = (int)(borderPanel.Height * 0.1);
 
+            // Hover efektleri
             pe.MouseEnter += (s, e) =>
             {
+                // BorderPanel sabit kalır, sadece padding ve renk değişir
+                borderPanel.Padding = new Padding(3); // border thickness
+                borderPanel.BackColor = Color.White;
+
+                // Resmi büyüt
                 pe.Location = new Point(-addedWidth / 2, -addedHeight / 2);
                 pe.Width += addedWidth;
                 pe.Height += addedHeight;
-                pe.SendToBack();
+
+                pe.BringToFront(); // Taşma olursa üstte kalır
             };
 
             pe.MouseLeave += (s, e) =>
             {
+                // Border sıfırlanır
+                borderPanel.Padding = new Padding(0);
+                borderPanel.BackColor = Color.FromArgb(26, 29, 41);
+
+                // PictureEdit’i eski haline gelir
                 pe.Location = new Point(0, 0);
                 pe.Width -= addedWidth;
                 pe.Height -= addedHeight;
@@ -247,11 +279,10 @@ namespace GameTracker
             lbl.BringToFront();
             card.Controls.Add(lbl);
 
-            // Sağ Tık Menüsü (Context Menu)
+            // Context Menu
             ContextMenuStrip contextMenu = new ContextMenuStrip();
 
-            // LOGIC: Eğer Kütüphane sayfasında DEĞİLSEK "Add" göster.
-            // Böylece kütüphanedeyken gereksiz yere "Ekle" çıkmaz.
+            // Eğer Kütüphane sayfasında değilsek "Add" gösterir
             if (navigationFrame1.SelectedPage != pageLibrary)
             {
                 ToolStripMenuItem addToLibItem = new ToolStripMenuItem("Add to Library");
@@ -271,10 +302,10 @@ namespace GameTracker
                 contextMenu.Items.Add(addToLibItem);
             }
 
-            // Eğer Kütüphane sayfasındaysak hem "Remove" hem de "Durum Değiştir" olsun
+            // Eğer Kütüphane sayfasındaysak hem "Remove" hem de "Durum Değiştir" gösterir
             if (navigationFrame1.SelectedPage == pageLibrary)
             {
-                // 1. Move to... (Statü Değiştirme - Bonus Özellik 😉)
+                // Move to submenu
                 ToolStripMenuItem changeStatusItem = new ToolStripMenuItem("Move to...");
                 ToolStripMenuItem movePlan = new ToolStripMenuItem("Plan to Play");
                 ToolStripMenuItem movePlaying = new ToolStripMenuItem("Playing");
@@ -290,16 +321,16 @@ namespace GameTracker
                 changeStatusItem.DropDownItems.Add(movePlayed);
                 contextMenu.Items.Add(changeStatusItem);
 
-                // 2. Remove
+                // Remove submenu
                 ToolStripMenuItem removeItem = new ToolStripMenuItem("Remove from Library");
                 removeItem.Click += (s, e) => RemoveGameFromDb(game);
                 contextMenu.Items.Add(removeItem);
             }
 
-            // Menüyü panele ve resme bağla (Nereye sağ tıklarsa açılsın)
+            // Menüyü panele ve resme bağla 
             card.ContextMenuStrip = contextMenu;
-            pe.ContextMenuStrip = contextMenu; // PictureEdit'e de ekle
-            lbl.ContextMenuStrip = contextMenu; // Label'a da ekle
+            pe.ContextMenuStrip = contextMenu;
+            lbl.ContextMenuStrip = contextMenu;
 
             // Async resim yükle
             imageManager.LoadImageAsync(game.BackgroundImage, pe, 420);
@@ -351,6 +382,14 @@ namespace GameTracker
             {
                 LoadLibraryGames(); // Listeyi yenile ki silinen gitsin
             }
+        }
+
+        public static void SetDoubleBuffered(System.Windows.Forms.Control c)
+        {
+            if (System.Windows.Forms.SystemInformation.TerminalServerSession)
+                return;
+            System.Reflection.PropertyInfo aProp = typeof(System.Windows.Forms.Control).GetProperty("DoubleBuffered", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            aProp.SetValue(c, true, null);
         }
         #endregion
 

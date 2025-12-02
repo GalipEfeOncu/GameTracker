@@ -17,10 +17,23 @@ public class RawgApiService
         try
         {
             HttpResponseMessage response = await _httpClient.GetAsync(url).ConfigureAwait(false);
-            response.EnsureSuccessStatusCode();
+
+            // Eğer sunucu hatası (5xx) varsa loglar ve boş döner
+            if (!response.IsSuccessStatusCode)
+            {
+                Console.WriteLine($"API Error: {response.StatusCode}");
+                return new List<Game>();
+            }
+
             string json = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
             var gameResponse = JsonConvert.DeserializeObject<GameResponse>(json);
             return gameResponse?.results ?? new List<Game>();
+        }
+        catch (HttpRequestException httpEx)
+        {
+            // İnternet kopuksa veya sunucu tamamen göçmüşse
+            System.Diagnostics.Debug.WriteLine($"Network hatası: {httpEx.Message}");
+            return new List<Game>();
         }
         catch (Exception ex)
         {

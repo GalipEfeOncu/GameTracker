@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Data.SqlClient;
+using System.Windows.Forms;
 
 namespace GameTracker
 {
@@ -9,6 +11,18 @@ namespace GameTracker
             InitializeComponent();
         }
 
+        protected override void OnFormClosed(FormClosedEventArgs e)
+        {
+            base.OnFormClosed(e);
+            Application.Exit();
+        }
+
+        private void ShowError(string message)
+        {
+            lblError.Text = message;
+            lblError.Visible = true;
+        }
+
         private void btnSignup_Click(object sender, EventArgs e)
         {
             string username = txtUsername.Text.Trim();
@@ -16,61 +30,44 @@ namespace GameTracker
             string password = txtPassword.Text;
             string passwordAgain = txtPasswordAgain.Text;
 
+            if (string.IsNullOrEmpty(username))
+            {
+                ShowError("Username cannot be blank");
+                txtUsername.Focus();
+                return;
+            }
+
             if (string.IsNullOrEmpty(email))
             {
-                DevExpress.XtraEditors.XtraMessageBox.Show(
-                    "Email cannot be blank!",
-                    "Warning",
-                    System.Windows.Forms.MessageBoxButtons.OK,
-                    System.Windows.Forms.MessageBoxIcon.Warning);
-
+                ShowError("Email cannot be blank");
                 txtEmail.Focus();
                 return;
             }
 
             if (!email.Contains("@") || !email.Contains("."))
             {
-                DevExpress.XtraEditors.XtraMessageBox.Show(
-                    "Please enter a valid email adress",
-                    "Warning",
-                    System.Windows.Forms.MessageBoxButtons.OK,
-                    System.Windows.Forms.MessageBoxIcon.Warning);
+                ShowError("Please enter a valid email adress");
                 txtEmail.Focus();
                 return;
             }
 
             if (string.IsNullOrEmpty(password))
             {
-                DevExpress.XtraEditors.XtraMessageBox.Show(
-                    "Password cannot be blank!",
-                    "Warning",
-                    System.Windows.Forms.MessageBoxButtons.OK,
-                    System.Windows.Forms.MessageBoxIcon.Warning);
-
+                ShowError("Password cannot be blank");
                 txtPassword.Focus();
                 return;
             }
 
             if (password.Length < 8)
             {
-                DevExpress.XtraEditors.XtraMessageBox.Show(
-                    "Password must be longer than 8 characters.",
-                    "Warning",
-                    System.Windows.Forms.MessageBoxButtons.OK,
-                    System.Windows.Forms.MessageBoxIcon.Warning);
-
+                ShowError("Password must be longer than 8 characters.");
                 txtPassword.Focus();
                 return;
             }
 
             if (password != passwordAgain)
             {
-                DevExpress.XtraEditors.XtraMessageBox.Show(
-                    "Your passwords doesn't match.",
-                    "Warning",
-                    System.Windows.Forms.MessageBoxButtons.OK,
-                    System.Windows.Forms.MessageBoxIcon.Warning);
-
+                ShowError("Passwords do not match.");
                 return;
             }
 
@@ -78,16 +75,11 @@ namespace GameTracker
 
             try
             {
-                System.Data.DataRow user = UserManager.LoginUser(email, password);
+                //System.Data.DataRow user = UserManager.LoginUser(email, password);
 
-                if (user != null)
+                if (UserManager.IsEmailExists(email))
                 {
-                    DevExpress.XtraEditors.XtraMessageBox.Show(
-                    "There is an account registered to this email address.\r\n",
-                    "Warning",
-                    System.Windows.Forms.MessageBoxButtons.OK,
-                    System.Windows.Forms.MessageBoxIcon.Warning);
-
+                    ShowError("User with this email already exists");
                     return;
                 }
 
@@ -95,25 +87,29 @@ namespace GameTracker
 
                 if (success)
                 {
-                    DevExpress.XtraEditors.XtraMessageBox.Show(
-                        "Kayıt başarılı! Giriş yapabilirsiniz.",
-                        "Başarılı",
-                        System.Windows.Forms.MessageBoxButtons.OK,
-                        System.Windows.Forms.MessageBoxIcon.Information);
+                    MyMessageBox.Show("Account created successfully! You can now login.", "Welcome Aboard");
 
                     LoginForm loginForm = new LoginForm();
+
+                    loginForm.SetEmail(email);
+
                     loginForm.Show();
-                    this.Close();
+                    this.Hide();
                 }
             }
             catch (Exception ex)
             {
-                DevExpress.XtraEditors.XtraMessageBox.Show(
-                    $"Kayıt hatası: {ex.Message}",  // ex.Message = Hatanın açıklaması
-                    "Hata",
-                    System.Windows.Forms.MessageBoxButtons.OK,
-                    System.Windows.Forms.MessageBoxIcon.Error);
+                MyMessageBox.Show(
+                    $"An error occurred during registration. Please try again later. Error: {ex.Message}",
+                    "Error");
             }
+        }
+
+        private void lblLogin_Click(object sender, EventArgs e)
+        {
+            LoginForm loginForm = new LoginForm();
+            loginForm.Show();
+            this.Hide();
         }
     }
 }
