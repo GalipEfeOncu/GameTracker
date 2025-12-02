@@ -13,7 +13,44 @@ namespace GameTracker
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new LoginForm());
+
+            bool isAutoLogin = false;
+
+            // Remember Me açık ise
+            if (Properties.Settings.Default.RememberMe)
+            {
+                try
+                {
+                    // Bilgileri çeker
+                    string email = Properties.Settings.Default.StoredEmail;
+                    string encPass = Properties.Settings.Default.StoredPassword;
+                    string password = SecurityHelper.Decrypt(encPass);
+
+                    // Veritabanından doğrular
+                    var user = UserManager.LoginUser(email, password);
+
+                    // Giriş başarılı ise
+                    if (user != null)
+                    {
+                        // Session'ı doldurur
+                        Session.UserId = Convert.ToInt32(user["user_id"]);
+                        Session.Username = Convert.ToString(user["username"]);
+                        Session.Email = Convert.ToString(user["email"]);
+
+                        isAutoLogin = true;
+                    }
+                }
+                catch
+                {
+                    // Bir hata olursa çaktırmayız ve login formu açarız
+                    isAutoLogin = false;
+                }
+            }
+
+            if (isAutoLogin)
+                Application.Run(new MainForm());
+            else
+                Application.Run(new LoginForm());
         }
     }
 }

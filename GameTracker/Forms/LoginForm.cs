@@ -10,12 +10,16 @@ namespace GameTracker
             InitializeComponent();
             lblError.Visible = false;
 
-            // Remember Me açık ise
+            // Eğer RememberMe varsa kutuları doldurur hata alırsak hazır olsun
             if (Properties.Settings.Default.RememberMe)
             {
                 txtEmail.Text = Properties.Settings.Default.StoredEmail;
-                txtPassword.Text = Properties.Settings.Default.StoredPassword;
+                string encryptedPassword = Properties.Settings.Default.StoredPassword;
+                txtPassword.Text = SecurityHelper.Decrypt(encryptedPassword);
+
                 chckBoxRememberMe.Checked = true;
+
+                this.ActiveControl = BtnLogin;
             }
         }
 
@@ -28,7 +32,7 @@ namespace GameTracker
         public void SetEmail(string email)
         {
             txtEmail.Text = email;
-            txtPassword.Focus(); // Email dolu geldiği için direkt şifreye odaklanır
+            txtPassword.Focus();
         }
 
         private void BtnLogin_Click(object sender, EventArgs e)
@@ -62,7 +66,11 @@ namespace GameTracker
                     {
                         // Kutucuk işaretliyse ayarları kaydeder
                         Properties.Settings.Default.StoredEmail = email;
-                        Properties.Settings.Default.StoredPassword = password;
+
+                        // Parolayı encrypt edip kaydeder
+                        string safePassword = SecurityHelper.Encrypt(txtPassword.Text);
+                        Properties.Settings.Default.StoredPassword = safePassword;
+
                         Properties.Settings.Default.RememberMe = true;
                     }
                     else
@@ -72,6 +80,8 @@ namespace GameTracker
                         Properties.Settings.Default.StoredPassword = "";
                         Properties.Settings.Default.RememberMe = false;
                     }
+
+                    Properties.Settings.Default.Save();
 
                     // Kullanıcı bilgilerini Session'a kaydet (bellekte tut)
                     Session.UserId = Convert.ToInt32(user["user_id"]);
