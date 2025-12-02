@@ -2,37 +2,37 @@
 using GameTracker.Models;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Reflection;
 
 namespace GameTracker
 {
-
-    /// <summary>
-    /// Ana uygulama formu. Popüler oyunları gösterir, kütüphaneyi yönetir ve
-    /// RAWG API'sinden veri çeker.
-    /// </summary>
-    public partial class MainForm : DevExpress.XtraEditors.XtraForm
+    public partial class MainForm : XtraForm
     {
         #region Fields
         private RawgApiService rawgapi;
         private readonly ImageManager imageManager;
         private readonly LayoutCalculator layoutCalculator;
 
-        // Sayfalama değişkenleri
-        private List<Game> allGames = new List<Game>();
-        private int currentPage = 1;
-        private int cardsPerPage = 24; // Başlangıç değeri, dinamik hesaplanacak
-        private int totalPages = 1;
-        private int RAWGPageNumber = 1;
-        private int gameToLoadPerRequest = 100;
+        // Home
+        private List<Game> homeGames = new List<Game>();
+        private int homePage = 1;
+        private int homeApiPage = 1; // RAWG API'den çekilen sayfa sayısı
 
+        // Library
+        private List<Game> libraryGames = new List<Game>();
+        private int libPage = 1;
+
+        // Search
+        private List<Game> searchGames = new List<Game>();
+        private int searchPage = 1;
+
+        // Ortak Ayarlar
+        private int cardsPerPage = 24;
+        private int gameToLoadPerRequest = 100;
         int labelHeight = 30;
         private LayoutMetrics currentLayoutMetrics;
-
         private System.Windows.Forms.Timer resizeTimer;
         #endregion
 
@@ -41,13 +41,14 @@ namespace GameTracker
         {
             InitializeComponent();
             InitializeFlowLayoutPanel();
+
             rawgapi = new RawgApiService();
             this.imageManager = new ImageManager();
             this.layoutCalculator = new LayoutCalculator();
 
-            // Timer'ı oluştur
-            resizeTimer = new System.Windows.Forms.Timer();
-            resizeTimer.Interval = 300; // 300ms bekler
+            // Timer
+            resizeTimer = new Timer();
+            resizeTimer.Interval = 300;
             resizeTimer.Tick += ResizeTimer_Tick;
 
             SetDoubleBuffered(flowLayoutPanelPopulerGames);
@@ -57,11 +58,12 @@ namespace GameTracker
 
         private async void MainForm_Load(object sender, EventArgs e)
         {
-            // Yeni calculator'ı çağır ve sonucu field'a atar
             currentLayoutMetrics = layoutCalculator.Calculate(flowLayoutPanelPopulerGames.ClientSize);
-            cardsPerPage = currentLayoutMetrics.CardsPerPage; // cardsPerPage'i günceller
-            await LoadAllGamesAsync(RAWGPageNumber, gameToLoadPerRequest);
-            ShowCurrentPage();
+            cardsPerPage = currentLayoutMetrics.CardsPerPage;
+
+            // Home datasını yükle
+            await LoadHomeGamesAsync(homeApiPage, gameToLoadPerRequest);
+            RenderPage(homeGames, flowLayoutPanelPopulerGames, homePage, lblHomePage);
         }
 
         private void MainForm_Resize(object sender, EventArgs e)
@@ -70,13 +72,34 @@ namespace GameTracker
             resizeTimer.Start();
         }
 
+        private void ResizeTimer_Tick(object sender, EventArgs e)
+        {
+            resizeTimer.Stop();
+
+            // 1. Ekran boyutunu hesapla
+            Control activePanel = navigationFrame1.SelectedPage.Controls[0] as FlowLayoutPanel;
+            if (activePanel == null) return;
+
+            currentLayoutMetrics = layoutCalculator.Calculate(activePanel.ClientSize);
+            cardsPerPage = currentLayoutMetrics.CardsPerPage;
+
+            // 2. Aktif sayfayı yenile
+            if (navigationFrame1.SelectedPage == pageHome)
+                RenderPage(homeGames, flowLayoutPanelPopulerGames, homePage, lblHomePage);
+
+            else if (navigationFrame1.SelectedPage == pageLibrary)
+                RenderPage(libraryGames, flowLayoutPanelLibrary, libPage, lblLibPage);
+
+            else if (navigationFrame1.SelectedPage == pageSearch)
+                RenderPage(searchGames, flowLayoutPanelSearch, searchPage, lblSearchPage, lblNoResult);
+        }
+
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
             base.OnFormClosing(e);
-            imageManager?.Dispose(); // ImageManager'daki cache'i temizle
+            imageManager?.Dispose();
         }
 
-        // Form kapatılınca tüm uygulamayı (arkadaki process'leri) öldürür
         protected override void OnFormClosed(FormClosedEventArgs e)
         {
             base.OnFormClosed(e);
@@ -84,209 +107,256 @@ namespace GameTracker
         }
         #endregion
 
-        #region Resize Timer
-        private void ResizeTimer_Tick(object sender, EventArgs e)
-        {
-            resizeTimer.Stop(); // Timer'ı durdurur
-
-            // Yeni calculator'ı çağır ve sonucu field'a atar
-            currentLayoutMetrics = layoutCalculator.Calculate(flowLayoutPanelPopulerGames.ClientSize);
-            cardsPerPage = currentLayoutMetrics.CardsPerPage; // cardsPerPage'i günceller
-            if (allGames.Count > 0)
-            {
-                ShowCurrentPage();
-            }
-
-            totalPages = (int)Math.Ceiling((double)allGames.Count / cardsPerPage);
-
-            if (currentPage > totalPages)
-            {
-                currentPage = totalPages;
-                ShowCurrentPage();
-            }
-        }
-        #endregion
-
-        #region Layout Calculation & Initialization
-        /// <summary>
-        /// Uygulamadaki 'Popüler Oyunlar' ve 'Kütüphane' FlowLayoutPanel'lerinin temel görsel ayarlarını yapar.
-        /// </summary>
+        #region Initialization
         private void InitializeFlowLayoutPanel()
         {
-            // FlowLayoutPanel ayarları
-            FlowLayoutPanel fPopuler = flowLayoutPanelPopulerGames;
-            fPopuler.AutoSize = false;
-            fPopuler.AutoSizeMode = AutoSizeMode.GrowAndShrink;
-            fPopuler.FlowDirection = FlowDirection.LeftToRight;
-            fPopuler.WrapContents = true;
-            fPopuler.Padding = new Padding(0);
-            fPopuler.AutoScroll = false;
+            void SetupPanel(FlowLayoutPanel p)
+            {
+                p.AutoSize = false;
+                p.FlowDirection = FlowDirection.LeftToRight;
+                p.WrapContents = true;
+                p.Padding = new Padding(0);
+                p.AutoScroll = false;
+            }
 
-            FlowLayoutPanel fLib = flowLayoutPanelLibrary;
-            fLib.AutoSize = false;
-            fLib.AutoSizeMode = AutoSizeMode.GrowAndShrink;
-            fLib.FlowDirection = FlowDirection.LeftToRight;
-            fLib.WrapContents = true;
-            fLib.Padding = new Padding(0);
-            fLib.AutoScroll = false;
-
-            pageHome.AutoScroll = false;
-            pageLibrary.AutoScroll = false;
-            pageSearch.AutoScroll = false;
+            SetupPanel(flowLayoutPanelPopulerGames);
+            SetupPanel(flowLayoutPanelLibrary);
+            SetupPanel(flowLayoutPanelSearch);
         }
         #endregion
 
-        #region Data Loading & Pagination
+        #region Generic Render Logic
 
-        /// <summary>
-        /// RAWG API'sinden belirtilen sayfa ve adette popüler oyun verisini asenkron olarak çeker ve 'allGames' listesini doldurur.
-        /// </summary>
-        private async Task LoadAllGamesAsync(int pageNumber, int totalGames)
+        // Bu metot HERHANGİ bir sayfayı render edebilir. Kod tekrarını önler.
+        private void RenderPage(List<Game> sourceList, FlowLayoutPanel targetPanel, int pageIndex, LabelControl pageLabel, LabelControl noResultLabel = null)
         {
-            allGames = await rawgapi.GetPopularGamesAsync(pageNumber, totalGames);
-        }
+            if (sourceList == null) return;
 
-        /// <summary>
-        /// Kütüphanedeki oyunları veritabanından çeker ve ekrana basar.
-        /// </summary>
-        private void LoadLibraryGames()
-        {
-            flowLayoutPanelLibrary.SuspendLayout();
-            flowLayoutPanelLibrary.Controls.Clear();
+            targetPanel.SuspendLayout();
+            targetPanel.Controls.Clear();
 
-            // Session.UserId 0 ise giriş yapılmamıştır
-            if (Session.UserId <= 0) return;
-
-            // LibraryManager'dan oyunları çek
-            var libraryGames = LibraryManager.GetUserLibrary(Session.UserId);
-
-            foreach (var game in libraryGames)
+            // No Result Label varsa ekle (Search için)
+            if (noResultLabel != null)
             {
-                var card = CreateGameCard(game);
-                flowLayoutPanelLibrary.Controls.Add(card);
+                if (sourceList.Count == 0)
+                {
+                    noResultLabel.Width = targetPanel.Width - 50;
+                    targetPanel.Controls.Add(noResultLabel);
+                    noResultLabel.Visible = true;
+                    targetPanel.ResumeLayout();
+                    pageLabel.Text = "Page 0 / 0";
+                    return;
+                }
+                else
+                {
+                    noResultLabel.Visible = false;
+                }
             }
 
-            flowLayoutPanelLibrary.ResumeLayout();
-        }
+            // Toplam sayfa sayısı
+            int totalPages = (int)Math.Ceiling((double)sourceList.Count / cardsPerPage);
+            if (totalPages < 1) totalPages = 1;
 
-        /// <summary>
-        /// Mevcut sayfadaki oyunları 'allGames' listesinden alarak ekrana oyun kartlarını çizer ve sayfa numarasını günceller.
-        /// </summary>
-        private void ShowCurrentPage()
-        {
-            flowLayoutPanelPopulerGames.SuspendLayout();
-            flowLayoutPanelPopulerGames.Controls.Clear();
+            // Güvenlik kontrolü (Page index sınırları aşmasın)
+            if (pageIndex > totalPages) pageIndex = totalPages;
+            if (pageIndex < 1) pageIndex = 1;
 
-            // Mevcut sayfanın oyunlarını alır
-            var currentGames = allGames
-                .Skip((currentPage - 1) * cardsPerPage)
+            // Listeyi dilimle (Pagination)
+            var pagedGames = sourceList
+                .Skip((pageIndex - 1) * cardsPerPage)
                 .Take(cardsPerPage)
                 .ToList();
 
-            foreach (var games in currentGames)
+            // Kartları oluştur ve ekle
+            foreach (var game in pagedGames)
             {
-                var card = CreateGameCard(games);
-                flowLayoutPanelPopulerGames.Controls.Add(card);
+                var card = CreateGameCard(game);
+                targetPanel.Controls.Add(card);
             }
 
-            flowLayoutPanelPopulerGames.ResumeLayout();
+            targetPanel.ResumeLayout();
 
-            lblPage.Text = $"Sayfa {currentPage} / {totalPages}";
+            // Label güncelle
+            pageLabel.Text = $"Page {pageIndex} / {totalPages}";
+        }
+
+        #endregion
+
+        #region Home Logic
+        private async Task LoadHomeGamesAsync(int apiPage, int count)
+        {
+            var newGames = await rawgapi.GetPopularGamesAsync(apiPage, count);
+            if (newGames != null) homeGames.AddRange(newGames);
+        }
+
+        private void btnHomePrev_Click(object sender, EventArgs e)
+        {
+            if (homePage > 1)
+            {
+                homePage--;
+                RenderPage(homeGames, flowLayoutPanelPopulerGames, homePage, lblHomePage);
+            }
+        }
+
+        private async void btnHomeNext_Click(object sender, EventArgs e)
+        {
+            int totalPages = (int)Math.Ceiling((double)homeGames.Count / cardsPerPage);
+
+            // Son sayfadaysak API'den daha fazla veri çek
+            if (homePage >= totalPages - 1)
+            {
+                btnHomeNext.Enabled = false;
+                homeApiPage++;
+                await LoadHomeGamesAsync(homeApiPage, gameToLoadPerRequest);
+                btnHomeNext.Enabled = true;
+
+                // Sayfa sayısını güncelle
+                totalPages = (int)Math.Ceiling((double)homeGames.Count / cardsPerPage);
+            }
+
+            if (homePage < totalPages)
+            {
+                homePage++;
+                RenderPage(homeGames, flowLayoutPanelPopulerGames, homePage, lblHomePage);
+            }
         }
         #endregion
 
-        #region Card Creation
-
-        /// <summary>
-        /// Verilen 'Game' objesi için resim, başlık ve hover efekti içeren bir UI kartı (Panel) oluşturur.
-        /// </summary>
-        private Panel CreateGameCard(Game game)
+        #region Library Logic
+        private void LoadLibraryGames()
         {
-            // Panel
-            Panel card = new Panel();
+            // DB'den tüm kütüphaneyi çek
+            if (Session.UserId > 0)
+            {
+                libraryGames = LibraryManager.GetUserLibrary(Session.UserId);
+                libPage = 1; // Her yüklemede başa dön
+                RenderPage(libraryGames, flowLayoutPanelLibrary, libPage, lblLibPage);
+            }
+        }
+
+        private void btnLibPrev_Click(object sender, EventArgs e)
+        {
+            if (libPage > 1)
+            {
+                libPage--;
+                RenderPage(libraryGames, flowLayoutPanelLibrary, libPage, lblLibPage);
+            }
+        }
+
+        private void btnLibNext_Click(object sender, EventArgs e)
+        {
+            int totalPages = (int)Math.Ceiling((double)libraryGames.Count / cardsPerPage);
+            if (libPage < totalPages)
+            {
+                libPage++;
+                RenderPage(libraryGames, flowLayoutPanelLibrary, libPage, lblLibPage);
+            }
+        }
+        #endregion
+
+        #region Search Logic
+        private void searchControlSearchPage_KeyDown_1(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                e.SuppressKeyPress = true;
+                PerformSearch();
+            }
+        }
+
+        private async void PerformSearch()
+        {
+            string searchTerm = searchControlSearchPage.Text.Trim();
+            if (string.IsNullOrEmpty(searchTerm)) return;
+
+            this.Cursor = Cursors.WaitCursor;
+            lblNoResult.Visible = false;
+            lblNoResult.Text = $"No results found for '{searchTerm}'";
+
+            try
+            {
+                // API'den 50 sonuç çekelim
+                searchGames = await rawgapi.GetGamesBySearchAsync(searchTerm, 50);
+                searchPage = 1; // Aramada başa dön
+                RenderPage(searchGames, flowLayoutPanelSearch, searchPage, lblSearchPage, lblNoResult);
+            }
+            catch (Exception ex)
+            {
+                MyMessageBox.Show($"Search error: {ex.Message}", "Error");
+            }
+            finally
+            {
+                this.Cursor = Cursors.Default;
+            }
+        }
+
+        private void btnSearchPrev_Click(object sender, EventArgs e)
+        {
+            if (searchPage > 1)
+            {
+                searchPage--;
+                RenderPage(searchGames, flowLayoutPanelSearch, searchPage, lblSearchPage, lblNoResult);
+            }
+        }
+
+        private void btnSearchNext_Click(object sender, EventArgs e)
+        {
+            int totalPages = (int)Math.Ceiling((double)searchGames.Count / cardsPerPage);
+            if (searchPage < totalPages)
+            {
+                searchPage++;
+                RenderPage(searchGames, flowLayoutPanelSearch, searchPage, lblSearchPage, lblNoResult);
+            }
+        }
+        #endregion
+
+        #region Navigation Menu
+        private void btnHomeMenu_Click(object sender, EventArgs e)
+        {
+            navigationFrame1.SelectedPage = pageHome;
+        }
+
+        private void btnLibrary_Click(object sender, EventArgs e)
+        {
+            navigationFrame1.SelectedPage = pageLibrary;
+            LoadLibraryGames();
+        }
+
+        private void btnSearch_Click(object sender, EventArgs e)
+        {
+            navigationFrame1.SelectedPage = pageSearch;
+        }
+
+        private void btnSettings_Click(object sender, EventArgs e)
+        {
+            navigationFrame1.SelectedPage = pageSettings;
+        }
+        #endregion
+
+        #region Card Creation & Helpers
+        private GameCardControl CreateGameCard(Game game)
+        {
+            // Yeni UserControl'ü oluştur
+            GameCardControl card = new GameCardControl();
+
+            // Boyutları LayoutCalculator'dan gelen verilerle hesaplar
             card.Width = currentLayoutMetrics.CardWidth;
             card.Height = currentLayoutMetrics.ImageHeight + labelHeight;
             card.Margin = new Padding(10, 10, 10, 10 + currentLayoutMetrics.ExtraSpacingPerRow);
-            card.Padding = new Padding(0);
-            card.BorderStyle = BorderStyle.None;
-            card.BackColor = Color.FromArgb(26, 29, 41);
 
-            // Border için ekstra bir Panel
-            Panel borderPanel = new Panel();
-            borderPanel.Location = new Point(0, 0);
-            borderPanel.Width = currentLayoutMetrics.CardWidth;
-            borderPanel.Height = currentLayoutMetrics.ImageHeight;
-            borderPanel.BackColor = Color.FromArgb(26, 29, 41);  // Normalde görünmez
-            borderPanel.Padding = new Padding(0);                // Hover’da border olacak
-            borderPanel.Margin = new Padding(0);
-            borderPanel.BorderStyle = BorderStyle.None;
-            borderPanel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            card.Controls.Add(borderPanel);
+            // İçindeki panel ve resmin boyutlarını da ayarla
+            card.borderPanel.Height = currentLayoutMetrics.ImageHeight;
+            card.borderPanel.Width = currentLayoutMetrics.CardWidth;
 
-            // PictureEdit
-            PictureEdit pe = new PictureEdit();
-            pe.Dock = DockStyle.Fill;  // Paneli tamamen doldur
-            pe.Properties.SizeMode = DevExpress.XtraEditors.Controls.PictureSizeMode.Zoom;
-            pe.Properties.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
-            pe.Properties.ReadOnly = true;
-            pe.Properties.ShowMenu = false;
-            pe.Image = Resource1.loading;
-            pe.BackColor = Color.FromArgb(26, 29, 41);
-            borderPanel.Controls.Add(pe);  // PictureEdit artık panel içinde!
+            // Veriyi Bas
+            card.SetData(game);
 
-            int addedWidth = (int)(borderPanel.Width * 0.1);
-            int addedHeight = (int)(borderPanel.Height * 0.1);
-
-            // Hover efektleri
-            pe.MouseEnter += (s, e) =>
-            {
-                // BorderPanel sabit kalır, sadece padding ve renk değişir
-                borderPanel.Padding = new Padding(3); // border thickness
-                borderPanel.BackColor = Color.White;
-
-                // Resmi büyüt
-                pe.Location = new Point(-addedWidth / 2, -addedHeight / 2);
-                pe.Width += addedWidth;
-                pe.Height += addedHeight;
-
-                pe.BringToFront(); // Taşma olursa üstte kalır
-            };
-
-            pe.MouseLeave += (s, e) =>
-            {
-                // Border sıfırlanır
-                borderPanel.Padding = new Padding(0);
-                borderPanel.BackColor = Color.FromArgb(26, 29, 41);
-
-                // PictureEdit’i eski haline gelir
-                pe.Location = new Point(0, 0);
-                pe.Width -= addedWidth;
-                pe.Height -= addedHeight;
-            };
-
-            // Label
-            LabelControl lbl = new LabelControl();
-            lbl.Text = game.Name ?? "No Name";
-            lbl.Dock = DockStyle.Bottom;
-            lbl.Height = labelHeight;
-            lbl.Margin = new Padding(0);
-            lbl.AutoSizeMode = LabelAutoSizeMode.None;
-            lbl.Appearance.TextOptions.HAlignment = DevExpress.Utils.HorzAlignment.Center;
-            lbl.Appearance.TextOptions.VAlignment = DevExpress.Utils.VertAlignment.Center;
-            lbl.Appearance.TextOptions.WordWrap = DevExpress.Utils.WordWrap.Wrap;
-            lbl.Appearance.BackColor = Color.FromArgb(26, 29, 41);
-            lbl.Appearance.ForeColor = Color.White;
-            lbl.BringToFront();
-            card.Controls.Add(lbl);
-
-            // Context Menu
+            // Context Menu Oluştur
             ContextMenuStrip contextMenu = new ContextMenuStrip();
 
-            // Eğer Kütüphane sayfasında değilsek "Add" gösterir
             if (navigationFrame1.SelectedPage != pageLibrary)
             {
                 ToolStripMenuItem addToLibItem = new ToolStripMenuItem("Add to Library");
-
                 ToolStripMenuItem itemPlan = new ToolStripMenuItem("Plan to Play");
                 ToolStripMenuItem itemPlaying = new ToolStripMenuItem("Playing");
                 ToolStripMenuItem itemPlayed = new ToolStripMenuItem("Played");
@@ -298,20 +368,16 @@ namespace GameTracker
                 addToLibItem.DropDownItems.Add(itemPlan);
                 addToLibItem.DropDownItems.Add(itemPlaying);
                 addToLibItem.DropDownItems.Add(itemPlayed);
-
                 contextMenu.Items.Add(addToLibItem);
             }
 
-            // Eğer Kütüphane sayfasındaysak hem "Remove" hem de "Durum Değiştir" gösterir
             if (navigationFrame1.SelectedPage == pageLibrary)
             {
-                // Move to submenu
                 ToolStripMenuItem changeStatusItem = new ToolStripMenuItem("Move to...");
                 ToolStripMenuItem movePlan = new ToolStripMenuItem("Plan to Play");
                 ToolStripMenuItem movePlaying = new ToolStripMenuItem("Playing");
                 ToolStripMenuItem movePlayed = new ToolStripMenuItem("Played");
 
-                // Yeni helper metodu kullanıyoruz
                 movePlan.Click += (s, e) => UpdateGameStatusDb(game, "PlanToPlay");
                 movePlaying.Click += (s, e) => UpdateGameStatusDb(game, "Playing");
                 movePlayed.Click += (s, e) => UpdateGameStatusDb(game, "Played");
@@ -321,25 +387,22 @@ namespace GameTracker
                 changeStatusItem.DropDownItems.Add(movePlayed);
                 contextMenu.Items.Add(changeStatusItem);
 
-                // Remove submenu
                 ToolStripMenuItem removeItem = new ToolStripMenuItem("Remove from Library");
                 removeItem.Click += (s, e) => RemoveGameFromDb(game);
                 contextMenu.Items.Add(removeItem);
             }
 
-            // Menüyü panele ve resme bağla 
+            // Menüyü UserControl'ün içindeki bileşenlere bağlar
             card.ContextMenuStrip = contextMenu;
-            pe.ContextMenuStrip = contextMenu;
-            lbl.ContextMenuStrip = contextMenu;
+            card.peGameImage.ContextMenuStrip = contextMenu;
+            card.lblGameTitle.ContextMenuStrip = contextMenu;
 
-            // Async resim yükle
-            imageManager.LoadImageAsync(game.BackgroundImage, pe, 420);
+            // Resmi yükler
+            imageManager.LoadImageAsync(game.BackgroundImage, card.peGameImage, 420);
 
             return card;
         }
-        #endregion
 
-        #region Helper Methods
         private void AddGameToDb(Game game, string status)
         {
             if (Session.UserId <= 0)
@@ -350,93 +413,30 @@ namespace GameTracker
 
             bool success = LibraryManager.AddGameToLibrary(Session.UserId, game, status);
             if (success)
-            {
                 XtraMessageBox.Show($"{game.Name} added to {status} list!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            }
             else
-            {
                 XtraMessageBox.Show($"{game.Name} is already in your library!", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            }
         }
 
-        // Helper metod: Oyunun statüsünü günceller (Playing -> Played vs.)
         private void UpdateGameStatusDb(Game game, string newStatus)
         {
             if (Session.UserId <= 0) return;
-
             bool success = LibraryManager.UpdateGameStatus(Session.UserId, game.Id, newStatus);
-            if (success)
-            {
-                // Kullanıcıyı çok darlamadan ufak bir bilgi verelim ya da direkt listeyi yenileyelim
-                LoadLibraryGames(); // Listeyi yenile ki oyun yeni sekmesine ışınlansın
-            }
+            if (success) LoadLibraryGames();
         }
 
-        // Helper metod: Oyunu DB'den siler
         private void RemoveGameFromDb(Game game)
         {
             if (Session.UserId <= 0) return;
-
             bool success = LibraryManager.RemoveGame(Session.UserId, game.Id);
-            if (success)
-            {
-                LoadLibraryGames(); // Listeyi yenile ki silinen gitsin
-            }
+            if (success) LoadLibraryGames();
         }
 
-        public static void SetDoubleBuffered(System.Windows.Forms.Control c)
+        public static void SetDoubleBuffered(Control c)
         {
-            if (System.Windows.Forms.SystemInformation.TerminalServerSession)
-                return;
-            System.Reflection.PropertyInfo aProp = typeof(System.Windows.Forms.Control).GetProperty("DoubleBuffered", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            if (SystemInformation.TerminalServerSession) return;
+            System.Reflection.PropertyInfo aProp = typeof(Control).GetProperty("DoubleBuffered", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             aProp.SetValue(c, true, null);
-        }
-        #endregion
-
-        #region Navigation & Paging Buttons
-        private void btnPrevious_Click(object sender, EventArgs e)
-        {
-            if (currentPage > 1)
-            {
-                currentPage--;
-                ShowCurrentPage();
-            }
-        }
-
-        private async void btnNext_Click(object sender, EventArgs e)
-        {
-            if (currentPage >= totalPages - 1)
-            {
-                btnNext.Enabled = false;
-
-                RAWGPageNumber++;
-                var moreGames = await rawgapi.GetPopularGamesAsync(RAWGPageNumber, gameToLoadPerRequest);
-
-                if (moreGames != null && moreGames.Count > 0)
-                {
-                    allGames.AddRange(moreGames);
-                    totalPages = (int)Math.Ceiling((double)allGames.Count / cardsPerPage);
-                }
-
-                btnNext.Enabled = true;
-            }
-
-            if (currentPage < totalPages)
-            {
-                currentPage++;
-                ShowCurrentPage();
-            }
-        }
-
-        private void btnHomeMenu_Click(object sender, EventArgs e)
-        {
-            navigationFrame1.SelectedPage = pageHome;
-        }
-
-        private void btnLibrary_Click(object sender, EventArgs e)
-        {
-            navigationFrame1.SelectedPage = pageLibrary;
-            LoadLibraryGames();
         }
         #endregion
     }

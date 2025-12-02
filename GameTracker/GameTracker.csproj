@@ -104,6 +104,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Data\DatabaseHelper.cs" />
+    <Compile Include="GameCardControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="GameCardControl.Designer.cs">
+      <DependentUpon>GameCardControl.cs</DependentUpon>
+    </Compile>
     <Compile Include="Helpers\ImageManager.cs" />
     <Compile Include="Helpers\LayoutCalculator.cs" />
     <Compile Include="Forms\LoginForm.cs">
@@ -151,6 +157,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\MyMessageBox.resx">
       <DependentUpon>MyMessageBox.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="GameCardControl.resx">
+      <DependentUpon>GameCardControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\licenses.licx" />
     <EmbeddedResource Include="Properties\Resources.resx">

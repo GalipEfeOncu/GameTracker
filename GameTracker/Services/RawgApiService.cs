@@ -4,7 +4,6 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using GameTracker.Models;
-using DevExpress.XtraEditors;
 
 public class RawgApiService
 {
