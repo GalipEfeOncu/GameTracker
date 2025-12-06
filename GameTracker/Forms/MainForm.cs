@@ -310,29 +310,6 @@ namespace GameTracker
         }
         #endregion
 
-        #region Navigation Menu
-        private void btnHomeMenu_Click(object sender, EventArgs e)
-        {
-            navigationFrame1.SelectedPage = pageHome;
-        }
-
-        private void btnLibrary_Click(object sender, EventArgs e)
-        {
-            navigationFrame1.SelectedPage = pageLibrary;
-            LoadLibraryGames();
-        }
-
-        private void btnSearch_Click(object sender, EventArgs e)
-        {
-            navigationFrame1.SelectedPage = pageSearch;
-        }
-
-        private void btnSettings_Click(object sender, EventArgs e)
-        {
-            navigationFrame1.SelectedPage = pageSettings;
-        }
-        #endregion
-
         #region Card Creation & Helpers
         private GameCardControl CreateGameCard(Game game)
         {
@@ -437,6 +414,29 @@ namespace GameTracker
             if (SystemInformation.TerminalServerSession) return;
             System.Reflection.PropertyInfo aProp = typeof(Control).GetProperty("DoubleBuffered", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             aProp.SetValue(c, true, null);
+        }
+        #endregion
+
+        #region Navigation Menu
+        private void btnHomeMenu_Click(object sender, EventArgs e)
+        {
+            navigationFrame1.SelectedPage = pageHome;
+        }
+
+        private void btnLibrary_Click(object sender, EventArgs e)
+        {
+            navigationFrame1.SelectedPage = pageLibrary;
+            LoadLibraryGames();
+        }
+
+        private void btnSearch_Click(object sender, EventArgs e)
+        {
+            navigationFrame1.SelectedPage = pageSearch;
+        }
+
+        private void btnSettings_Click(object sender, EventArgs e)
+        {
+            navigationFrame1.SelectedPage = pageSettings;
         }
         #endregion
     }

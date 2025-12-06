@@ -49,8 +49,6 @@
             this.peGameImage.Properties.SizeMode = DevExpress.XtraEditors.Controls.PictureSizeMode.Zoom;
             this.peGameImage.Size = new System.Drawing.Size(280, 186);
             this.peGameImage.TabIndex = 0;
-            this.peGameImage.MouseEnter += new System.EventHandler(this.peGameImage_MouseEnter);
-            this.peGameImage.MouseLeave += new System.EventHandler(this.peGameImage_MouseLeave);
             // 
             // lblGameTitle
             // 

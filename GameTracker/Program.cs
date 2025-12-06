@@ -48,7 +48,7 @@ namespace GameTracker
             }
 
             if (isAutoLogin)
-                Application.Run(new MainForm());
+                Application.Run(new LoginForm());
             else
                 Application.Run(new LoginForm());
         }
