@@ -6,64 +6,133 @@ using System.Windows.Forms;
 
 namespace GameTracker
 {
+    /// <summary>
+    /// Normal Panel’in flicker (titreme) yapmasını engelleyen özel panel.
+    /// Animasyonlu uygulamalarda gereklidir.
+    /// </summary>
+    public class DoubleBufferedPanel : Panel
+    {
+        public DoubleBufferedPanel()
+        {
+            DoubleBuffered = true;
+            ResizeRedraw = true;
+
+            SetStyle(
+                ControlStyles.AllPaintingInWmPaint |
+                ControlStyles.UserPaint |
+                ControlStyles.OptimizedDoubleBuffer,
+                true
+            );
+
+            UpdateStyles();
+        }
+    }
+
+    /// <summary>
+    /// Oyun kartı bileşeni.
+    /// Hover edildiğinde border rengi ve resim zoom animasyonu yapar.
+    /// </summary>
     public partial class GameCardControl : XtraUserControl
     {
+        #region Fields
         public Game GameData { get; private set; }
 
-        // --- Animasyon Değişkenleri ---
+        // Animasyon elemanları
         private Panel maskPanel;
         private Timer timer;
 
-        // Zoom Hedefleri
-        private float currentZoom = 1.0f; // Anlık büyüklük
-        private float targetZoom = 1.0f;  // Hedeflenen büyüklük
-        private const float desiredZoom = 1.15f; // İstenen büyüklük
-        private const float baseZoom = 1.0f;  // Normal büyüklük
-        private const float LerpSpeed = 0.2f; // Geçiş hızı
+        // Zoom değişkenleri
+        private float currentZoom = 1.0f;
+        private float targetZoom = 1.0f;
 
+        private const float DESIRED_ZOOM = 1.15f; // Hover yakınlaştırma
+        private const float BASE_ZOOM = 1.0f;     // Normal boyut
+        private const float LERP_SPEED = 0.2f;    // Yaklaşma hızı (0.0 - 1.0)
+
+        #endregion
+
+        #region Constructor
         public GameCardControl()
         {
             InitializeComponent();
-            SetupLayoutStructure();
-            SetupAnimationTimer();
-            SetupEvents();
+
+            // DesignMode = true iken runtime mantığı çalışmaz
+            if (!DesignMode)
+            {
+                SetupLayoutStructure();
+                SetupAnimations();
+                SetupEvents();
+            }
 
             peGameImage.Dock = DockStyle.Fill;
+
+            // Kontrolün kendi flicker koruması
+            SetStyle(
+                ControlStyles.UserPaint |
+                ControlStyles.AllPaintingInWmPaint |
+                ControlStyles.OptimizedDoubleBuffer |
+                ControlStyles.ResizeRedraw,
+                true
+            );
+
+            UpdateStyles();
         }
 
+        #endregion
+
+        #region Setup Methods
+        /// <summary>
+        /// maskPanel oluşturulur ve peGameImage içine alınır.
+        /// Bu panel, taşan zoom bölgelerini kırparak güzel bir hover animasyonu sağlar.
+        /// </summary>
         private void SetupLayoutStructure()
         {
-            // Yeni bir "Maske Panel" oluşturuyoruz.
-            maskPanel = new Panel();
-            maskPanel.Name = "maskPanel";
-            maskPanel.Dock = DockStyle.Fill; // BorderPanel'in içini dolduracak
-            maskPanel.BackColor = Color.Transparent; // Arkası gözüksün
+            maskPanel = new DoubleBufferedPanel
+            {
+                Name = "maskPanel",
+                Dock = DockStyle.Fill,
+                BackColor = Color.Transparent,
+                Margin = new Padding(0),
+                Padding = new Padding(0)
+            };
 
-            // Taşan kısımları gizlemesi için margin/padding ayarları
-            maskPanel.Margin = new Padding(0);
-            maskPanel.Padding = new Padding(0);
-
-            // Resim kontrolünü MaskPanel'e veriyoruz
-            // Bu işlem runtime'da çalışır
-            this.borderPanel.Controls.Remove(peGameImage);
+            // Resmi maskPanel içine al
+            borderPanel.Controls.Remove(peGameImage);
             maskPanel.Controls.Add(peGameImage);
 
-            // MaskPanel'i BorderPanel'e ekliyoruz.
-            this.borderPanel.Controls.Add(maskPanel);
+            // DevExpress resmi daha stabil davransın diye ayarlar
+            peGameImage.Properties.AllowFocused = false;
+            peGameImage.Properties.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
+            peGameImage.Properties.SizeMode = DevExpress.XtraEditors.Controls.PictureSizeMode.Stretch;
+            peGameImage.Margin = new Padding(0);
+            peGameImage.Padding = new Padding(0);
 
-            // Hiyerarşi: borderPanel -> maskPanel -> peGameImage
+            // maskPanel'i borderPanel'e ekle
+            borderPanel.Controls.Add(maskPanel);
         }
 
-        private void SetupAnimationTimer()
+        /// <summary>
+        /// 60 FPS hızında çalışan animasyon motoru.
+        /// Hover geldiğinde resim boyutunu yumuşakça büyütür/küçültür.
+        /// </summary>
+        private void SetupAnimations()
         {
-            timer = new Timer();
-            timer.Interval = 16; // ~60 FPS
+            timer = new Timer
+            {
+                Interval = 16 // yaklaşık 60 FPS
+            };
+
             timer.Tick += Timer_Tick;
         }
 
+        /// <summary>
+        /// Hover eventlerini tüm alt kontrollerden UserControl'e yönlendiren sistem.
+        /// Bu sayede resme veya label'a girince hover bozulmaz.
+        /// </summary>
         private void SetupEvents()
         {
             Control[] controls = { peGameImage, maskPanel, borderPanel, lblGameTitle };
+
             foreach (var ctrl in controls)
             {
                 ctrl.MouseEnter += (s, e) => SetHoverState(true);
@@ -71,21 +140,71 @@ namespace GameTracker
             }
         }
 
+        #endregion
+
+        #region Context Menu Override
+
+        /// <summary>
+        /// Context menu atandığında event'leri dinlemeye başla.
+        /// Menu kapanınca fare pozisyonunu kontrol et.
+        /// </summary>
+        protected override void OnContextMenuStripChanged(EventArgs e)
+        {
+            base.OnContextMenuStripChanged(e);
+
+            if (ContextMenuStrip != null)
+            {
+                ContextMenuStrip.Closed += ContextMenuStrip_Closed;
+            }
+        }
+
+        /// <summary>
+        /// Context menu kapandıktan sonra fare pozisyonunu kontrol eder.
+        /// Fare kart dışındaysa hover'ı kapat, içindeyse devam ettir.
+        /// </summary>
+        private void ContextMenuStrip_Closed(object sender, ToolStripDropDownClosedEventArgs e)
+        {
+            // Kısa bir gecikmeyle fare pozisyonunu kontrol et
+            var checkTimer = new Timer { Interval = 50 };
+            checkTimer.Tick += (s, args) =>
+            {
+                checkTimer.Stop();
+                checkTimer.Dispose();
+
+                // Fare kontrolün dışındaysa hover'ı kapat
+                if (!ClientRectangle.Contains(PointToClient(Cursor.Position)))
+                {
+                    SetHoverState(false);
+                }
+                // Fare içerideyse hover zaten aktif, hiçbir şey yapma
+            };
+            checkTimer.Start();
+        }
+
+        #endregion
+
+        #region Hover Logic
+        /// <summary>
+        /// Hover başladığında veya bittiğinde hedef zoom değerini ayarlar.
+        /// Border panel görünümünü de burada kontrol ederiz.
+        /// </summary>
         private void SetHoverState(bool isHovering)
         {
-            // Titreme önleyici
+            // Fare gerçekten kontrolün dışına çıkmadan "leave" tetiklendiyse, ignorela
             if (!isHovering)
             {
-                Point cursorPoint = this.PointToClient(Cursor.Position);
-                if (this.ClientRectangle.Contains(cursorPoint)) return;
+                if (ClientRectangle.Contains(PointToClient(Cursor.Position)))
+                    return;
             }
 
             if (isHovering)
             {
-                // Border anında gelsin, animasyona gerek yok.
                 borderPanel.BackColor = Color.White;
                 borderPanel.Padding = new Padding(3);
-                targetZoom = desiredZoom;
+
+                targetZoom = DESIRED_ZOOM;
+
+                // Zoom sırasında dock kullanamayız.
                 peGameImage.Dock = DockStyle.None;
                 ApplyZoom();
             }
@@ -93,26 +212,32 @@ namespace GameTracker
             {
                 borderPanel.BackColor = Color.FromArgb(26, 29, 41);
                 borderPanel.Padding = new Padding(0);
-                targetZoom = baseZoom;
+
+                targetZoom = BASE_ZOOM;
                 ApplyZoom();
             }
 
-            // Animasyon motorunu çalıştır
-            if (!timer.Enabled) timer.Start();
+            if (!timer.Enabled)
+                timer.Start();
         }
+        #endregion
 
+        #region Animation
+        /// <summary>
+        /// Her tick'te zoom değerini hedefe doğru yumuşakça yaklaştırır.
+        /// </summary>
         private void Timer_Tick(object sender, EventArgs e)
         {
-            // Mevcut değeri hedefe yaklaştır
-            currentZoom += (targetZoom - currentZoom) * LerpSpeed;
+            currentZoom += (targetZoom - currentZoom) * LERP_SPEED;
 
-            // Lerp işlemi asla tam sayıya ulaşamaz bu nedenle çok yaklaştıysa hedefe kendimiz ulaştırıyoruz
+            // Lerp mantığında hedefe asla tam ulaşamayız bu yüzden hedefe çok yaklaştıysa direkt bitir
             if (Math.Abs(targetZoom - currentZoom) < 0.01f)
             {
                 currentZoom = targetZoom;
-                timer.Stop(); // İşlem bitti, motoru durdur
+                timer.Stop();
 
-                if (currentZoom <= baseZoom)
+                // Orijinal boyuta döndüyse dockı geri aç
+                if (currentZoom == BASE_ZOOM)
                 {
                     peGameImage.Dock = DockStyle.Fill;
                     return;
@@ -122,30 +247,42 @@ namespace GameTracker
             ApplyZoom();
         }
 
+        /// <summary>
+        /// Zoom'lu boyutu hesaplar ve resmi maskPanel'in ortasına yerleştirir.
+        /// </summary>
         private void ApplyZoom()
         {
-            if (peGameImage.Dock == DockStyle.Fill) return;
+            // Fill modunda zoom yapılamaz
+            if (peGameImage.Dock == DockStyle.Fill)
+                return;
 
-            // Yeni boyutları hesapla
             int baseW = maskPanel.Width;
             int baseH = maskPanel.Height;
 
-            if (baseW == 0 || baseH == 0) return; // 0'a bölme hatası olmasını önlemek için
+            if (baseW == 0 || baseH == 0)
+                return;
 
             int newW = (int)(baseW * currentZoom);
             int newH = (int)(baseH * currentZoom);
 
             peGameImage.Size = new Size(newW, newH);
-
-            // Merkeze hizala
-            peGameImage.Location = new Point((baseW - newW) / 2, (baseH - newH) / 2);
+            peGameImage.Location = new Point(
+                (baseW - newW) / 2,
+                (baseH - newH) / 2
+            );
         }
 
-        // Dışarıdan veriyi bu metotla alacağız
+        #endregion
+
+        #region Public Methods
+        /// <summary>
+        /// Dışarıdan oyun verisi atamak için kullanılır.
+        /// </summary>
         public void SetData(Game game)
         {
-            this.GameData = game;
+            GameData = game;
             lblGameTitle.Text = game.Name ?? "Unknown";
         }
+        #endregion
     }
 }

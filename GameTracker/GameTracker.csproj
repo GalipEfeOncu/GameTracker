@@ -105,7 +105,7 @@
   <ItemGroup>
     <Compile Include="Data\DatabaseHelper.cs" />
     <Compile Include="UserControls\GameCardControl.cs">
-      <SubType>UserControl</SubType>
+      <SubType>Component</SubType>
     </Compile>
     <Compile Include="UserControls\GameCardControl.Designer.cs">
       <DependentUpon>GameCardControl.cs</DependentUpon>
