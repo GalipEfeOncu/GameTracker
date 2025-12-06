@@ -28,6 +28,12 @@ public class RawgApiService
             var gameResponse = JsonConvert.DeserializeObject<GameResponse>(json);
             return gameResponse?.results ?? new List<Game>();
         }
+        catch (TaskCanceledException)
+        {
+            // İstek zaman aşımına uğradıysa
+            System.Diagnostics.Debug.WriteLine("Hata: İstek zaman aşımına uğradı (Timeout). API cevap vermedi.");
+            return new List<Game>(); // Uygulama çökmesin, boş liste dönsün.
+        }
         catch (HttpRequestException httpEx)
         {
             // İnternet kopuksa veya sunucu tamamen göçmüşse
@@ -61,5 +67,65 @@ public class RawgApiService
     {
         string url = $"{_baseUrl}/games?key={_apiKey}&ordering=-added,-rating&dates=2024-01-01,2025-12-31&page_size={pageSize}&exclude_additions=true&page={pageNumber}";
         return await GetGamesAsync(url);
+    }
+
+    /// <summary>
+    /// Belirli bir oyunun detaylı bilgilerini getirir
+    /// </summary>
+    /// <param name="gameId">Oyun ID'si</param>
+    public async Task<GameDetails> GetGameDetailsAsync(int gameId)
+    {
+        try
+        {
+            string url = $"{_baseUrl}/games/{gameId}?key={_apiKey}";
+
+            HttpResponseMessage response = await _httpClient.GetAsync(url).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                Console.WriteLine($"API Error: {response.StatusCode}");
+                return null;
+            }
+
+            string json = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+            var gameDetails = JsonConvert.DeserializeObject<GameDetails>(json);
+
+            return gameDetails;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"GetGameDetailsAsync Error: {ex.Message}");
+            return null;
+        }
+    }
+
+    /// <summary>
+    /// Oyunun ekran görüntülerini getirir
+    /// </summary>
+    /// <param name="gameId">Oyun ID'si</param>
+    public async Task<List<Screenshot>> GetGameScreenshotsAsync(int gameId)
+    {
+        try
+        {
+            string url = $"{_baseUrl}/games/{gameId}/screenshots?key={_apiKey}";
+
+            HttpResponseMessage response = await _httpClient.GetAsync(url).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                Console.WriteLine($"API Error: {response.StatusCode}");
+                return new List<Screenshot>();
+            }
+
+            string json = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+            var screenshotResponse = JsonConvert.DeserializeObject<ScreenshotResponse>(json);
+
+            return screenshotResponse?.Results ?? new List<Screenshot>();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"GetGameScreenshotsAsync Error: {ex.Message}");
+            return new List<Screenshot>();
+        }
     }
 }

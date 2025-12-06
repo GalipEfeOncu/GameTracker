@@ -104,6 +104,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Data\DatabaseHelper.cs" />
+    <Compile Include="Models\GameDetails.cs" />
     <Compile Include="UserControls\GameCardControl.cs">
       <SubType>Component</SubType>
     </Compile>

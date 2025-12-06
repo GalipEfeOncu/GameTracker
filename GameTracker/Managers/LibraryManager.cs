@@ -125,5 +125,62 @@ namespace GameTracker
             int count = Convert.ToInt32(DatabaseHelper.ExecuteScalar(query, parameters));
             return count > 0;
         }
+
+        /// <summary>
+        /// Kullanıcının bir oyun için verdiği puanı günceller
+        /// </summary>
+        public static bool UpdateUserScore(int userId, int gameId, decimal score)
+        {
+            string query = @"UPDATE UserLibrary 
+                     SET user_score = @score 
+                     WHERE user_id = @userId AND game_id = @gameId";
+
+            SqlParameter[] parameters = new SqlParameter[]
+            {
+        new SqlParameter("@userId", userId),
+        new SqlParameter("@gameId", gameId),
+        new SqlParameter("@score", score)
+            };
+
+            return DatabaseHelper.ExecuteNonQuery(query, parameters) > 0;
+        }
+
+        /// <summary>
+        /// Kullanıcının oynadığı saati günceller
+        /// </summary>
+        public static bool UpdatePlayedHours(int userId, int gameId, int hours)
+        {
+            string query = @"UPDATE UserLibrary 
+                     SET played_hours = @hours 
+                     WHERE user_id = @userId AND game_id = @gameId";
+
+            SqlParameter[] parameters = new SqlParameter[]
+            {
+        new SqlParameter("@userId", userId),
+        new SqlParameter("@gameId", gameId),
+        new SqlParameter("@hours", hours)
+            };
+
+            return DatabaseHelper.ExecuteNonQuery(query, parameters) > 0;
+        }
+
+        /// <summary>
+        /// Oyun için kullanıcının istatistiklerini getirir
+        /// </summary>
+        public static DataRow GetGameStats(int userId, int gameId)
+        {
+            string query = @"SELECT status, user_score, played_hours, date_completed 
+                     FROM UserLibrary 
+                     WHERE user_id = @userId AND game_id = @gameId";
+
+            SqlParameter[] parameters = new SqlParameter[]
+            {
+        new SqlParameter("@userId", userId),
+        new SqlParameter("@gameId", gameId)
+            };
+
+            DataTable dt = DatabaseHelper.ExecuteQuery(query, parameters);
+            return dt.Rows.Count > 0 ? dt.Rows[0] : null;
+        }
     }
 }

@@ -2,7 +2,9 @@
 using GameTracker.Models;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -55,6 +57,8 @@ namespace GameTracker
         public MainForm()
         {
             InitializeComponent();
+
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
 
             // Servisleri başlat
             rawgapi = new RawgApiService();
@@ -624,6 +628,355 @@ namespace GameTracker
         }
         #endregion
 
+        #region Game Detail Page
+
+        /// <summary>
+        /// Oyun detay sayfasını açar ve verileri yükler.
+        /// </summary>
+        /// <param name="gameId">Gösterilecek oyunun ID'si</param>
+        public async void ShowGameDetail(int gameId)
+        {
+            // Detay sayfasına geç
+            navigationFrame1.SelectedPage = pageGameDetail;
+            // Loading göster
+            this.Cursor = Cursors.WaitCursor;
+
+            try
+            {
+                // UI temizliği ve stil ayarları
+                SetupGameDetailVisuals();
+
+                // API'den oyun detaylarını çek
+                var gameDetails = await rawgapi.GetGameDetailsAsync(gameId);
+                var screenshots = await rawgapi.GetGameScreenshotsAsync(gameId);
+
+                if (gameDetails != null)
+                {
+                    // UI'ı doldur
+                    PopulateGameDetailUI(gameDetails, screenshots);
+                }
+            }
+            catch (Exception ex)
+            {
+                MyMessageBox.Show($"Error loading game details: {ex.Message}", "Error");
+            }
+            finally
+            {
+                this.Cursor = Cursors.Default;
+            }
+        }
+
+        /// <summary>
+        /// Game Detail sayfasındaki kontrolleri verilerle doldurur.
+        /// </summary>
+        private void PopulateGameDetailUI(GameDetails gameDetails, List<Screenshot> screenshots)
+        {
+            // =============== HERO SECTİON ===============
+
+            // Oyun Başlığı
+            lblGameTitle.Text = gameDetails.Name ?? "Unknown Game";
+
+            // Developer & Publisher
+            string devs = (gameDetails.Developers != null && gameDetails.Developers.Any()) ? string.Join(", ", gameDetails.Developers.Select(d => d.Name)) : "-";
+            lblDeveloper.Text = $"Developer: {devs}";
+
+            string pubs = (gameDetails.Publishers != null && gameDetails.Publishers.Any()) ? string.Join(", ", gameDetails.Publishers.Select(p => p.Name)) : "-";
+            lblPublisher.Text = $"Publisher: {pubs}";
+
+            // Release Date
+            lblReleased.Text = !string.IsNullOrEmpty(gameDetails.Released) ? $"Released: {gameDetails.Released}" : "Released: -";
+
+            // Metacritic & Rating
+            lblMetacritic.Text = gameDetails.Metacritic.HasValue ? $"Metacritic: {gameDetails.Metacritic}" : "Metacritic: N/A";
+            lblMetacritic.Appearance.ForeColor = gameDetails.Metacritic > 75 ? Color.GreenYellow : Color.White;
+
+            lblUserRating.Text = $"Rating: {gameDetails.Rating:0.0} / 5.0";
+            lblUserRating.Appearance.ForeColor = Color.Orange;
+
+            // Kapak Resmi
+            if (!string.IsNullOrEmpty(gameDetails.BackgroundImage))
+            {
+                // Küçük kapak resmi
+                imageManager.LoadImageAsync(gameDetails.BackgroundImage, peCoverImage, 400);
+
+                // Büyük arka plan resmi
+                string bgImage = !string.IsNullOrEmpty(gameDetails.BackgroundImageAdditional) ? gameDetails.BackgroundImageAdditional : gameDetails.BackgroundImage;
+
+                imageManager.LoadImageAsync(bgImage, peBackgroundBlur, 1200);
+            }
+            else
+            {
+                // Resim yoksa temizle
+                peCoverImage.Image = null;
+                peBackgroundBlur.Image = null;
+            }
+
+            // Genre Tags
+            PopulateGenreTags(gameDetails.Genres);
+
+            // Status Dropdown - Kullanıcının kütüphanesindeki durumunu getir
+            LoadUserGameStatus(gameDetails.Id);
+
+            // =============== SCREENSHOTS ===============
+            PopulateScreenshots(screenshots);
+
+            // =============== DESCRIPTION ===============
+            memoDescription.Text = !string.IsNullOrEmpty(gameDetails.DescriptionRaw) ? gameDetails.DescriptionRaw : "No description available.";
+            memoDescription.SelectionStart = 0;
+            memoDescription.ScrollToCaret();
+
+            // =============== GAME INFO PANEL ===============
+
+            // Platforms
+
+            if (gameDetails.Platforms != null && gameDetails.Platforms.Any())
+                lblPlatforms.Text = string.Join(", ", gameDetails.Platforms.Select(p => p.Platform.Name));
+            else
+                lblPlatforms.Text = "-";
+
+            // Stores
+            if (gameDetails.Stores != null && gameDetails.Stores.Any())
+                lblStores.Text = string.Join(", ", gameDetails.Stores.Select(s => s.Store.Name));
+            else
+                lblStores.Text = "-";
+
+            // ESRB Rating
+            lblEsrb.Text = gameDetails.EsrbRating != null ? gameDetails.EsrbRating.Name : "-";
+        }
+
+        private void SetupGameDetailVisuals()
+        {
+            // Ana renkler
+            Color darkBg = Color.FromArgb(26, 29, 41);
+            Color cardBg = Color.FromArgb(32, 35, 47);
+            Color textGray = Color.FromArgb(180, 180, 180);
+
+            // Panellerin Renk ve Kenarlıkları
+            pnlGameDetailScroll.Appearance.BackColor = darkBg;
+            pnlGameDetailScroll.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
+
+            pnlHero.Appearance.BackColor = Color.Transparent;
+            pnlHero.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
+
+            pnlGameInfo.Appearance.BackColor = cardBg;
+            pnlGameInfo.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
+
+            flowScreenshots.Appearance.BackColor = darkBg;
+            flowScreenshots.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
+
+            // PictureEdit Ayarları
+            void FixPictureEdit(PictureEdit pe, bool isBg)
+            {
+                pe.Properties.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder; // Kenarlığı kaldır
+                pe.Properties.ShowCameraMenuItem = DevExpress.XtraEditors.Controls.CameraMenuItemVisibility.Never;
+                pe.Properties.ShowMenu = false;
+                pe.Properties.NullText = ""; // "No Image Data" yazısını yok et!
+                pe.BackColor = isBg ? darkBg : Color.Transparent;
+
+                // Arkaplan resmi yayılmalı, kapak resmi oranını korumalı
+                pe.Properties.SizeMode = isBg ? DevExpress.XtraEditors.Controls.PictureSizeMode.Stretch : DevExpress.XtraEditors.Controls.PictureSizeMode.Zoom;
+            }
+
+            FixPictureEdit(peBackgroundBlur, true);
+            FixPictureEdit(peCoverImage, false);
+
+            // Yazı Stilleri
+            lblGameTitle.Appearance.Font = new Font("Segoe UI", 28, FontStyle.Bold);
+            lblGameTitle.Appearance.ForeColor = Color.White;
+            lblGameTitle.Appearance.BackColor = Color.Transparent;
+
+            // Yardımcı metod
+            void StyleLabel(LabelControl lbl, bool isHeader)
+            {
+                lbl.Appearance.BackColor = Color.Transparent;
+                lbl.Appearance.ForeColor = isHeader ? Color.White : textGray;
+                if (isHeader) lbl.Appearance.Font = new Font("Segoe UI", 12, FontStyle.Bold);
+                else lbl.Appearance.Font = new Font("Segoe UI", 10, FontStyle.Regular);
+            }
+
+            // Hero Etiketleri
+            StyleLabel(lblDeveloper, false);
+            StyleLabel(lblPublisher, false);
+            StyleLabel(lblReleased, false);
+            StyleLabel(lblMetacritic, false);
+            StyleLabel(lblUserRating, false);
+
+            // Sağ Panel Başlıkları
+            StyleLabel(lblAboutTitle, true);
+            StyleLabel(lblPlatformsTitle, true);
+            StyleLabel(lblStoresTitle, true);
+            StyleLabel(lblEsrbTitle, true);
+
+            // Sağ Panel İçerikleri
+            StyleLabel(lblPlatforms, false);
+            StyleLabel(lblStores, false);
+            StyleLabel(lblEsrb, false);
+
+            // Description MemoEdit
+            memoDescription.Properties.Appearance.BackColor = darkBg;
+            memoDescription.Properties.Appearance.ForeColor = Color.Gainsboro;
+            memoDescription.Properties.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
+            memoDescription.BackColor = darkBg;
+
+            // Z-Ordering (Ön/Arka Sıralaması)
+            peBackgroundBlur.SendToBack();
+            lblGameTitle.BringToFront();
+            peCoverImage.BringToFront();
+            comboStatus.BringToFront();
+        }
+
+        /// <summary>
+        /// Genre tag'lerini flowGenres paneline ekler.
+        /// </summary>
+        private void PopulateGenreTags(List<Genre> genres)
+        {
+            flowGenres.Controls.Clear();
+
+            if (genres == null || genres.Count == 0)
+                return;
+
+            foreach (var genre in genres)
+            {
+                var lblTag = new LabelControl
+                {
+                    Text = genre.Name,
+                    AutoSizeMode = LabelAutoSizeMode.Default,
+                    Padding = new Padding(10, 5, 10, 5),
+                    Margin = new Padding(0, 0, 10, 0),
+                    Appearance =
+                    {
+                        BackColor = Color.FromArgb(60, 64, 80),
+                        ForeColor = Color.White,
+                        Font = new Font("Segoe UI", 9F, FontStyle.Bold),
+                        TextOptions = { HAlignment = DevExpress.Utils.HorzAlignment.Center }
+                    }
+                };
+
+                flowGenres.Controls.Add(lblTag);
+            }
+        }
+
+        /// <summary>
+        /// Screenshot'ları flowScreenshots paneline ekler.
+        /// </summary>
+        private void PopulateScreenshots(List<Screenshot> screenshots)
+        {
+            flowScreenshots.Controls.Clear();
+
+            if (screenshots == null || screenshots.Count == 0)
+                return;
+
+            // İlk 6 screenshot'ı göster
+            var displayScreenshots = screenshots.Take(6).ToList();
+
+            foreach (var screenshot in displayScreenshots)
+            {
+                var peScreenshot = new PictureEdit
+                {
+                    Size = new Size(250, 140),
+                    Margin = new Padding(10, 10, 10, 10),
+                    Properties =
+                    {
+                            SizeMode = DevExpress.XtraEditors.Controls.PictureSizeMode.Zoom,
+                            BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.Simple
+                    },
+                    Cursor = Cursors.Hand
+                };
+
+                // Resmi yükle
+                imageManager.LoadImageAsync(screenshot.Image, peScreenshot, 400);
+
+                // Tıklandığında büyük göster (opsiyonel - sonra ekleyebilirsin)
+                peScreenshot.Click += (s, e) =>
+                {
+                    // TODO: Büyük resim gösterme modal'ı
+                    System.Diagnostics.Process.Start(screenshot.Image);
+                };
+
+                flowScreenshots.Controls.Add(peScreenshot);
+            }
+        }
+
+        /// <summary>
+        /// Kullanıcının bu oyunu kütüphanesine eklemiş mi, durumu ne?
+        /// </summary>
+        private void LoadUserGameStatus(int gameId)
+        {
+            if (Session.UserId <= 0)
+            {
+                comboStatus.EditValue = null;
+                comboStatus.Properties.NullText = "Login to add";
+                comboStatus.Enabled = false;
+                return;
+            }
+
+            // Kullanıcının bu oyunu için kaydı var mı?
+            var gameStats = LibraryManager.GetGameStats(Session.UserId, gameId);
+
+            if (gameStats != null)
+            {
+                // Oyun kütüphanede, durumunu göster
+                string status = gameStats["status"].ToString();
+
+                // ComboBox'ta doğru değeri seç
+                switch (status)
+                {
+                    case "PlanToPlay":
+                        comboStatus.EditValue = "Plan to Play";
+                        break;
+                    case "Playing":
+                        comboStatus.EditValue = "Playing";
+                        break;
+                    case "Played":
+                        comboStatus.EditValue = "Played";
+                        break;
+                    case "Dropped":
+                        comboStatus.EditValue = "Dropped";
+                        break;
+                }
+            }
+            else
+            {
+                // Oyun kütüphanede değil
+                comboStatus.EditValue = null;
+                comboStatus.Properties.NullText = "Add to library...";
+            }
+
+            comboStatus.Enabled = true;
+
+            // Eventi sadece bir kez eklemek için (önce kaldır sonra ekle)
+            comboStatus.EditValueChanged -= ComboStatus_EditValueChanged;
+            comboStatus.EditValueChanged += ComboStatus_EditValueChanged;
+            comboStatus.Tag = gameId; // ID'yi taşıyalım
+        }
+
+        /// <summary>
+        /// Kullanıcı status dropdown'ı değiştirdiğinde tetiklenir.
+        /// </summary>
+        private void ComboStatus_EditValueChanged(object sender, EventArgs e)
+        {
+            if (comboStatus.EditValue == null || Session.UserId <= 0 || comboStatus.Tag == null) return;
+
+            int gameId = (int)comboStatus.Tag;
+            string selectedStatus = comboStatus.EditValue.ToString();
+            string dbStatus = selectedStatus.Replace(" ", "").Replace("to", "To"); // Basit map
+
+            if (selectedStatus == "Plan to Play") dbStatus = "PlanToPlay";
+
+            bool isInLibrary = LibraryManager.IsGameInLibrary(Session.UserId, gameId);
+
+            if (isInLibrary)
+            {
+                LibraryManager.UpdateGameStatus(Session.UserId, gameId, dbStatus);
+            }
+            else
+            {
+                MyMessageBox.Show("Please add the game from search/home first!", "Info");
+            }
+        }
+
+        #endregion
+
         #region Data Base
 
         /// <summary>
@@ -707,6 +1060,11 @@ namespace GameTracker
         private void btnSettings_Click(object sender, EventArgs e)
         {
             navigationFrame1.SelectedPage = pageSettings;
+        }
+
+        private void btnBackFromDetail_Click(object sender, EventArgs e)
+        {
+            navigationFrame1.SelectedPage = pageHome;
         }
         #endregion
     }
