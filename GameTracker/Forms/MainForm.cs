@@ -1,4 +1,7 @@
 ﻿using DevExpress.XtraEditors;
+using GameTracker.Factories;
+using GameTracker.Helpers;
+using GameTracker.Managers;
 using GameTracker.Models;
 using System;
 using System.Collections.Generic;
@@ -22,27 +25,21 @@ namespace GameTracker
         private readonly ImageManager imageManager;
         private readonly LayoutCalculator layoutCalculator;
 
-        // Home sayfa verileri
-        private List<Game> homeGames = new List<Game>();
-        private int homePage = 1;
-        private int homeApiPage = 1;
-
-        // Library sayfa verileri
-        private List<Game> libraryGames = new List<Game>();
-        private int libPage = 1;
-
-        // Search sayfa verileri
-        private List<Game> searchGames = new List<Game>();
-        private int searchPage = 1;
-
         // Global ayarlar
         private int cardsPerPage = 24;
         private int gameToLoadPerRequest = 100;
-        private const int LABEL_HEIGHT = 30;
         private LayoutMetrics currentLayoutMetrics;
 
+        // Sayfa Yöneticileri
+        private PageManager homeManager;
+        private PageManager libraryManager;
+        private PageManager searchManager;
+
+        // API Takibi
+        private int homeApiPage = 1;
+
         // UI optimizasyon
-        private System.Windows.Forms.Timer resizeTimer;
+        private Timer resizeTimer;
 
         #endregion
 
@@ -61,32 +58,15 @@ namespace GameTracker
             imageManager = new ImageManager();
             layoutCalculator = new LayoutCalculator();
 
-            InitializeFlowLayoutPanels();
+            homeManager = new PageManager(24);
+            libraryManager = new PageManager(24);
+            searchManager = new PageManager(24);
+
+            UiHelper.InitializeFlowPanels(flowLayoutPanelPopulerGames, flowLayoutPanelLibrary, flowLayoutPanelSearch);
+            UiHelper.EnableDoubleBuffering(flowLayoutPanelPopulerGames, flowLayoutPanelLibrary, flowLayoutPanelSearch);
+
+            // Resize timer'ı başlat
             InitializeResizeTimer();
-            EnableDoubleBuffering();
-        }
-
-        /// <summary>
-        /// Tüm FlowLayoutPanel'lerin temel özelliklerini yapılandırır.
-        /// </summary>
-        private void InitializeFlowLayoutPanels()
-        {
-            ConfigureFlowLayoutPanel(flowLayoutPanelPopulerGames);
-            ConfigureFlowLayoutPanel(flowLayoutPanelLibrary);
-            ConfigureFlowLayoutPanel(flowLayoutPanelSearch);
-        }
-
-        /// <summary>
-        /// Tek bir FlowLayoutPanel'i yapılandırır.
-        /// </summary>
-        /// <param name="panel">Yapılandırılacak panel</param>
-        private void ConfigureFlowLayoutPanel(FlowLayoutPanel panel)
-        {
-            panel.AutoSize = false;
-            panel.FlowDirection = FlowDirection.LeftToRight;
-            panel.WrapContents = true;
-            panel.Padding = new Padding(0);
-            panel.AutoScroll = false;
         }
 
         /// <summary>
@@ -98,35 +78,7 @@ namespace GameTracker
             resizeTimer = new Timer();
             resizeTimer.Interval = 300;
             resizeTimer.Tick += ResizeTimer_Tick;
-        }
-
-        /// <summary>
-        /// Panel titremesini azaltmak için double-buffer etkinleştirir.
-        /// </summary>
-        private void EnableDoubleBuffering()
-        {
-            SetDoubleBuffered(flowLayoutPanelPopulerGames);
-            SetDoubleBuffered(flowLayoutPanelLibrary);
-            SetDoubleBuffered(flowLayoutPanelSearch);
-        }
-
-        /// <summary>
-        /// Bir kontrole double buffering özelliği ekler.
-        /// Reflection kullanarak NonPublic property'e erişir.
-        /// </summary>
-        /// <param name="control">Double buffering eklenecek kontrol</param>
-        private static void SetDoubleBuffered(Control control)
-        {
-            if (SystemInformation.TerminalServerSession)
-                return;
-
-            var doubleBufferedProperty = typeof(Control).GetProperty(
-                "DoubleBuffered",
-                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance
-            );
-
-            doubleBufferedProperty?.SetValue(control, true, null);
-        }
+        }   
 
         #endregion
 
@@ -145,7 +97,7 @@ namespace GameTracker
             await LoadHomeGamesAsync(homeApiPage, gameToLoadPerRequest);
 
             // Home sayfasını render et
-            RenderPage(homeGames, flowLayoutPanelPopulerGames, homePage, lblHomePage);
+            RenderPage(homeManager, flowLayoutPanelPopulerGames, lblHomePage);
         }
 
         /// <summary>
@@ -207,6 +159,11 @@ namespace GameTracker
         {
             currentLayoutMetrics = layoutCalculator.Calculate(panel.ClientSize);
             cardsPerPage = currentLayoutMetrics.CardsPerPage;
+
+            // Yöneticilere yeni kart kapasitesini bildir
+            homeManager.ItemsPerPage = cardsPerPage;
+            libraryManager.ItemsPerPage = cardsPerPage;
+            searchManager.ItemsPerPage = cardsPerPage;
         }
 
         /// <summary>
@@ -215,31 +172,13 @@ namespace GameTracker
         private void RefreshActivePage()
         {
             if (navigationFrame1.SelectedPage == pageHome)
-                RenderPage(homeGames, flowLayoutPanelPopulerGames, homePage, lblHomePage);
+                RenderPage(homeManager, flowLayoutPanelPopulerGames, lblHomePage);
             else if (navigationFrame1.SelectedPage == pageLibrary)
-                RenderPage(libraryGames, flowLayoutPanelLibrary, libPage, lblLibPage);
+                RenderPage(libraryManager, flowLayoutPanelLibrary, lblLibPage);
             else if (navigationFrame1.SelectedPage == pageSearch)
-                RenderPage(searchGames, flowLayoutPanelSearch, searchPage, lblSearchPage, lblNoResult);
+                RenderPage(searchManager, flowLayoutPanelSearch, lblSearchPage, lblNoResult);
         }
 
-        #endregion
-
-        #region Initialization
-        private void InitializeFlowLayoutPanel()
-        {
-            void SetupPanel(FlowLayoutPanel p)
-            {
-                p.AutoSize = false;
-                p.FlowDirection = FlowDirection.LeftToRight;
-                p.WrapContents = true;
-                p.Padding = new Padding(0);
-                p.AutoScroll = false;
-            }
-
-            SetupPanel(flowLayoutPanelPopulerGames);
-            SetupPanel(flowLayoutPanelLibrary);
-            SetupPanel(flowLayoutPanelSearch);
-        }
         #endregion
 
         #region Generic Page Rendering
@@ -253,35 +192,36 @@ namespace GameTracker
         /// <param name="pageIndex">Mevcut sayfa numarası</param>
         /// <param name="pageLabel">Sayfa bilgisinin gösterileceği label</param>
         /// <param name="noResultLabel">Sonuç bulunamadığında gösterilecek label (opsiyonel)</param>
-        private void RenderPage(List<Game> sourceList, FlowLayoutPanel targetPanel, int pageIndex, LabelControl pageLabel, LabelControl noResultLabel = null)
+        private void RenderPage(PageManager manager, FlowLayoutPanel targetPanel, LabelControl pageLabel, LabelControl noResultLabel = null)
         {
-            if (sourceList == null)
-                return;
+            // Verileri çek
+            var gamesToShow = manager.GetCurrentPageItems();
 
             targetPanel.SuspendLayout();
             targetPanel.Controls.Clear();
 
-            // Sonuç yoksa "No Result" label'ını göster
-            if (HandleNoResults(sourceList, targetPanel, pageLabel, noResultLabel))
+            // Sonuç yok kontrolü (Eski HandleNoResults metodunu buna göre revize edebilirsin 
+            // veya basitçe burada kontrol edebilirsin)
+            if (gamesToShow.Count == 0 && manager.AllItems.Count == 0)
             {
+                if (noResultLabel != null)
+                {
+                    noResultLabel.Visible = true;
+                    pageLabel.Text = "Page 0 / 0";
+                }
                 targetPanel.ResumeLayout();
                 return;
             }
 
-            // Sayfa bilgilerini hesapla
-            int totalPages = CalculateTotalPages(sourceList.Count);
-            pageIndex = ClampPageIndex(pageIndex, totalPages);
+            if (noResultLabel != null) noResultLabel.Visible = false;
 
-            // Mevcut sayfa için oyunları getir
-            var pagedGames = GetGamesForPage(sourceList, pageIndex);
-
-            // Oyun kartlarını oluştur ve panele ekle
-            AddGameCardsToPanel(pagedGames, targetPanel);
+            // Kartları Ekle (Factory ile güncellediğin metod)
+            AddGameCardsToPanel(gamesToShow, targetPanel);
 
             targetPanel.ResumeLayout();
 
-            // Sayfa label'ını güncelle
-            UpdatePageLabel(pageLabel, pageIndex, totalPages);
+            // Etiketi güncelle
+            pageLabel.Text = manager.GetPageInfoString();
         }
 
         /// <summary>
@@ -335,12 +275,28 @@ namespace GameTracker
 
         /// <summary>
         /// Oyun kartlarını oluşturur ve panele ekler.
+        /// Factory Design Pattern kullanılarak kart üretimi delegate edilir.
         /// </summary>
         private void AddGameCardsToPanel(List<Game> games, FlowLayoutPanel panel)
         {
+            // Hangi sayfada olduğumuza göre bağlamı belirle
+            bool isLibrary = (navigationFrame1.SelectedPage == pageLibrary);
+
             foreach (var game in games)
             {
-                var card = CreateGameCard(game);
+                // Factory'i çağırıyoruz.
+                // Action'lar için lambda expression kullanıyoruz.
+                // (g, status) => AddGameToDb(g, status) kısmı bizim 'Action'ımız.
+                var card = GameCardFactory.CreateCard(game, currentLayoutMetrics, imageManager, isLibraryContext: isLibrary,
+                    onStatusChange: (g, status) =>
+                    {
+                        // Eğer zaten kütüphanedeysek update, değilse add çalışır
+                        if (isLibrary) UpdateGameStatusDb(g, status);
+                        else AddGameToDb(g, status);
+                    },
+                    onRemove: (g) => RemoveGameFromDb(g)
+                );
+
                 panel.Controls.Add(card);
             }
         }
@@ -366,19 +322,7 @@ namespace GameTracker
         {
             var newGames = await rawgapi.GetPopularGamesAsync(apiPage, count);
             if (newGames != null)
-                homeGames.AddRange(newGames);
-        }
-
-        /// <summary>
-        /// Home sayfasında önceki sayfaya geçer.
-        /// </summary>
-        private void btnHomePrev_Click(object sender, EventArgs e)
-        {
-            if (homePage > 1)
-            {
-                homePage--;
-                RenderPage(homeGames, flowLayoutPanelPopulerGames, homePage, lblHomePage);
-            }
+                homeManager.AddItems(newGames);
         }
 
         /// <summary>
@@ -387,20 +331,33 @@ namespace GameTracker
         /// </summary>
         private async void btnHomeNext_Click(object sender, EventArgs e)
         {
-            int totalPages = CalculateTotalPages(homeGames.Count);
-
-            // Son sayfaya yaklaştıysak daha fazla veri yükle
-            if (homePage >= totalPages - 1)
+            // Önce elimizdeki listede sonraki sayfaya geçmeye çalış
+            if (homeManager.NextPage())
             {
-                await LoadMoreHomeGames();
-                totalPages = CalculateTotalPages(homeGames.Count);
+                RenderPage(homeManager, flowLayoutPanelPopulerGames, lblHomePage);
             }
-
-            // Sonraki sayfaya geç
-            if (homePage < totalPages)
+            // Eğer son sayfadaysak API'den yeni veri çek
+            else
             {
-                homePage++;
-                RenderPage(homeGames, flowLayoutPanelPopulerGames, homePage, lblHomePage);
+                // API yüklemesi
+                await LoadMoreHomeGames();
+
+                // Yeni veri gelince NextPage yap
+                if (homeManager.NextPage())
+                {
+                    RenderPage(homeManager, flowLayoutPanelPopulerGames, lblHomePage);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Home sayfasında önceki sayfaya geçer.
+        /// </summary>
+        private void btnHomePrev_Click(object sender, EventArgs e)
+        {
+            if (homeManager.PrevPage())
+            {
+                RenderPage(homeManager, flowLayoutPanelPopulerGames, lblHomePage);
             }
         }
 
@@ -425,9 +382,14 @@ namespace GameTracker
             if (Session.UserId <= 0)
                 return;
 
-            libraryGames = LibraryManager.GetUserLibrary(Session.UserId);
-            libPage = 1; // Her yüklemede ilk sayfaya dön
-            RenderPage(libraryGames, flowLayoutPanelLibrary, libPage, lblLibPage);
+            // Veriyi çek
+            var myGames = LibraryManager.GetUserLibrary(Session.UserId);
+
+            // Veriyi manager'a yükle (SetDataSource kullanıyoruz çünkü liste sıfırdan yükleniyor)
+            libraryManager.SetDataSource(myGames);
+
+            // Render ederken libraryManager kullan
+            RenderPage(libraryManager, flowLayoutPanelLibrary, lblLibPage);
         }
 
         /// <summary>
@@ -435,11 +397,8 @@ namespace GameTracker
         /// </summary>
         private void btnLibPrev_Click(object sender, EventArgs e)
         {
-            if (libPage > 1)
-            {
-                libPage--;
-                RenderPage(libraryGames, flowLayoutPanelLibrary, libPage, lblLibPage);
-            }
+            if (libraryManager.PrevPage())
+                RenderPage(libraryManager, flowLayoutPanelLibrary, lblLibPage);
         }
 
         /// <summary>
@@ -447,12 +406,8 @@ namespace GameTracker
         /// </summary>
         private void btnLibNext_Click(object sender, EventArgs e)
         {
-            int totalPages = CalculateTotalPages(libraryGames.Count);
-            if (libPage < totalPages)
-            {
-                libPage++;
-                RenderPage(libraryGames, flowLayoutPanelLibrary, libPage, lblLibPage);
-            }
+            if (libraryManager.NextPage())
+                RenderPage(libraryManager, flowLayoutPanelLibrary, lblLibPage);
         }
         #endregion
 
@@ -498,9 +453,13 @@ namespace GameTracker
         /// </summary>
         private async Task ExecuteSearch(string searchTerm)
         {
-            searchGames = await rawgapi.GetGamesBySearchAsync(searchTerm, 50);
-            searchPage = 1; // Yeni aramada ilk sayfaya dön
-            RenderPage(searchGames, flowLayoutPanelSearch, searchPage, lblSearchPage, lblNoResult);
+            var results = await rawgapi.GetGamesBySearchAsync(searchTerm, 50);
+
+            // Veriyi manager'a ver
+            searchManager.SetDataSource(results);
+
+            // Render ederken searchManager kullan
+            RenderPage(searchManager, flowLayoutPanelSearch, lblSearchPage, lblNoResult);
         }
 
         /// <summary>
@@ -508,11 +467,8 @@ namespace GameTracker
         /// </summary>
         private void btnSearchPrev_Click(object sender, EventArgs e)
         {
-            if (searchPage > 1)
-            {
-                searchPage--;
-                RenderPage(searchGames, flowLayoutPanelSearch, searchPage, lblSearchPage, lblNoResult);
-            }
+            if (searchManager.PrevPage())
+                RenderPage(searchManager, flowLayoutPanelSearch, lblSearchPage, lblNoResult);
         }
 
         /// <summary>
@@ -520,107 +476,8 @@ namespace GameTracker
         /// </summary>
         private void btnSearchNext_Click(object sender, EventArgs e)
         {
-            int totalPages = CalculateTotalPages(searchGames.Count);
-            if (searchPage < totalPages)
-            {
-                searchPage++;
-                RenderPage(searchGames, flowLayoutPanelSearch, searchPage, lblSearchPage, lblNoResult);
-            }
-        }
-        #endregion
-
-        #region Game Card Creation
-        /// <summary>
-        /// Bir oyun için görsel kart kontrolü oluşturur.
-        /// Layout, context menu ve resim yükleme işlemlerini yapar.
-        /// </summary>
-        /// <param name="game">Kartı oluşturulacak oyun</param>
-        /// <returns>Yapılandırılmış GameCardControl</returns>
-        private GameCardControl CreateGameCard(Game game)
-        {
-            // Yeni UserControl'ü oluştur
-            GameCardControl card = new GameCardControl();
-
-            ConfigureCardDimensions(card);
-
-            // Veriyi Bas
-            card.SetData(game);
-
-            // Context Menu Oluştur
-            ContextMenuStrip contextMenu = CreateContextMenuForGame(game);
-
-            // Menüyü UserControl'ün içindeki bileşenlere bağlar
-            card.ContextMenuStrip = contextMenu;
-            card.peGameImage.ContextMenuStrip = contextMenu;
-            card.lblGameTitle.ContextMenuStrip = contextMenu;
-
-            // Oyun resmini asenkron yükle
-            imageManager.LoadImageAsync(game.BackgroundImage, card.peGameImage, 420);
-
-            return card;
-        }
-
-        /// <summary>
-        /// Kart boyutlarını layout metriklerine göre ayarlar.
-        /// </summary>
-        private void ConfigureCardDimensions(GameCardControl card)
-        {
-            // Boyutları LayoutCalculator'dan gelen verilerle hesaplar
-            card.Width = currentLayoutMetrics.CardWidth;
-            card.Height = currentLayoutMetrics.ImageHeight + LABEL_HEIGHT;
-            card.Margin = new Padding(10, 10, 10, 10 + currentLayoutMetrics.ExtraSpacingPerRow);
-
-            // İçindeki panel ve resmin boyutlarını da ayarla
-            card.borderPanel.Height = currentLayoutMetrics.ImageHeight;
-            card.borderPanel.Width = currentLayoutMetrics.CardWidth;
-        }
-
-        /// <summary>
-        /// Oyun için uygun context menü oluşturur.
-        /// Bulunulan sayfaya göre menü öğeleri değişir.
-        /// </summary>
-        private ContextMenuStrip CreateContextMenuForGame(Game game)
-        {
-            var contextMenu = new ContextMenuStrip();
-
-            if (navigationFrame1.SelectedPage == pageLibrary)
-            {
-                ToolStripMenuItem changeStatusItem = new ToolStripMenuItem("Move to...");
-                ToolStripMenuItem movePlan = new ToolStripMenuItem("Plan to Play");
-                ToolStripMenuItem movePlaying = new ToolStripMenuItem("Playing");
-                ToolStripMenuItem movePlayed = new ToolStripMenuItem("Played");
-
-                movePlan.Click += (s, e) => UpdateGameStatusDb(game, "PlanToPlay");
-                movePlaying.Click += (s, e) => UpdateGameStatusDb(game, "Playing");
-                movePlayed.Click += (s, e) => UpdateGameStatusDb(game, "Played");
-
-                changeStatusItem.DropDownItems.Add(movePlan);
-                changeStatusItem.DropDownItems.Add(movePlaying);
-                changeStatusItem.DropDownItems.Add(movePlayed);
-                contextMenu.Items.Add(changeStatusItem);
-
-                ToolStripMenuItem removeItem = new ToolStripMenuItem("Remove from Library");
-                removeItem.Click += (s, e) => RemoveGameFromDb(game);
-                contextMenu.Items.Add(removeItem);
-            }
-            else
-            {
-                ToolStripMenuItem addToLibItem = new ToolStripMenuItem("Add to Library");
-                ToolStripMenuItem itemPlan = new ToolStripMenuItem("Plan to Play");
-                ToolStripMenuItem itemPlaying = new ToolStripMenuItem("Playing");
-                ToolStripMenuItem itemPlayed = new ToolStripMenuItem("Played");
-
-                itemPlan.Click += (s, e) => AddGameToDb(game, "PlanToPlay");
-                itemPlaying.Click += (s, e) => AddGameToDb(game, "Playing");
-                itemPlayed.Click += (s, e) => AddGameToDb(game, "Played");
-
-                addToLibItem.DropDownItems.Add(itemPlan);
-                addToLibItem.DropDownItems.Add(itemPlaying);
-                addToLibItem.DropDownItems.Add(itemPlayed);
-                contextMenu.Items.Add(addToLibItem);
-            }
-
-            return contextMenu;
+            if (searchManager.NextPage())
+                RenderPage(searchManager, flowLayoutPanelSearch, lblSearchPage, lblNoResult);
         }
         #endregion
 
@@ -688,20 +545,36 @@ namespace GameTracker
         #endregion
 
         #region Navigation Menu
+        private void ResizePage()
+        {
+            var activePanel = navigationFrame1.SelectedPage?.Controls[0] as FlowLayoutPanel;
+            if (activePanel == null)
+                return;
+
+            // Layout metriklerini yeniden hesapla
+            RecalculateLayoutMetrics(activePanel);
+
+            // Aktif sayfayı yeniden render et
+            RefreshActivePage();
+        }
+
         private void btnHomeMenu_Click(object sender, EventArgs e)
         {
             navigationFrame1.SelectedPage = pageHome;
+            ResizePage();
         }
 
         private void btnLibrary_Click(object sender, EventArgs e)
         {
             navigationFrame1.SelectedPage = pageLibrary;
             LoadLibraryGames();
+            ResizePage();
         }
 
         private void btnSearch_Click(object sender, EventArgs e)
         {
             navigationFrame1.SelectedPage = pageSearch;
+            ResizePage();
         }
 
         private void btnSettings_Click(object sender, EventArgs e)

@@ -53,6 +53,7 @@
             this.panelControl7 = new DevExpress.XtraEditors.PanelControl();
             this.searchControlSearchPage = new DevExpress.XtraEditors.SearchControl();
             this.pageSettings = new DevExpress.XtraBars.Navigation.NavigationPage();
+            this.pageGameDetail = new DevExpress.XtraBars.Navigation.NavigationPage();
             ((System.ComponentModel.ISupportInitialize)(this.panelControl1)).BeginInit();
             this.panelControl1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.navigationFrame1)).BeginInit();
@@ -211,6 +212,7 @@
             this.navigationFrame1.Controls.Add(this.pageLibrary);
             this.navigationFrame1.Controls.Add(this.pageSearch);
             this.navigationFrame1.Controls.Add(this.pageSettings);
+            this.navigationFrame1.Controls.Add(this.pageGameDetail);
             this.navigationFrame1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.navigationFrame1.Location = new System.Drawing.Point(220, 0);
             this.navigationFrame1.Name = "navigationFrame1";
@@ -218,7 +220,8 @@
             this.pageHome,
             this.pageLibrary,
             this.pageSearch,
-            this.pageSettings});
+            this.pageSettings,
+            this.pageGameDetail});
             this.navigationFrame1.SelectedPage = this.pageHome;
             this.navigationFrame1.Size = new System.Drawing.Size(1232, 640);
             this.navigationFrame1.TabIndex = 1;
@@ -625,9 +628,13 @@
             // 
             // pageSettings
             // 
-            this.pageSettings.Caption = "pageSettings";
             this.pageSettings.Name = "pageSettings";
             this.pageSettings.Size = new System.Drawing.Size(1232, 640);
+            // 
+            // pageGameDetail
+            // 
+            this.pageGameDetail.Name = "pageGameDetail";
+            this.pageGameDetail.Size = new System.Drawing.Size(1232, 640);
             // 
             // MainForm
             // 
@@ -708,5 +715,6 @@
         private DevExpress.XtraEditors.LabelControl lblSearchPage;
         private DevExpress.XtraEditors.SimpleButton btnSearchNext;
         private DevExpress.XtraEditors.SimpleButton btnSearchPrev;
+        private DevExpress.XtraBars.Navigation.NavigationPage pageGameDetail;
     }
 }
