@@ -33,6 +33,12 @@ namespace GameTracker.Models
         public PlatformInfo platform { get; set; }
     }
 
+    public class PlatformInfo
+    {
+        [JsonProperty("name")]
+        public string name { get; set; }
+    }
+
     public class GameResponse
     {
         [JsonProperty("results")]

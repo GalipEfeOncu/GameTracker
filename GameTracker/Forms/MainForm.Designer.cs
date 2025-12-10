@@ -17,7 +17,7 @@
 
         private void InitializeComponent()
         {
-            this.panelSideBar = new DevExpress.XtraEditors.PanelControl();
+            this.panelControl1 = new DevExpress.XtraEditors.PanelControl();
             this.btnSearch = new DevExpress.XtraEditors.SimpleButton();
             this.btnSettings = new DevExpress.XtraEditors.SimpleButton();
             this.btnLibrary = new DevExpress.XtraEditors.SimpleButton();
@@ -38,11 +38,11 @@
             this.btnLibNext = new DevExpress.XtraEditors.SimpleButton();
             this.btnLibPrev = new DevExpress.XtraEditors.SimpleButton();
             this.panelControl6 = new DevExpress.XtraEditors.PanelControl();
-            this.btnPlayed = new DevExpress.XtraEditors.SimpleButton();
+            this.simpleButton8 = new DevExpress.XtraEditors.SimpleButton();
             this.labelControl6 = new DevExpress.XtraEditors.LabelControl();
-            this.btnPlaying = new DevExpress.XtraEditors.SimpleButton();
-            this.btnFavorites = new DevExpress.XtraEditors.SimpleButton();
-            this.btnUnplayed = new DevExpress.XtraEditors.SimpleButton();
+            this.simpleButton7 = new DevExpress.XtraEditors.SimpleButton();
+            this.simpleButton6 = new DevExpress.XtraEditors.SimpleButton();
+            this.simpleButton5 = new DevExpress.XtraEditors.SimpleButton();
             this.pageSearch = new DevExpress.XtraBars.Navigation.NavigationPage();
             this.flowLayoutPanelSearch = new System.Windows.Forms.FlowLayoutPanel();
             this.lblNoResult = new DevExpress.XtraEditors.LabelControl();
@@ -50,36 +50,11 @@
             this.lblSearchPage = new DevExpress.XtraEditors.LabelControl();
             this.btnSearchNext = new DevExpress.XtraEditors.SimpleButton();
             this.btnSearchPrev = new DevExpress.XtraEditors.SimpleButton();
-            this.panelSearchTitle = new DevExpress.XtraEditors.PanelControl();
+            this.panelControl7 = new DevExpress.XtraEditors.PanelControl();
             this.searchControlSearchPage = new DevExpress.XtraEditors.SearchControl();
             this.pageSettings = new DevExpress.XtraBars.Navigation.NavigationPage();
-            this.pageGameDetail = new DevExpress.XtraBars.Navigation.NavigationPage();
-            this.pnlGameDetailScroll = new DevExpress.XtraEditors.PanelControl();
-            this.panelGameInfoAndDescription = new DevExpress.XtraEditors.PanelControl();
-            this.memoDescription = new DevExpress.XtraEditors.MemoEdit();
-            this.lblAboutTitle = new DevExpress.XtraEditors.LabelControl();
-            this.pnlGameInfo = new DevExpress.XtraEditors.PanelControl();
-            this.lblEsrb = new DevExpress.XtraEditors.LabelControl();
-            this.lblEsrbTitle = new DevExpress.XtraEditors.LabelControl();
-            this.lblStores = new DevExpress.XtraEditors.LabelControl();
-            this.lblStoresTitle = new DevExpress.XtraEditors.LabelControl();
-            this.lblPlatforms = new DevExpress.XtraEditors.LabelControl();
-            this.lblPlatformsTitle = new DevExpress.XtraEditors.LabelControl();
-            this.flowScreenshots = new DevExpress.XtraEditors.PanelControl();
-            this.pnlHero = new DevExpress.XtraEditors.PanelControl();
-            this.btnBackFromDetail = new DevExpress.XtraEditors.SimpleButton();
-            this.lblUserRating = new DevExpress.XtraEditors.LabelControl();
-            this.lblMetacritic = new DevExpress.XtraEditors.LabelControl();
-            this.comboStatus = new DevExpress.XtraEditors.ComboBoxEdit();
-            this.flowGenres = new System.Windows.Forms.FlowLayoutPanel();
-            this.lblReleased = new DevExpress.XtraEditors.LabelControl();
-            this.lblPublisher = new DevExpress.XtraEditors.LabelControl();
-            this.lblDeveloper = new DevExpress.XtraEditors.LabelControl();
-            this.lblGameTitle = new DevExpress.XtraEditors.LabelControl();
-            this.peCoverImage = new DevExpress.XtraEditors.PictureEdit();
-            this.peBackgroundBlur = new DevExpress.XtraEditors.PictureEdit();
-            ((System.ComponentModel.ISupportInitialize)(this.panelSideBar)).BeginInit();
-            this.panelSideBar.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.panelControl1)).BeginInit();
+            this.panelControl1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.navigationFrame1)).BeginInit();
             this.navigationFrame1.SuspendLayout();
             this.pageHome.SuspendLayout();
@@ -94,40 +69,26 @@
             this.flowLayoutPanelSearch.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.panelSearchPagination)).BeginInit();
             this.panelSearchPagination.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.panelSearchTitle)).BeginInit();
-            this.panelSearchTitle.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.panelControl7)).BeginInit();
+            this.panelControl7.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.searchControlSearchPage.Properties)).BeginInit();
-            this.pageGameDetail.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pnlGameDetailScroll)).BeginInit();
-            this.pnlGameDetailScroll.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.panelGameInfoAndDescription)).BeginInit();
-            this.panelGameInfoAndDescription.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.memoDescription.Properties)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pnlGameInfo)).BeginInit();
-            this.pnlGameInfo.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.flowScreenshots)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pnlHero)).BeginInit();
-            this.pnlHero.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.comboStatus.Properties)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.peCoverImage.Properties)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.peBackgroundBlur.Properties)).BeginInit();
             this.SuspendLayout();
             // 
-            // panelSideBar
+            // panelControl1
             // 
-            this.panelSideBar.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(32)))), ((int)(((byte)(34)))), ((int)(((byte)(50)))));
-            this.panelSideBar.Appearance.Options.UseBackColor = true;
-            this.panelSideBar.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
-            this.panelSideBar.Controls.Add(this.btnSearch);
-            this.panelSideBar.Controls.Add(this.btnSettings);
-            this.panelSideBar.Controls.Add(this.btnLibrary);
-            this.panelSideBar.Controls.Add(this.btnHomeMenu);
-            this.panelSideBar.Controls.Add(this.lblTitle);
-            this.panelSideBar.Dock = System.Windows.Forms.DockStyle.Left;
-            this.panelSideBar.Location = new System.Drawing.Point(0, 0);
-            this.panelSideBar.Name = "panelSideBar";
-            this.panelSideBar.Size = new System.Drawing.Size(220, 907);
-            this.panelSideBar.TabIndex = 0;
+            this.panelControl1.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(32)))), ((int)(((byte)(34)))), ((int)(((byte)(50)))));
+            this.panelControl1.Appearance.Options.UseBackColor = true;
+            this.panelControl1.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
+            this.panelControl1.Controls.Add(this.btnSearch);
+            this.panelControl1.Controls.Add(this.btnSettings);
+            this.panelControl1.Controls.Add(this.btnLibrary);
+            this.panelControl1.Controls.Add(this.btnHomeMenu);
+            this.panelControl1.Controls.Add(this.lblTitle);
+            this.panelControl1.Dock = System.Windows.Forms.DockStyle.Left;
+            this.panelControl1.Location = new System.Drawing.Point(0, 0);
+            this.panelControl1.Name = "panelControl1";
+            this.panelControl1.Size = new System.Drawing.Size(220, 640);
+            this.panelControl1.TabIndex = 0;
             // 
             // btnSearch
             // 
@@ -171,7 +132,7 @@
             this.btnSettings.AppearanceHovered.Options.UseForeColor = true;
             this.btnSettings.ButtonStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
             this.btnSettings.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnSettings.Location = new System.Drawing.Point(10, 847);
+            this.btnSettings.Location = new System.Drawing.Point(10, 580);
             this.btnSettings.Name = "btnSettings";
             this.btnSettings.Size = new System.Drawing.Size(200, 45);
             this.btnSettings.TabIndex = 3;
@@ -250,7 +211,6 @@
             this.navigationFrame1.Controls.Add(this.pageLibrary);
             this.navigationFrame1.Controls.Add(this.pageSearch);
             this.navigationFrame1.Controls.Add(this.pageSettings);
-            this.navigationFrame1.Controls.Add(this.pageGameDetail);
             this.navigationFrame1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.navigationFrame1.Location = new System.Drawing.Point(220, 0);
             this.navigationFrame1.Name = "navigationFrame1";
@@ -258,21 +218,19 @@
             this.pageHome,
             this.pageLibrary,
             this.pageSearch,
-            this.pageSettings,
-            this.pageGameDetail});
+            this.pageSettings});
             this.navigationFrame1.SelectedPage = this.pageHome;
-            this.navigationFrame1.Size = new System.Drawing.Size(1207, 907);
+            this.navigationFrame1.Size = new System.Drawing.Size(1232, 640);
             this.navigationFrame1.TabIndex = 1;
             this.navigationFrame1.TransitionType = DevExpress.Utils.Animation.Transitions.Push;
             // 
             // pageHome
             // 
-            this.pageHome.Caption = "pageHome";
             this.pageHome.Controls.Add(this.flowLayoutPanelPopulerGames);
             this.pageHome.Controls.Add(this.panelHomePagination);
             this.pageHome.Controls.Add(this.lblPopulerGames);
             this.pageHome.Name = "pageHome";
-            this.pageHome.Size = new System.Drawing.Size(1207, 907);
+            this.pageHome.Size = new System.Drawing.Size(1232, 640);
             // 
             // flowLayoutPanelPopulerGames
             // 
@@ -281,7 +239,7 @@
             this.flowLayoutPanelPopulerGames.Location = new System.Drawing.Point(0, 70);
             this.flowLayoutPanelPopulerGames.Name = "flowLayoutPanelPopulerGames";
             this.flowLayoutPanelPopulerGames.Padding = new System.Windows.Forms.Padding(20);
-            this.flowLayoutPanelPopulerGames.Size = new System.Drawing.Size(1207, 787);
+            this.flowLayoutPanelPopulerGames.Size = new System.Drawing.Size(1232, 520);
             this.flowLayoutPanelPopulerGames.TabIndex = 20;
             // 
             // panelHomePagination
@@ -293,9 +251,9 @@
             this.panelHomePagination.Controls.Add(this.btnHomeNext);
             this.panelHomePagination.Controls.Add(this.btnHomePrev);
             this.panelHomePagination.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.panelHomePagination.Location = new System.Drawing.Point(0, 857);
+            this.panelHomePagination.Location = new System.Drawing.Point(0, 590);
             this.panelHomePagination.Name = "panelHomePagination";
-            this.panelHomePagination.Size = new System.Drawing.Size(1207, 50);
+            this.panelHomePagination.Size = new System.Drawing.Size(1232, 50);
             this.panelHomePagination.TabIndex = 4;
             // 
             // lblHomePage
@@ -310,7 +268,7 @@
             this.lblHomePage.AutoSizeMode = DevExpress.XtraEditors.LabelAutoSizeMode.None;
             this.lblHomePage.Location = new System.Drawing.Point(120, 15);
             this.lblHomePage.Name = "lblHomePage";
-            this.lblHomePage.Size = new System.Drawing.Size(967, 20);
+            this.lblHomePage.Size = new System.Drawing.Size(992, 20);
             this.lblHomePage.TabIndex = 2;
             this.lblHomePage.Text = "Page 1 / 1";
             // 
@@ -325,7 +283,7 @@
             this.btnHomeNext.Appearance.Options.UseForeColor = true;
             this.btnHomeNext.ButtonStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
             this.btnHomeNext.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnHomeNext.Location = new System.Drawing.Point(1095, 10);
+            this.btnHomeNext.Location = new System.Drawing.Point(1120, 10);
             this.btnHomeNext.Name = "btnHomeNext";
             this.btnHomeNext.Size = new System.Drawing.Size(90, 30);
             this.btnHomeNext.TabIndex = 1;
@@ -362,7 +320,7 @@
             this.lblPopulerGames.Location = new System.Drawing.Point(0, 0);
             this.lblPopulerGames.Name = "lblPopulerGames";
             this.lblPopulerGames.Padding = new System.Windows.Forms.Padding(20, 0, 0, 0);
-            this.lblPopulerGames.Size = new System.Drawing.Size(1207, 70);
+            this.lblPopulerGames.Size = new System.Drawing.Size(1232, 70);
             this.lblPopulerGames.TabIndex = 22;
             this.lblPopulerGames.Text = "Popular Games";
             // 
@@ -373,7 +331,7 @@
             this.pageLibrary.Controls.Add(this.panelLibPagination);
             this.pageLibrary.Controls.Add(this.panelControl6);
             this.pageLibrary.Name = "pageLibrary";
-            this.pageLibrary.Size = new System.Drawing.Size(1207, 907);
+            this.pageLibrary.Size = new System.Drawing.Size(1232, 640);
             // 
             // flowLayoutPanelLibrary
             // 
@@ -382,7 +340,7 @@
             this.flowLayoutPanelLibrary.Location = new System.Drawing.Point(0, 70);
             this.flowLayoutPanelLibrary.Name = "flowLayoutPanelLibrary";
             this.flowLayoutPanelLibrary.Padding = new System.Windows.Forms.Padding(20);
-            this.flowLayoutPanelLibrary.Size = new System.Drawing.Size(1207, 787);
+            this.flowLayoutPanelLibrary.Size = new System.Drawing.Size(1232, 520);
             this.flowLayoutPanelLibrary.TabIndex = 18;
             // 
             // panelLibPagination
@@ -394,9 +352,9 @@
             this.panelLibPagination.Controls.Add(this.btnLibNext);
             this.panelLibPagination.Controls.Add(this.btnLibPrev);
             this.panelLibPagination.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.panelLibPagination.Location = new System.Drawing.Point(0, 857);
+            this.panelLibPagination.Location = new System.Drawing.Point(0, 590);
             this.panelLibPagination.Name = "panelLibPagination";
-            this.panelLibPagination.Size = new System.Drawing.Size(1207, 50);
+            this.panelLibPagination.Size = new System.Drawing.Size(1232, 50);
             this.panelLibPagination.TabIndex = 19;
             // 
             // lblLibPage
@@ -411,7 +369,7 @@
             this.lblLibPage.AutoSizeMode = DevExpress.XtraEditors.LabelAutoSizeMode.None;
             this.lblLibPage.Location = new System.Drawing.Point(120, 15);
             this.lblLibPage.Name = "lblLibPage";
-            this.lblLibPage.Size = new System.Drawing.Size(967, 20);
+            this.lblLibPage.Size = new System.Drawing.Size(992, 20);
             this.lblLibPage.TabIndex = 2;
             this.lblLibPage.Text = "Page 1 / 1";
             // 
@@ -426,7 +384,7 @@
             this.btnLibNext.Appearance.Options.UseForeColor = true;
             this.btnLibNext.ButtonStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
             this.btnLibNext.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnLibNext.Location = new System.Drawing.Point(1095, 10);
+            this.btnLibNext.Location = new System.Drawing.Point(1120, 10);
             this.btnLibNext.Name = "btnLibNext";
             this.btnLibNext.Size = new System.Drawing.Size(90, 30);
             this.btnLibNext.TabIndex = 1;
@@ -455,30 +413,30 @@
             this.panelControl6.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(26)))), ((int)(((byte)(29)))), ((int)(((byte)(41)))));
             this.panelControl6.Appearance.Options.UseBackColor = true;
             this.panelControl6.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
-            this.panelControl6.Controls.Add(this.btnPlayed);
+            this.panelControl6.Controls.Add(this.simpleButton8);
             this.panelControl6.Controls.Add(this.labelControl6);
-            this.panelControl6.Controls.Add(this.btnPlaying);
-            this.panelControl6.Controls.Add(this.btnFavorites);
-            this.panelControl6.Controls.Add(this.btnUnplayed);
+            this.panelControl6.Controls.Add(this.simpleButton7);
+            this.panelControl6.Controls.Add(this.simpleButton6);
+            this.panelControl6.Controls.Add(this.simpleButton5);
             this.panelControl6.Dock = System.Windows.Forms.DockStyle.Top;
             this.panelControl6.Location = new System.Drawing.Point(0, 0);
             this.panelControl6.Name = "panelControl6";
-            this.panelControl6.Size = new System.Drawing.Size(1207, 70);
+            this.panelControl6.Size = new System.Drawing.Size(1232, 70);
             this.panelControl6.TabIndex = 0;
             // 
-            // btnPlayed
+            // simpleButton8
             // 
-            this.btnPlayed.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(32)))), ((int)(((byte)(34)))), ((int)(((byte)(50)))));
-            this.btnPlayed.Appearance.ForeColor = System.Drawing.Color.Silver;
-            this.btnPlayed.Appearance.Options.UseBackColor = true;
-            this.btnPlayed.Appearance.Options.UseForeColor = true;
-            this.btnPlayed.ButtonStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
-            this.btnPlayed.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnPlayed.Location = new System.Drawing.Point(310, 20);
-            this.btnPlayed.Name = "btnPlayed";
-            this.btnPlayed.Size = new System.Drawing.Size(100, 35);
-            this.btnPlayed.TabIndex = 15;
-            this.btnPlayed.Text = "Played";
+            this.simpleButton8.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(32)))), ((int)(((byte)(34)))), ((int)(((byte)(50)))));
+            this.simpleButton8.Appearance.ForeColor = System.Drawing.Color.Silver;
+            this.simpleButton8.Appearance.Options.UseBackColor = true;
+            this.simpleButton8.Appearance.Options.UseForeColor = true;
+            this.simpleButton8.ButtonStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
+            this.simpleButton8.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.simpleButton8.Location = new System.Drawing.Point(310, 20);
+            this.simpleButton8.Name = "simpleButton8";
+            this.simpleButton8.Size = new System.Drawing.Size(100, 35);
+            this.simpleButton8.TabIndex = 15;
+            this.simpleButton8.Text = "Played";
             // 
             // labelControl6
             // 
@@ -492,56 +450,56 @@
             this.labelControl6.TabIndex = 12;
             this.labelControl6.Text = "My Library";
             // 
-            // btnPlaying
+            // simpleButton7
             // 
-            this.btnPlaying.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(32)))), ((int)(((byte)(34)))), ((int)(((byte)(50)))));
-            this.btnPlaying.Appearance.ForeColor = System.Drawing.Color.Silver;
-            this.btnPlaying.Appearance.Options.UseBackColor = true;
-            this.btnPlaying.Appearance.Options.UseForeColor = true;
-            this.btnPlaying.ButtonStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
-            this.btnPlaying.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnPlaying.Location = new System.Drawing.Point(420, 20);
-            this.btnPlaying.Name = "btnPlaying";
-            this.btnPlaying.Size = new System.Drawing.Size(100, 35);
-            this.btnPlaying.TabIndex = 16;
-            this.btnPlaying.Text = "Playing";
+            this.simpleButton7.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(32)))), ((int)(((byte)(34)))), ((int)(((byte)(50)))));
+            this.simpleButton7.Appearance.ForeColor = System.Drawing.Color.Silver;
+            this.simpleButton7.Appearance.Options.UseBackColor = true;
+            this.simpleButton7.Appearance.Options.UseForeColor = true;
+            this.simpleButton7.ButtonStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
+            this.simpleButton7.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.simpleButton7.Location = new System.Drawing.Point(420, 20);
+            this.simpleButton7.Name = "simpleButton7";
+            this.simpleButton7.Size = new System.Drawing.Size(100, 35);
+            this.simpleButton7.TabIndex = 16;
+            this.simpleButton7.Text = "Playing";
             // 
-            // btnFavorites
+            // simpleButton6
             // 
-            this.btnFavorites.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(32)))), ((int)(((byte)(34)))), ((int)(((byte)(50)))));
-            this.btnFavorites.Appearance.ForeColor = System.Drawing.Color.Silver;
-            this.btnFavorites.Appearance.Options.UseBackColor = true;
-            this.btnFavorites.Appearance.Options.UseForeColor = true;
-            this.btnFavorites.ButtonStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
-            this.btnFavorites.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnFavorites.Location = new System.Drawing.Point(200, 20);
-            this.btnFavorites.Name = "btnFavorites";
-            this.btnFavorites.Size = new System.Drawing.Size(100, 35);
-            this.btnFavorites.TabIndex = 13;
-            this.btnFavorites.Text = "Favorites";
+            this.simpleButton6.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(32)))), ((int)(((byte)(34)))), ((int)(((byte)(50)))));
+            this.simpleButton6.Appearance.ForeColor = System.Drawing.Color.Silver;
+            this.simpleButton6.Appearance.Options.UseBackColor = true;
+            this.simpleButton6.Appearance.Options.UseForeColor = true;
+            this.simpleButton6.ButtonStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
+            this.simpleButton6.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.simpleButton6.Location = new System.Drawing.Point(200, 20);
+            this.simpleButton6.Name = "simpleButton6";
+            this.simpleButton6.Size = new System.Drawing.Size(100, 35);
+            this.simpleButton6.TabIndex = 13;
+            this.simpleButton6.Text = "Favorites";
             // 
-            // btnUnplayed
+            // simpleButton5
             // 
-            this.btnUnplayed.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(32)))), ((int)(((byte)(34)))), ((int)(((byte)(50)))));
-            this.btnUnplayed.Appearance.ForeColor = System.Drawing.Color.Silver;
-            this.btnUnplayed.Appearance.Options.UseBackColor = true;
-            this.btnUnplayed.Appearance.Options.UseForeColor = true;
-            this.btnUnplayed.ButtonStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
-            this.btnUnplayed.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnUnplayed.Location = new System.Drawing.Point(530, 20);
-            this.btnUnplayed.Name = "btnUnplayed";
-            this.btnUnplayed.Size = new System.Drawing.Size(100, 35);
-            this.btnUnplayed.TabIndex = 17;
-            this.btnUnplayed.Text = "Unplayed";
+            this.simpleButton5.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(32)))), ((int)(((byte)(34)))), ((int)(((byte)(50)))));
+            this.simpleButton5.Appearance.ForeColor = System.Drawing.Color.Silver;
+            this.simpleButton5.Appearance.Options.UseBackColor = true;
+            this.simpleButton5.Appearance.Options.UseForeColor = true;
+            this.simpleButton5.ButtonStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
+            this.simpleButton5.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.simpleButton5.Location = new System.Drawing.Point(530, 20);
+            this.simpleButton5.Name = "simpleButton5";
+            this.simpleButton5.Size = new System.Drawing.Size(100, 35);
+            this.simpleButton5.TabIndex = 17;
+            this.simpleButton5.Text = "Unplayed";
             // 
             // pageSearch
             // 
             this.pageSearch.Caption = "pageSearch";
             this.pageSearch.Controls.Add(this.flowLayoutPanelSearch);
             this.pageSearch.Controls.Add(this.panelSearchPagination);
-            this.pageSearch.Controls.Add(this.panelSearchTitle);
+            this.pageSearch.Controls.Add(this.panelControl7);
             this.pageSearch.Name = "pageSearch";
-            this.pageSearch.Size = new System.Drawing.Size(1207, 907);
+            this.pageSearch.Size = new System.Drawing.Size(1232, 640);
             // 
             // flowLayoutPanelSearch
             // 
@@ -551,7 +509,7 @@
             this.flowLayoutPanelSearch.Location = new System.Drawing.Point(0, 70);
             this.flowLayoutPanelSearch.Name = "flowLayoutPanelSearch";
             this.flowLayoutPanelSearch.Padding = new System.Windows.Forms.Padding(20);
-            this.flowLayoutPanelSearch.Size = new System.Drawing.Size(1207, 787);
+            this.flowLayoutPanelSearch.Size = new System.Drawing.Size(1232, 520);
             this.flowLayoutPanelSearch.TabIndex = 16;
             // 
             // lblNoResult
@@ -579,9 +537,9 @@
             this.panelSearchPagination.Controls.Add(this.btnSearchNext);
             this.panelSearchPagination.Controls.Add(this.btnSearchPrev);
             this.panelSearchPagination.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.panelSearchPagination.Location = new System.Drawing.Point(0, 857);
+            this.panelSearchPagination.Location = new System.Drawing.Point(0, 590);
             this.panelSearchPagination.Name = "panelSearchPagination";
-            this.panelSearchPagination.Size = new System.Drawing.Size(1207, 50);
+            this.panelSearchPagination.Size = new System.Drawing.Size(1232, 50);
             this.panelSearchPagination.TabIndex = 20;
             // 
             // lblSearchPage
@@ -596,7 +554,7 @@
             this.lblSearchPage.AutoSizeMode = DevExpress.XtraEditors.LabelAutoSizeMode.None;
             this.lblSearchPage.Location = new System.Drawing.Point(120, 15);
             this.lblSearchPage.Name = "lblSearchPage";
-            this.lblSearchPage.Size = new System.Drawing.Size(967, 20);
+            this.lblSearchPage.Size = new System.Drawing.Size(992, 20);
             this.lblSearchPage.TabIndex = 2;
             this.lblSearchPage.Text = "Page 1 / 1";
             // 
@@ -611,7 +569,7 @@
             this.btnSearchNext.Appearance.Options.UseForeColor = true;
             this.btnSearchNext.ButtonStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
             this.btnSearchNext.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnSearchNext.Location = new System.Drawing.Point(1095, 10);
+            this.btnSearchNext.Location = new System.Drawing.Point(1120, 10);
             this.btnSearchNext.Name = "btnSearchNext";
             this.btnSearchNext.Size = new System.Drawing.Size(90, 30);
             this.btnSearchNext.TabIndex = 1;
@@ -635,17 +593,17 @@
             this.btnSearchPrev.Text = "< Prev";
             this.btnSearchPrev.Click += new System.EventHandler(this.btnSearchPrev_Click);
             // 
-            // panelSearchTitle
+            // panelControl7
             // 
-            this.panelSearchTitle.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(26)))), ((int)(((byte)(29)))), ((int)(((byte)(41)))));
-            this.panelSearchTitle.Appearance.Options.UseBackColor = true;
-            this.panelSearchTitle.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
-            this.panelSearchTitle.Controls.Add(this.searchControlSearchPage);
-            this.panelSearchTitle.Dock = System.Windows.Forms.DockStyle.Top;
-            this.panelSearchTitle.Location = new System.Drawing.Point(0, 0);
-            this.panelSearchTitle.Name = "panelSearchTitle";
-            this.panelSearchTitle.Size = new System.Drawing.Size(1207, 70);
-            this.panelSearchTitle.TabIndex = 15;
+            this.panelControl7.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(26)))), ((int)(((byte)(29)))), ((int)(((byte)(41)))));
+            this.panelControl7.Appearance.Options.UseBackColor = true;
+            this.panelControl7.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
+            this.panelControl7.Controls.Add(this.searchControlSearchPage);
+            this.panelControl7.Dock = System.Windows.Forms.DockStyle.Top;
+            this.panelControl7.Location = new System.Drawing.Point(0, 0);
+            this.panelControl7.Name = "panelControl7";
+            this.panelControl7.Size = new System.Drawing.Size(1232, 70);
+            this.panelControl7.TabIndex = 15;
             // 
             // searchControlSearchPage
             // 
@@ -669,354 +627,7 @@
             // 
             this.pageSettings.Caption = "pageSettings";
             this.pageSettings.Name = "pageSettings";
-            this.pageSettings.Size = new System.Drawing.Size(1207, 907);
-            // 
-            // pageGameDetail
-            // 
-            this.pageGameDetail.Controls.Add(this.pnlGameDetailScroll);
-            this.pageGameDetail.Name = "pageGameDetail";
-            this.pageGameDetail.Size = new System.Drawing.Size(1207, 907);
-            // 
-            // pnlGameDetailScroll
-            // 
-            this.pnlGameDetailScroll.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(26)))), ((int)(((byte)(29)))), ((int)(((byte)(41)))));
-            this.pnlGameDetailScroll.Appearance.Options.UseBackColor = true;
-            this.pnlGameDetailScroll.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
-            this.pnlGameDetailScroll.Controls.Add(this.panelGameInfoAndDescription);
-            this.pnlGameDetailScroll.Controls.Add(this.flowScreenshots);
-            this.pnlGameDetailScroll.Controls.Add(this.pnlHero);
-            this.pnlGameDetailScroll.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pnlGameDetailScroll.Location = new System.Drawing.Point(0, 0);
-            this.pnlGameDetailScroll.Name = "pnlGameDetailScroll";
-            this.pnlGameDetailScroll.Size = new System.Drawing.Size(1207, 907);
-            this.pnlGameDetailScroll.TabIndex = 1;
-            // 
-            // panelGameInfoAndDescription
-            // 
-            this.panelGameInfoAndDescription.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
-            this.panelGameInfoAndDescription.Controls.Add(this.memoDescription);
-            this.panelGameInfoAndDescription.Controls.Add(this.lblAboutTitle);
-            this.panelGameInfoAndDescription.Controls.Add(this.pnlGameInfo);
-            this.panelGameInfoAndDescription.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panelGameInfoAndDescription.Location = new System.Drawing.Point(0, 618);
-            this.panelGameInfoAndDescription.Name = "panelGameInfoAndDescription";
-            this.panelGameInfoAndDescription.Size = new System.Drawing.Size(1207, 289);
-            this.panelGameInfoAndDescription.TabIndex = 13;
-            // 
-            // memoDescription
-            // 
-            this.memoDescription.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.memoDescription.EditValue = "About the game description goes here...";
-            this.memoDescription.Location = new System.Drawing.Point(0, 50);
-            this.memoDescription.Name = "memoDescription";
-            this.memoDescription.Properties.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(26)))), ((int)(((byte)(29)))), ((int)(((byte)(41)))));
-            this.memoDescription.Properties.Appearance.Font = new System.Drawing.Font("Segoe UI", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.memoDescription.Properties.Appearance.ForeColor = System.Drawing.Color.Gainsboro;
-            this.memoDescription.Properties.Appearance.Options.UseBackColor = true;
-            this.memoDescription.Properties.Appearance.Options.UseFont = true;
-            this.memoDescription.Properties.Appearance.Options.UseForeColor = true;
-            this.memoDescription.Properties.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
-            this.memoDescription.Properties.ReadOnly = true;
-            this.memoDescription.Properties.ScrollBars = System.Windows.Forms.ScrollBars.None;
-            this.memoDescription.Properties.TextPadding = new System.Windows.Forms.Padding(20, 10, 20, 10);
-            this.memoDescription.Size = new System.Drawing.Size(827, 239);
-            this.memoDescription.TabIndex = 11;
-            // 
-            // lblAboutTitle
-            // 
-            this.lblAboutTitle.Appearance.Font = new System.Drawing.Font("Segoe UI", 15.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblAboutTitle.Appearance.ForeColor = System.Drawing.Color.White;
-            this.lblAboutTitle.Appearance.Options.UseFont = true;
-            this.lblAboutTitle.Appearance.Options.UseForeColor = true;
-            this.lblAboutTitle.AutoSizeMode = DevExpress.XtraEditors.LabelAutoSizeMode.None;
-            this.lblAboutTitle.Dock = System.Windows.Forms.DockStyle.Top;
-            this.lblAboutTitle.Location = new System.Drawing.Point(0, 0);
-            this.lblAboutTitle.Name = "lblAboutTitle";
-            this.lblAboutTitle.Padding = new System.Windows.Forms.Padding(20, 0, 0, 0);
-            this.lblAboutTitle.Size = new System.Drawing.Size(827, 50);
-            this.lblAboutTitle.TabIndex = 10;
-            this.lblAboutTitle.Text = "About the Game";
-            // 
-            // pnlGameInfo
-            // 
-            this.pnlGameInfo.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(32)))), ((int)(((byte)(35)))), ((int)(((byte)(47)))));
-            this.pnlGameInfo.Appearance.Options.UseBackColor = true;
-            this.pnlGameInfo.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
-            this.pnlGameInfo.Controls.Add(this.lblEsrb);
-            this.pnlGameInfo.Controls.Add(this.lblEsrbTitle);
-            this.pnlGameInfo.Controls.Add(this.lblStores);
-            this.pnlGameInfo.Controls.Add(this.lblStoresTitle);
-            this.pnlGameInfo.Controls.Add(this.lblPlatforms);
-            this.pnlGameInfo.Controls.Add(this.lblPlatformsTitle);
-            this.pnlGameInfo.Dock = System.Windows.Forms.DockStyle.Right;
-            this.pnlGameInfo.Location = new System.Drawing.Point(827, 0);
-            this.pnlGameInfo.Name = "pnlGameInfo";
-            this.pnlGameInfo.Padding = new System.Windows.Forms.Padding(20);
-            this.pnlGameInfo.Size = new System.Drawing.Size(380, 289);
-            this.pnlGameInfo.TabIndex = 12;
-            // 
-            // lblEsrb
-            // 
-            this.lblEsrb.Appearance.Font = new System.Drawing.Font("Segoe UI", 9.75F);
-            this.lblEsrb.Appearance.ForeColor = System.Drawing.Color.Silver;
-            this.lblEsrb.Appearance.Options.UseFont = true;
-            this.lblEsrb.Appearance.Options.UseForeColor = true;
-            this.lblEsrb.Appearance.Options.UseTextOptions = true;
-            this.lblEsrb.Appearance.TextOptions.VAlignment = DevExpress.Utils.VertAlignment.Top;
-            this.lblEsrb.AutoSizeMode = DevExpress.XtraEditors.LabelAutoSizeMode.Vertical;
-            this.lblEsrb.Location = new System.Drawing.Point(30, 240);
-            this.lblEsrb.Name = "lblEsrb";
-            this.lblEsrb.Size = new System.Drawing.Size(320, 17);
-            this.lblEsrb.TabIndex = 5;
-            this.lblEsrb.Text = "Mature 17+";
-            // 
-            // lblEsrbTitle
-            // 
-            this.lblEsrbTitle.Appearance.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Bold);
-            this.lblEsrbTitle.Appearance.ForeColor = System.Drawing.Color.White;
-            this.lblEsrbTitle.Appearance.Options.UseFont = true;
-            this.lblEsrbTitle.Appearance.Options.UseForeColor = true;
-            this.lblEsrbTitle.Location = new System.Drawing.Point(30, 210);
-            this.lblEsrbTitle.Name = "lblEsrbTitle";
-            this.lblEsrbTitle.Size = new System.Drawing.Size(82, 20);
-            this.lblEsrbTitle.TabIndex = 4;
-            this.lblEsrbTitle.Text = "Age Rating:";
-            // 
-            // lblStores
-            // 
-            this.lblStores.Appearance.Font = new System.Drawing.Font("Segoe UI", 9.75F);
-            this.lblStores.Appearance.ForeColor = System.Drawing.Color.Silver;
-            this.lblStores.Appearance.Options.UseFont = true;
-            this.lblStores.Appearance.Options.UseForeColor = true;
-            this.lblStores.Appearance.Options.UseTextOptions = true;
-            this.lblStores.Appearance.TextOptions.VAlignment = DevExpress.Utils.VertAlignment.Top;
-            this.lblStores.AutoSizeMode = DevExpress.XtraEditors.LabelAutoSizeMode.Vertical;
-            this.lblStores.Location = new System.Drawing.Point(30, 150);
-            this.lblStores.Name = "lblStores";
-            this.lblStores.Size = new System.Drawing.Size(320, 17);
-            this.lblStores.TabIndex = 3;
-            this.lblStores.Text = "Steam, Epic Games";
-            // 
-            // lblStoresTitle
-            // 
-            this.lblStoresTitle.Appearance.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Bold);
-            this.lblStoresTitle.Appearance.ForeColor = System.Drawing.Color.White;
-            this.lblStoresTitle.Appearance.Options.UseFont = true;
-            this.lblStoresTitle.Appearance.Options.UseForeColor = true;
-            this.lblStoresTitle.Location = new System.Drawing.Point(30, 120);
-            this.lblStoresTitle.Name = "lblStoresTitle";
-            this.lblStoresTitle.Size = new System.Drawing.Size(92, 20);
-            this.lblStoresTitle.TabIndex = 2;
-            this.lblStoresTitle.Text = "Available On:";
-            // 
-            // lblPlatforms
-            // 
-            this.lblPlatforms.Appearance.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblPlatforms.Appearance.ForeColor = System.Drawing.Color.Silver;
-            this.lblPlatforms.Appearance.Options.UseFont = true;
-            this.lblPlatforms.Appearance.Options.UseForeColor = true;
-            this.lblPlatforms.Appearance.Options.UseTextOptions = true;
-            this.lblPlatforms.Appearance.TextOptions.VAlignment = DevExpress.Utils.VertAlignment.Top;
-            this.lblPlatforms.AutoSizeMode = DevExpress.XtraEditors.LabelAutoSizeMode.Vertical;
-            this.lblPlatforms.Location = new System.Drawing.Point(30, 60);
-            this.lblPlatforms.Name = "lblPlatforms";
-            this.lblPlatforms.Size = new System.Drawing.Size(320, 17);
-            this.lblPlatforms.TabIndex = 1;
-            this.lblPlatforms.Text = "PC, PS5, Xbox Series X";
-            // 
-            // lblPlatformsTitle
-            // 
-            this.lblPlatformsTitle.Appearance.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Bold);
-            this.lblPlatformsTitle.Appearance.ForeColor = System.Drawing.Color.White;
-            this.lblPlatformsTitle.Appearance.Options.UseFont = true;
-            this.lblPlatformsTitle.Appearance.Options.UseForeColor = true;
-            this.lblPlatformsTitle.Location = new System.Drawing.Point(30, 30);
-            this.lblPlatformsTitle.Name = "lblPlatformsTitle";
-            this.lblPlatformsTitle.Size = new System.Drawing.Size(69, 20);
-            this.lblPlatformsTitle.TabIndex = 0;
-            this.lblPlatformsTitle.Text = "Platforms";
-            // 
-            // flowScreenshots
-            // 
-            this.flowScreenshots.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(20)))), ((int)(((byte)(20)))), ((int)(((byte)(30)))));
-            this.flowScreenshots.Appearance.Options.UseBackColor = true;
-            this.flowScreenshots.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
-            this.flowScreenshots.Dock = System.Windows.Forms.DockStyle.Top;
-            this.flowScreenshots.Location = new System.Drawing.Point(0, 400);
-            this.flowScreenshots.Name = "flowScreenshots";
-            this.flowScreenshots.Padding = new System.Windows.Forms.Padding(20, 10, 20, 10);
-            this.flowScreenshots.Size = new System.Drawing.Size(1207, 218);
-            this.flowScreenshots.TabIndex = 2;
-            // 
-            // pnlHero
-            // 
-            this.pnlHero.Controls.Add(this.btnBackFromDetail);
-            this.pnlHero.Controls.Add(this.lblUserRating);
-            this.pnlHero.Controls.Add(this.lblMetacritic);
-            this.pnlHero.Controls.Add(this.comboStatus);
-            this.pnlHero.Controls.Add(this.flowGenres);
-            this.pnlHero.Controls.Add(this.lblReleased);
-            this.pnlHero.Controls.Add(this.lblPublisher);
-            this.pnlHero.Controls.Add(this.lblDeveloper);
-            this.pnlHero.Controls.Add(this.lblGameTitle);
-            this.pnlHero.Controls.Add(this.peCoverImage);
-            this.pnlHero.Controls.Add(this.peBackgroundBlur);
-            this.pnlHero.Dock = System.Windows.Forms.DockStyle.Top;
-            this.pnlHero.Location = new System.Drawing.Point(0, 0);
-            this.pnlHero.Name = "pnlHero";
-            this.pnlHero.Size = new System.Drawing.Size(1207, 400);
-            this.pnlHero.TabIndex = 1;
-            // 
-            // btnBackFromDetail
-            // 
-            this.btnBackFromDetail.AllowFocus = false;
-            this.btnBackFromDetail.Appearance.BackColor = System.Drawing.Color.Transparent;
-            this.btnBackFromDetail.Appearance.Font = new System.Drawing.Font("Segoe UI", 24F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnBackFromDetail.Appearance.ForeColor = System.Drawing.Color.White;
-            this.btnBackFromDetail.Appearance.Options.UseBackColor = true;
-            this.btnBackFromDetail.Appearance.Options.UseFont = true;
-            this.btnBackFromDetail.Appearance.Options.UseForeColor = true;
-            this.btnBackFromDetail.ButtonStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
-            this.btnBackFromDetail.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnBackFromDetail.Location = new System.Drawing.Point(0, 0);
-            this.btnBackFromDetail.Name = "btnBackFromDetail";
-            this.btnBackFromDetail.Size = new System.Drawing.Size(50, 50);
-            this.btnBackFromDetail.TabIndex = 0;
-            this.btnBackFromDetail.Text = "←";
-            this.btnBackFromDetail.Click += new System.EventHandler(this.btnBackFromDetail_Click);
-            // 
-            // lblUserRating
-            // 
-            this.lblUserRating.Appearance.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblUserRating.Appearance.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(200)))), ((int)(((byte)(200)))), ((int)(((byte)(200)))));
-            this.lblUserRating.Appearance.Options.UseFont = true;
-            this.lblUserRating.Appearance.Options.UseForeColor = true;
-            this.lblUserRating.AutoSizeMode = DevExpress.XtraEditors.LabelAutoSizeMode.Vertical;
-            this.lblUserRating.Location = new System.Drawing.Point(270, 329);
-            this.lblUserRating.MaximumSize = new System.Drawing.Size(800, 0);
-            this.lblUserRating.Name = "lblUserRating";
-            this.lblUserRating.Size = new System.Drawing.Size(219, 21);
-            this.lblUserRating.TabIndex = 9;
-            this.lblUserRating.Text = "Rating: 9.5";
-            // 
-            // lblMetacritic
-            // 
-            this.lblMetacritic.Appearance.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblMetacritic.Appearance.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(200)))), ((int)(((byte)(200)))), ((int)(((byte)(200)))));
-            this.lblMetacritic.Appearance.Options.UseFont = true;
-            this.lblMetacritic.Appearance.Options.UseForeColor = true;
-            this.lblMetacritic.AutoSizeMode = DevExpress.XtraEditors.LabelAutoSizeMode.Vertical;
-            this.lblMetacritic.Location = new System.Drawing.Point(270, 300);
-            this.lblMetacritic.MaximumSize = new System.Drawing.Size(800, 0);
-            this.lblMetacritic.Name = "lblMetacritic";
-            this.lblMetacritic.Size = new System.Drawing.Size(219, 21);
-            this.lblMetacritic.TabIndex = 8;
-            this.lblMetacritic.Text = "Metacritic: 92";
-            // 
-            // comboStatus
-            // 
-            this.comboStatus.Location = new System.Drawing.Point(270, 250);
-            this.comboStatus.Name = "comboStatus";
-            this.comboStatus.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
-            new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
-            this.comboStatus.Properties.Items.AddRange(new object[] {
-            "Plan to Play",
-            "Playing",
-            "Played",
-            "Dropped"});
-            this.comboStatus.Size = new System.Drawing.Size(180, 20);
-            this.comboStatus.TabIndex = 7;
-            // 
-            // flowGenres
-            // 
-            this.flowGenres.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.flowGenres.BackColor = System.Drawing.Color.Transparent;
-            this.flowGenres.Location = new System.Drawing.Point(270, 200);
-            this.flowGenres.Name = "flowGenres";
-            this.flowGenres.Size = new System.Drawing.Size(900, 40);
-            this.flowGenres.TabIndex = 6;
-            // 
-            // lblReleased
-            // 
-            this.lblReleased.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.lblReleased.Appearance.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblReleased.Appearance.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(200)))), ((int)(((byte)(200)))), ((int)(((byte)(200)))));
-            this.lblReleased.Appearance.Options.UseFont = true;
-            this.lblReleased.Appearance.Options.UseForeColor = true;
-            this.lblReleased.AutoSizeMode = DevExpress.XtraEditors.LabelAutoSizeMode.Vertical;
-            this.lblReleased.Location = new System.Drawing.Point(270, 170);
-            this.lblReleased.Name = "lblReleased";
-            this.lblReleased.Size = new System.Drawing.Size(500, 21);
-            this.lblReleased.TabIndex = 5;
-            this.lblReleased.Text = "Released: 2023";
-            // 
-            // lblPublisher
-            // 
-            this.lblPublisher.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.lblPublisher.Appearance.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblPublisher.Appearance.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(200)))), ((int)(((byte)(200)))), ((int)(((byte)(200)))));
-            this.lblPublisher.Appearance.Options.UseFont = true;
-            this.lblPublisher.Appearance.Options.UseForeColor = true;
-            this.lblPublisher.AutoSizeMode = DevExpress.XtraEditors.LabelAutoSizeMode.Vertical;
-            this.lblPublisher.Location = new System.Drawing.Point(270, 145);
-            this.lblPublisher.Name = "lblPublisher";
-            this.lblPublisher.Size = new System.Drawing.Size(500, 21);
-            this.lblPublisher.TabIndex = 4;
-            this.lblPublisher.Text = "Publisher: Sony";
-            // 
-            // lblDeveloper
-            // 
-            this.lblDeveloper.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.lblDeveloper.Appearance.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblDeveloper.Appearance.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(200)))), ((int)(((byte)(200)))), ((int)(((byte)(200)))));
-            this.lblDeveloper.Appearance.Options.UseFont = true;
-            this.lblDeveloper.Appearance.Options.UseForeColor = true;
-            this.lblDeveloper.AutoSizeMode = DevExpress.XtraEditors.LabelAutoSizeMode.Vertical;
-            this.lblDeveloper.Location = new System.Drawing.Point(270, 120);
-            this.lblDeveloper.Name = "lblDeveloper";
-            this.lblDeveloper.Size = new System.Drawing.Size(500, 21);
-            this.lblDeveloper.TabIndex = 3;
-            this.lblDeveloper.Text = "Developer: Insomniac Games";
-            // 
-            // lblGameTitle
-            // 
-            this.lblGameTitle.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.lblGameTitle.Appearance.Font = new System.Drawing.Font("Segoe UI", 27.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblGameTitle.Appearance.ForeColor = System.Drawing.Color.White;
-            this.lblGameTitle.Appearance.Options.UseFont = true;
-            this.lblGameTitle.Appearance.Options.UseForeColor = true;
-            this.lblGameTitle.AutoSizeMode = DevExpress.XtraEditors.LabelAutoSizeMode.Vertical;
-            this.lblGameTitle.Location = new System.Drawing.Point(270, 50);
-            this.lblGameTitle.Name = "lblGameTitle";
-            this.lblGameTitle.Size = new System.Drawing.Size(880, 50);
-            this.lblGameTitle.TabIndex = 2;
-            this.lblGameTitle.Text = "Marvel\'s Spider-Man 2";
-            // 
-            // peCoverImage
-            // 
-            this.peCoverImage.Location = new System.Drawing.Point(50, 50);
-            this.peCoverImage.Name = "peCoverImage";
-            this.peCoverImage.Properties.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.Simple;
-            this.peCoverImage.Properties.ShowCameraMenuItem = DevExpress.XtraEditors.Controls.CameraMenuItemVisibility.Auto;
-            this.peCoverImage.Properties.SizeMode = DevExpress.XtraEditors.Controls.PictureSizeMode.Zoom;
-            this.peCoverImage.Size = new System.Drawing.Size(200, 300);
-            this.peCoverImage.TabIndex = 1;
-            // 
-            // peBackgroundBlur
-            // 
-            this.peBackgroundBlur.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.peBackgroundBlur.Location = new System.Drawing.Point(2, 2);
-            this.peBackgroundBlur.Margin = new System.Windows.Forms.Padding(0);
-            this.peBackgroundBlur.Name = "peBackgroundBlur";
-            this.peBackgroundBlur.Properties.ShowCameraMenuItem = DevExpress.XtraEditors.Controls.CameraMenuItemVisibility.Auto;
-            this.peBackgroundBlur.Properties.SizeMode = DevExpress.XtraEditors.Controls.PictureSizeMode.Stretch;
-            this.peBackgroundBlur.Size = new System.Drawing.Size(1203, 396);
-            this.peBackgroundBlur.TabIndex = 0;
+            this.pageSettings.Size = new System.Drawing.Size(1232, 640);
             // 
             // MainForm
             // 
@@ -1026,17 +637,17 @@
             this.Appearance.Options.UseForeColor = true;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1427, 907);
+            this.ClientSize = new System.Drawing.Size(1452, 640);
             this.Controls.Add(this.navigationFrame1);
-            this.Controls.Add(this.panelSideBar);
+            this.Controls.Add(this.panelControl1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Name = "MainForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "S";
+            this.Text = "GameTracker";
             this.Load += new System.EventHandler(this.MainForm_Load);
             this.Resize += new System.EventHandler(this.MainForm_Resize);
-            ((System.ComponentModel.ISupportInitialize)(this.panelSideBar)).EndInit();
-            this.panelSideBar.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.panelControl1)).EndInit();
+            this.panelControl1.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.navigationFrame1)).EndInit();
             this.navigationFrame1.ResumeLayout(false);
             this.pageHome.ResumeLayout(false);
@@ -1052,31 +663,16 @@
             this.flowLayoutPanelSearch.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.panelSearchPagination)).EndInit();
             this.panelSearchPagination.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.panelSearchTitle)).EndInit();
-            this.panelSearchTitle.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.panelControl7)).EndInit();
+            this.panelControl7.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.searchControlSearchPage.Properties)).EndInit();
-            this.pageGameDetail.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.pnlGameDetailScroll)).EndInit();
-            this.pnlGameDetailScroll.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.panelGameInfoAndDescription)).EndInit();
-            this.panelGameInfoAndDescription.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.memoDescription.Properties)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pnlGameInfo)).EndInit();
-            this.pnlGameInfo.ResumeLayout(false);
-            this.pnlGameInfo.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.flowScreenshots)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pnlHero)).EndInit();
-            this.pnlHero.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.comboStatus.Properties)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.peCoverImage.Properties)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.peBackgroundBlur.Properties)).EndInit();
             this.ResumeLayout(false);
 
         }
 
         #endregion
 
-        private DevExpress.XtraEditors.PanelControl panelSideBar;
+        private DevExpress.XtraEditors.PanelControl panelControl1;
         private DevExpress.XtraEditors.SimpleButton btnHomeMenu;
         private DevExpress.XtraEditors.LabelControl lblTitle;
         private DevExpress.XtraEditors.SimpleButton btnSettings;
@@ -1088,10 +684,10 @@
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanelLibrary;
         private DevExpress.XtraEditors.LabelControl labelControl6;
         private DevExpress.XtraEditors.SearchControl searchControlSearchPage;
-        private DevExpress.XtraEditors.SimpleButton btnUnplayed;
-        private DevExpress.XtraEditors.SimpleButton btnFavorites;
-        private DevExpress.XtraEditors.SimpleButton btnPlaying;
-        private DevExpress.XtraEditors.SimpleButton btnPlayed;
+        private DevExpress.XtraEditors.SimpleButton simpleButton5;
+        private DevExpress.XtraEditors.SimpleButton simpleButton6;
+        private DevExpress.XtraEditors.SimpleButton simpleButton7;
+        private DevExpress.XtraEditors.SimpleButton simpleButton8;
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanelPopulerGames;
         private DevExpress.XtraEditors.LabelControl lblPopulerGames;
         private DevExpress.XtraEditors.PanelControl panelHomePagination;
@@ -1100,7 +696,7 @@
         private DevExpress.XtraEditors.LabelControl lblHomePage;
         private DevExpress.XtraBars.Navigation.NavigationPage pageSearch;
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanelSearch;
-        private DevExpress.XtraEditors.PanelControl panelSearchTitle;
+        private DevExpress.XtraEditors.PanelControl panelControl7;
         private DevExpress.XtraBars.Navigation.NavigationPage pageSettings;
         private DevExpress.XtraEditors.LabelControl lblNoResult;
         private DevExpress.XtraEditors.PanelControl panelLibPagination;
@@ -1112,30 +708,5 @@
         private DevExpress.XtraEditors.LabelControl lblSearchPage;
         private DevExpress.XtraEditors.SimpleButton btnSearchNext;
         private DevExpress.XtraEditors.SimpleButton btnSearchPrev;
-        private DevExpress.XtraBars.Navigation.NavigationPage pageGameDetail;
-        private DevExpress.XtraEditors.SimpleButton btnBackFromDetail;
-        private DevExpress.XtraEditors.PanelControl pnlGameDetailScroll;
-        private DevExpress.XtraEditors.PanelControl pnlHero;
-        private DevExpress.XtraEditors.PictureEdit peBackgroundBlur;
-        private DevExpress.XtraEditors.ComboBoxEdit comboStatus;
-        private System.Windows.Forms.FlowLayoutPanel flowGenres;
-        private DevExpress.XtraEditors.LabelControl lblReleased;
-        private DevExpress.XtraEditors.LabelControl lblPublisher;
-        private DevExpress.XtraEditors.LabelControl lblDeveloper;
-        private DevExpress.XtraEditors.LabelControl lblGameTitle;
-        private DevExpress.XtraEditors.PictureEdit peCoverImage;
-        private DevExpress.XtraEditors.LabelControl lblAboutTitle;
-        private DevExpress.XtraEditors.PanelControl flowScreenshots;
-        private DevExpress.XtraEditors.LabelControl lblUserRating;
-        private DevExpress.XtraEditors.LabelControl lblMetacritic;
-        private DevExpress.XtraEditors.PanelControl pnlGameInfo;
-        private DevExpress.XtraEditors.LabelControl lblEsrb;
-        private DevExpress.XtraEditors.LabelControl lblEsrbTitle;
-        private DevExpress.XtraEditors.LabelControl lblStores;
-        private DevExpress.XtraEditors.LabelControl lblStoresTitle;
-        private DevExpress.XtraEditors.LabelControl lblPlatforms;
-        private DevExpress.XtraEditors.LabelControl lblPlatformsTitle;
-        private DevExpress.XtraEditors.MemoEdit memoDescription;
-        private DevExpress.XtraEditors.PanelControl panelGameInfoAndDescription;
     }
 }

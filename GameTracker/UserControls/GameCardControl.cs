@@ -62,7 +62,6 @@ namespace GameTracker
                 SetupLayoutStructure();
                 SetupAnimations();
                 SetupEvents();
-                SetupClickEvent();
             }
 
             peGameImage.Dock = DockStyle.Fill;
@@ -138,35 +137,6 @@ namespace GameTracker
             {
                 ctrl.MouseEnter += (s, e) => SetHoverState(true);
                 ctrl.MouseLeave += (s, e) => SetHoverState(false);
-            }
-        }
-
-        /// <summary>
-        /// Karta tıklandığında detay sayfasına gitmek için event ekler.
-        /// </summary>
-        private void SetupClickEvent()
-        {
-            // Tüm kontrollere click eventi ekle
-            Control[] controls = { this, peGameImage, maskPanel, borderPanel, lblGameTitle };
-
-            foreach (var ctrl in controls)
-            {
-                ctrl.Click += GameCard_Click;
-                ctrl.Cursor = Cursors.Hand; // Fare işareti el olsun
-            }
-        }
-
-        /// <summary>
-        /// Karta tıklandığında tetiklenir.
-        /// </summary>
-        private void GameCard_Click(object sender, EventArgs e)
-        {
-            // Parent form'u bul (MainForm)
-            var mainForm = this.FindForm() as MainForm;
-
-            if (mainForm != null && GameData != null)
-            {
-                mainForm.ShowGameDetail(GameData.Id);
             }
         }
 
