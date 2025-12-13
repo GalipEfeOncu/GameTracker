@@ -62,4 +62,36 @@ public class RawgApiService
         string url = $"{_baseUrl}/games?key={_apiKey}&ordering=-added,-rating&dates=2024-01-01,2025-12-31&page_size={pageSize}&exclude_additions=true&page={pageNumber}";
         return await GetGamesAsync(url);
     }
+
+    /// <summary>
+    /// ID'ye göre oyunun TÜM detaylarını getirir (Description, System Reqs vs. dahil)
+    /// </summary>
+    /// <param name="gameId"></param>
+    /// <returns></returns>
+    public async Task<Game> GetGameDetailsAsync(int gameId)
+    {
+        string url = $"{_baseUrl}/games/{gameId}?key={_apiKey}";
+
+        try
+        {
+            HttpResponseMessage response = await _httpClient.GetAsync(url).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                System.Diagnostics.Debug.WriteLine($"Hata: {response.StatusCode}");
+                return null;
+            }
+
+            string json = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+
+            // Tek bir obje döndüğü için direkt Game'e deserialize ediyoruz, List'e değil.
+            var game = JsonConvert.DeserializeObject<Game>(json);
+            return game;
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"API Detay Hatası: {ex.Message}");
+            return null;
+        }
+    }
 }

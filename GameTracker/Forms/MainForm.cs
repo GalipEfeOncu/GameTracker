@@ -41,6 +41,9 @@ namespace GameTracker
         // UI optimizasyon
         private Timer resizeTimer;
 
+        // Geri dönünce hangi sayfadaydık hatırlamak için
+        private DevExpress.XtraBars.Navigation.NavigationPage previousPage;
+
         #endregion
 
         #region Constructor & Initialization
@@ -78,7 +81,7 @@ namespace GameTracker
             resizeTimer = new Timer();
             resizeTimer.Interval = 300;
             resizeTimer.Tick += ResizeTimer_Tick;
-        }   
+        }
 
         #endregion
 
@@ -194,83 +197,44 @@ namespace GameTracker
         /// <param name="noResultLabel">Sonuç bulunamadığında gösterilecek label (opsiyonel)</param>
         private void RenderPage(PageManager manager, FlowLayoutPanel targetPanel, LabelControl pageLabel, LabelControl noResultLabel = null)
         {
+            if (HandleNoResults(manager, targetPanel, pageLabel, noResultLabel))
+                return;
+
             // Verileri çek
             var gamesToShow = manager.GetCurrentPageItems();
 
             targetPanel.SuspendLayout();
             targetPanel.Controls.Clear();
 
-            // Sonuç yok kontrolü (Eski HandleNoResults metodunu buna göre revize edebilirsin 
-            // veya basitçe burada kontrol edebilirsin)
-            if (gamesToShow.Count == 0 && manager.AllItems.Count == 0)
+            // Kartları Ekle
+            AddGameCardsToPanel(gamesToShow, targetPanel);
+            targetPanel.ResumeLayout();
+
+            pageLabel.Text = manager.GetPageInfoString(); // Etiketi güncelle
+        }
+
+        /// <summary>
+        /// Eğer hiç veri yoksa uyarı gösterir.
+        /// </summary>
+        private bool HandleNoResults(PageManager manager, FlowLayoutPanel targetPanel, LabelControl pageLabel, LabelControl noResultLabel)
+        {
+            // Eğer sonuç yoksa (AllItems.Count 0 ise)
+            if (manager.AllItems.Count == 0)
             {
                 if (noResultLabel != null)
                 {
+                    targetPanel.Controls.Clear(); // Paneli temizle
+                    noResultLabel.Width = targetPanel.Width - 50;
+                    targetPanel.Controls.Add(noResultLabel);
                     noResultLabel.Visible = true;
                     pageLabel.Text = "Page 0 / 0";
                 }
-                targetPanel.ResumeLayout();
-                return;
+                return true; // İşlemi durdur
             }
 
+            // Sonuç varsa label'ı gizle
             if (noResultLabel != null) noResultLabel.Visible = false;
-
-            // Kartları Ekle (Factory ile güncellediğin metod)
-            AddGameCardsToPanel(gamesToShow, targetPanel);
-
-            targetPanel.ResumeLayout();
-
-            // Etiketi güncelle
-            pageLabel.Text = manager.GetPageInfoString();
-        }
-
-        /// <summary>
-        /// Sonuç yoksa ilgili label'ı gösterir ve true döner.
-        /// </summary>
-        private bool HandleNoResults(List<Game> sourceList, FlowLayoutPanel targetPanel, LabelControl pageLabel, LabelControl noResultLabel)
-        {
-            if (noResultLabel == null)
-                return false;
-
-            if (sourceList.Count == 0)
-            {
-                noResultLabel.Width = targetPanel.Width - 50;
-                targetPanel.Controls.Add(noResultLabel);
-                noResultLabel.Visible = true;
-                pageLabel.Text = "Page 0 / 0";
-                return true;
-            }
-
-            noResultLabel.Visible = false;
-            return false;
-        }
-
-        /// <summary>
-        /// Toplam sayfa sayısını hesaplar.
-        /// </summary>
-        private int CalculateTotalPages(int totalGames)
-        {
-            int totalPages = (int)Math.Ceiling((double)totalGames / cardsPerPage);
-            return Math.Max(totalPages, 1);
-        }
-
-        /// <summary>
-        /// Sayfa indeksini geçerli aralıkta tutar.
-        /// </summary>
-        private int ClampPageIndex(int pageIndex, int totalPages)
-        {
-            return Math.Max(1, Math.Min(pageIndex, totalPages));
-        }
-
-        /// <summary>
-        /// Belirtilen sayfa için oyun listesini döndürür.
-        /// </summary>
-        private List<Game> GetGamesForPage(List<Game> sourceList, int pageIndex)
-        {
-            return sourceList
-                .Skip((pageIndex - 1) * cardsPerPage)
-                .Take(cardsPerPage)
-                .ToList();
+            return false; // Devam et
         }
 
         /// <summary>
@@ -294,7 +258,7 @@ namespace GameTracker
                         if (isLibrary) UpdateGameStatusDb(g, status);
                         else AddGameToDb(g, status);
                     },
-                    onRemove: (g) => RemoveGameFromDb(g)
+                    onRemove: (g) => RemoveGameFromDb(g), onCardClick: (g) => ShowGameDetails(g)
                 );
 
                 panel.Controls.Add(card);
@@ -479,6 +443,149 @@ namespace GameTracker
             if (searchManager.NextPage())
                 RenderPage(searchManager, flowLayoutPanelSearch, lblSearchPage, lblNoResult);
         }
+        #endregion
+
+        #region Game Detail Logic
+        /// <summary>
+        /// Oyun detaylarını gösterir. Önce eldeki veriyi basar, sonra API'den full detayı çeker.
+        /// </summary>
+        private async void ShowGameDetails(Game simpleGame)
+        {
+            // 1. NAVIGATION & UI RESET
+            // Önceki sayfayı hatırla (Geri butonu için)
+            previousPage = navigationFrame1.SelectedPage as DevExpress.XtraBars.Navigation.NavigationPage;
+
+            // Detay sayfasına geç
+            navigationFrame1.SelectedPage = pageGameDetail;
+
+            // Scroll'u en tepeye al (önceki oyundan aşağıda kalmasın)
+            scrollableDetailContainer.VerticalScroll.Value = 0;
+
+            // 2. ELDEKİ VERİYİ HEMEN GÖSTER (Kullanıcı Beklemesin)
+            lblDetailTitle.Text = simpleGame.Name;
+
+            // Resmi yükle (Cache mekanizması sayesinde hızlı gelir)
+            peDetailImage.Image = null;
+            imageManager.LoadImageAsync(simpleGame.BackgroundImage, peDetailImage, 600); // 600px genişlik istedik
+
+            // Geçici "Yükleniyor" mesajları
+            lblDetailDeveloper.Text = "Loading info...";
+            lblDetailGenres.Text = "Loading genres...";
+            lblDetailRating.Text = $"★ {simpleGame.Rating}";
+            lblDetailMetacritic.Text = "-";
+            lblDetailPlaytime.Text = "-";
+            lblDetailDescription.Text = "Fetching details from RAWG...";
+            lblDetailRequirements.Text = "Checking system requirements...";
+
+            // 3. API'DEN FULL DETAYLARI ÇEK (Async)
+            try
+            {
+                // API isteği atılıyor...
+                Game fullGame = await rawgapi.GetGameDetailsAsync(simpleGame.Id);
+
+                if (fullGame != null)
+                {
+                    // --- BAŞLIK & GELİŞTİRİCİ ---
+                    // Developer listesini birleştir (Örn: "Ubisoft, Massive Entertainment")
+                    if (fullGame.Developers != null && fullGame.Developers.Any())
+                    {
+                        string devs = string.Join(", ", fullGame.Developers.Select(d => d.Name));
+                        lblDetailDeveloper.Text = $"Developer: {devs}";
+                    }
+                    else
+                    {
+                        lblDetailDeveloper.Text = $"Released: {fullGame.Released ?? "Unknown"}";
+                    }
+
+                    // --- TÜRLER (GENRES) ---
+                    if (fullGame.Genres != null && fullGame.Genres.Any())
+                    {
+                        string genres = string.Join(" • ", fullGame.Genres.Select(g => g.Name));
+                        lblDetailGenres.Text = genres;
+                    }
+                    else
+                    {
+                        lblDetailGenres.Text = "Genre info not available";
+                    }
+
+                    // --- İSTATİSTİKLER (SAĞ TARAF) ---
+                    lblDetailRating.Text = $"★ {fullGame.Rating:0.0} / 5"; // 0.0 formatı (örn: 4.5)
+
+                    // Metacritic (Varsa yaz, yoksa N/A)
+                    if (fullGame.Metacritic != null)
+                        lblDetailMetacritic.Text = fullGame.Metacritic.ToString();
+                    else
+                        lblDetailMetacritic.Text = "N/A";
+
+                    // Playtime
+                    if (fullGame.Playtime > 0)
+                        lblDetailPlaytime.Text = $"⏱ {fullGame.Playtime} Hours";
+                    else
+                        lblDetailPlaytime.Text = "⏱ Not Set";
+
+                    // --- AÇIKLAMA (DESCRIPTION) ---
+                    // HTML olmayan temiz text (DescriptionRaw) kullanıyoruz
+                    if (!string.IsNullOrEmpty(fullGame.DescriptionRaw))
+                        lblDetailDescription.Text = fullGame.DescriptionRaw;
+                    else
+                        lblDetailDescription.Text = "No description provided for this game.";
+
+                    // --- SİSTEM GEREKSİNİMLERİ (PC) ---
+                    // Platforms listesinden "PC" olanı bulup gereksinimlerini çekeceğiz
+                    var pcPlatform = fullGame.Platforms?.FirstOrDefault(p =>
+                        p.Platform.Slug == "pc" || p.Platform.Name.ToLower() == "pc");
+
+                    if (pcPlatform != null && pcPlatform.Requirements != null)
+                    {
+                        string reqText = "";
+
+                        // Minimum var mı?
+                        if (!string.IsNullOrEmpty(pcPlatform.Requirements.Minimum))
+                        {
+                            reqText += "MINIMUM:\n" + CleanRequirementText(pcPlatform.Requirements.Minimum) + "\n\n";
+                        }
+
+                        // Recommended var mı?
+                        if (!string.IsNullOrEmpty(pcPlatform.Requirements.Recommended))
+                        {
+                            reqText += "RECOMMENDED:\n" + CleanRequirementText(pcPlatform.Requirements.Recommended);
+                        }
+
+                        if (string.IsNullOrWhiteSpace(reqText))
+                            lblDetailRequirements.Text = "System requirements are not specified.";
+                        else
+                            lblDetailRequirements.Text = reqText;
+                    }
+                    else
+                    {
+                        lblDetailRequirements.Text = "PC requirements not found or available.";
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Detay Hatası: {ex.Message}");
+                // Hata olsa bile eldeki basit veriyle devam, kullanıcıya hata basmıyoruz.
+            }
+        }
+
+        // Gereksinim yazılarında bazen "Minimum:" kelimesi tekrar ediyor, temizlemek için ufak helper
+        private string CleanRequirementText(string rawReq)
+        {
+            if (string.IsNullOrEmpty(rawReq)) return "";
+            // Bazı API yanıtlarında "Minimum:" kelimesi metnin içinde geliyor, temizleyelim
+            return rawReq.Replace("Minimum:", "").Replace("Recommended:", "").Trim();
+        }
+
+        private void btnDetailBack_Click(object sender, EventArgs e)
+        {
+            // Nereden geldiysek oraya dönelim, yoksa Home'a dönelim
+            if (previousPage != null)
+                navigationFrame1.SelectedPage = previousPage;
+            else
+                navigationFrame1.SelectedPage = pageHome;
+        }
+
         #endregion
 
         #region Data Base

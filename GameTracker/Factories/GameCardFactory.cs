@@ -28,23 +28,22 @@ namespace GameTracker.Factories
             ImageManager imageManager,
             bool isLibraryContext,
             Action<Game, string> onStatusChange,
-            Action<Game> onRemove)
+            Action<Game> onRemove, Action<Game> onCardClick)
         {
-            // 1. Kartı oluştur
-            var card = new GameCardControl();
 
-            // 2. Boyutları ayarla
-            ConfigureCardDimensions(card, metrics);
+            var card = new GameCardControl();   // Kartı oluştur
+            ConfigureCardDimensions(card, metrics); // Boyutları ayarla
+            card.SetData(game);  // Veriyi karta bas
 
-            // 3. Veriyi karta bas
-            card.SetData(game);
-
-            // 4. Sağ tık menüsünü (Context Menu) oluştur ve bağla
-            var contextMenu = CreateContextMenu(game, isLibraryContext, onStatusChange, onRemove);
-
+            var contextMenu = CreateContextMenu(game, isLibraryContext, onStatusChange, onRemove);  // Context Menu oluştur ve bağla
             card.ContextMenuStrip = contextMenu;
             card.peGameImage.ContextMenuStrip = contextMenu;
             card.lblGameTitle.ContextMenuStrip = contextMenu;
+
+            // Kullanıcı resme, yazıya veya kartın kendisine tıklasa da detay açılsın.
+            card.Click += (s, e) => onCardClick?.Invoke(game);
+            card.peGameImage.Click += (s, e) => onCardClick?.Invoke(game);
+            card.lblGameTitle.Click += (s, e) => onCardClick?.Invoke(game);
 
             // 5. Resmi asenkron olarak yükle
             imageManager.LoadImageAsync(game.BackgroundImage, card.peGameImage, 420);

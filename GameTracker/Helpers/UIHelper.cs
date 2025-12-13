@@ -1,5 +1,4 @@
-﻿using DevExpress.XtraEditors;
-using System.Reflection;
+﻿using System.Reflection;
 using System.Windows.Forms;
 
 namespace GameTracker.Helpers

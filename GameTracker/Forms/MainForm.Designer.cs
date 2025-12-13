@@ -54,6 +54,20 @@
             this.searchControlSearchPage = new DevExpress.XtraEditors.SearchControl();
             this.pageSettings = new DevExpress.XtraBars.Navigation.NavigationPage();
             this.pageGameDetail = new DevExpress.XtraBars.Navigation.NavigationPage();
+            this.scrollableDetailContainer = new DevExpress.XtraEditors.XtraScrollableControl();
+            this.lblDetailRequirements = new DevExpress.XtraEditors.LabelControl();
+            this.lblRequirementsHeader = new DevExpress.XtraEditors.LabelControl();
+            this.lblDetailDescription = new DevExpress.XtraEditors.LabelControl();
+            this.lblDescriptionHeader = new DevExpress.XtraEditors.LabelControl();
+            this.panelTopSection = new DevExpress.XtraEditors.PanelControl();
+            this.btnDetailBack = new DevExpress.XtraEditors.SimpleButton();
+            this.peDetailImage = new DevExpress.XtraEditors.PictureEdit();
+            this.lblDetailTitle = new DevExpress.XtraEditors.LabelControl();
+            this.lblDetailDeveloper = new DevExpress.XtraEditors.LabelControl();
+            this.lblDetailGenres = new DevExpress.XtraEditors.LabelControl();
+            this.lblDetailRating = new DevExpress.XtraEditors.LabelControl();
+            this.lblDetailMetacritic = new DevExpress.XtraEditors.LabelControl();
+            this.lblDetailPlaytime = new DevExpress.XtraEditors.LabelControl();
             ((System.ComponentModel.ISupportInitialize)(this.panelControl1)).BeginInit();
             this.panelControl1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.navigationFrame1)).BeginInit();
@@ -73,6 +87,11 @@
             ((System.ComponentModel.ISupportInitialize)(this.panelControl7)).BeginInit();
             this.panelControl7.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.searchControlSearchPage.Properties)).BeginInit();
+            this.pageGameDetail.SuspendLayout();
+            this.scrollableDetailContainer.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.panelTopSection)).BeginInit();
+            this.panelTopSection.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.peDetailImage.Properties)).BeginInit();
             this.SuspendLayout();
             // 
             // panelControl1
@@ -528,8 +547,6 @@
             this.lblNoResult.Name = "lblNoResult";
             this.lblNoResult.Size = new System.Drawing.Size(1197, 52);
             this.lblNoResult.TabIndex = 0;
-            this.lblNoResult.Text = "Warning";
-            this.lblNoResult.Visible = false;
             // 
             // panelSearchPagination
             // 
@@ -628,13 +645,230 @@
             // 
             // pageSettings
             // 
+            this.pageSettings.Caption = "pageSettings";
             this.pageSettings.Name = "pageSettings";
             this.pageSettings.Size = new System.Drawing.Size(1232, 640);
             // 
             // pageGameDetail
             // 
+            this.pageGameDetail.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(26)))), ((int)(((byte)(29)))), ((int)(((byte)(41)))));
+            this.pageGameDetail.Appearance.Options.UseBackColor = true;
+            this.pageGameDetail.Caption = "pageGameDetail";
+            this.pageGameDetail.Controls.Add(this.scrollableDetailContainer);
             this.pageGameDetail.Name = "pageGameDetail";
             this.pageGameDetail.Size = new System.Drawing.Size(1232, 640);
+            // 
+            // scrollableDetailContainer
+            // 
+            this.scrollableDetailContainer.Appearance.BackColor = System.Drawing.Color.Transparent;
+            this.scrollableDetailContainer.Appearance.Options.UseBackColor = true;
+            this.scrollableDetailContainer.Controls.Add(this.lblDetailRequirements);
+            this.scrollableDetailContainer.Controls.Add(this.lblRequirementsHeader);
+            this.scrollableDetailContainer.Controls.Add(this.lblDetailDescription);
+            this.scrollableDetailContainer.Controls.Add(this.lblDescriptionHeader);
+            this.scrollableDetailContainer.Controls.Add(this.panelTopSection);
+            this.scrollableDetailContainer.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.scrollableDetailContainer.Location = new System.Drawing.Point(0, 0);
+            this.scrollableDetailContainer.Name = "scrollableDetailContainer";
+            this.scrollableDetailContainer.Padding = new System.Windows.Forms.Padding(0, 0, 0, 50);
+            this.scrollableDetailContainer.Size = new System.Drawing.Size(1232, 640);
+            this.scrollableDetailContainer.TabIndex = 5;
+            // 
+            // lblDetailRequirements
+            // 
+            this.lblDetailRequirements.Appearance.Font = new System.Drawing.Font("Consolas", 10F);
+            this.lblDetailRequirements.Appearance.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(200)))), ((int)(((byte)(200)))), ((int)(((byte)(200)))));
+            this.lblDetailRequirements.Appearance.Options.UseFont = true;
+            this.lblDetailRequirements.Appearance.Options.UseForeColor = true;
+            this.lblDetailRequirements.Appearance.Options.UseTextOptions = true;
+            this.lblDetailRequirements.Appearance.TextOptions.WordWrap = DevExpress.Utils.WordWrap.Wrap;
+            this.lblDetailRequirements.AutoSizeMode = DevExpress.XtraEditors.LabelAutoSizeMode.Vertical;
+            this.lblDetailRequirements.Dock = System.Windows.Forms.DockStyle.Top;
+            this.lblDetailRequirements.Location = new System.Drawing.Point(0, 570);
+            this.lblDetailRequirements.Name = "lblDetailRequirements";
+            this.lblDetailRequirements.Padding = new System.Windows.Forms.Padding(20, 0, 20, 50);
+            this.lblDetailRequirements.Size = new System.Drawing.Size(1215, 65);
+            this.lblDetailRequirements.TabIndex = 12;
+            this.lblDetailRequirements.Text = "Requirements...";
+            // 
+            // lblRequirementsHeader
+            // 
+            this.lblRequirementsHeader.Appearance.Font = new System.Drawing.Font("Segoe UI", 16F, System.Drawing.FontStyle.Bold);
+            this.lblRequirementsHeader.Appearance.ForeColor = System.Drawing.Color.White;
+            this.lblRequirementsHeader.Appearance.Options.UseFont = true;
+            this.lblRequirementsHeader.Appearance.Options.UseForeColor = true;
+            this.lblRequirementsHeader.AutoSizeMode = DevExpress.XtraEditors.LabelAutoSizeMode.Vertical;
+            this.lblRequirementsHeader.Dock = System.Windows.Forms.DockStyle.Top;
+            this.lblRequirementsHeader.Location = new System.Drawing.Point(0, 500);
+            this.lblRequirementsHeader.Name = "lblRequirementsHeader";
+            this.lblRequirementsHeader.Padding = new System.Windows.Forms.Padding(20, 30, 0, 10);
+            this.lblRequirementsHeader.Size = new System.Drawing.Size(1215, 70);
+            this.lblRequirementsHeader.TabIndex = 11;
+            this.lblRequirementsHeader.Text = "System Requirements";
+            // 
+            // lblDetailDescription
+            // 
+            this.lblDetailDescription.Appearance.Font = new System.Drawing.Font("Segoe UI", 11F);
+            this.lblDetailDescription.Appearance.ForeColor = System.Drawing.Color.Silver;
+            this.lblDetailDescription.Appearance.Options.UseFont = true;
+            this.lblDetailDescription.Appearance.Options.UseForeColor = true;
+            this.lblDetailDescription.Appearance.Options.UseTextOptions = true;
+            this.lblDetailDescription.Appearance.TextOptions.VAlignment = DevExpress.Utils.VertAlignment.Top;
+            this.lblDetailDescription.Appearance.TextOptions.WordWrap = DevExpress.Utils.WordWrap.Wrap;
+            this.lblDetailDescription.AutoSizeMode = DevExpress.XtraEditors.LabelAutoSizeMode.Vertical;
+            this.lblDetailDescription.Dock = System.Windows.Forms.DockStyle.Top;
+            this.lblDetailDescription.Location = new System.Drawing.Point(0, 480);
+            this.lblDetailDescription.Name = "lblDetailDescription";
+            this.lblDetailDescription.Padding = new System.Windows.Forms.Padding(20, 0, 20, 0);
+            this.lblDetailDescription.Size = new System.Drawing.Size(1215, 20);
+            this.lblDetailDescription.TabIndex = 10;
+            this.lblDetailDescription.Text = "Game description...";
+            // 
+            // lblDescriptionHeader
+            // 
+            this.lblDescriptionHeader.Appearance.Font = new System.Drawing.Font("Segoe UI", 16F, System.Drawing.FontStyle.Bold);
+            this.lblDescriptionHeader.Appearance.ForeColor = System.Drawing.Color.White;
+            this.lblDescriptionHeader.Appearance.Options.UseFont = true;
+            this.lblDescriptionHeader.Appearance.Options.UseForeColor = true;
+            this.lblDescriptionHeader.AutoSizeMode = DevExpress.XtraEditors.LabelAutoSizeMode.Vertical;
+            this.lblDescriptionHeader.Dock = System.Windows.Forms.DockStyle.Top;
+            this.lblDescriptionHeader.Location = new System.Drawing.Point(0, 420);
+            this.lblDescriptionHeader.Name = "lblDescriptionHeader";
+            this.lblDescriptionHeader.Padding = new System.Windows.Forms.Padding(20, 20, 0, 10);
+            this.lblDescriptionHeader.Size = new System.Drawing.Size(1215, 60);
+            this.lblDescriptionHeader.TabIndex = 9;
+            this.lblDescriptionHeader.Text = "About";
+            // 
+            // panelTopSection
+            // 
+            this.panelTopSection.Appearance.BackColor = System.Drawing.Color.Transparent;
+            this.panelTopSection.Appearance.Options.UseBackColor = true;
+            this.panelTopSection.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
+            this.panelTopSection.Controls.Add(this.btnDetailBack);
+            this.panelTopSection.Controls.Add(this.peDetailImage);
+            this.panelTopSection.Controls.Add(this.lblDetailTitle);
+            this.panelTopSection.Controls.Add(this.lblDetailDeveloper);
+            this.panelTopSection.Controls.Add(this.lblDetailGenres);
+            this.panelTopSection.Controls.Add(this.lblDetailRating);
+            this.panelTopSection.Controls.Add(this.lblDetailMetacritic);
+            this.panelTopSection.Controls.Add(this.lblDetailPlaytime);
+            this.panelTopSection.Dock = System.Windows.Forms.DockStyle.Top;
+            this.panelTopSection.Location = new System.Drawing.Point(0, 0);
+            this.panelTopSection.Name = "panelTopSection";
+            this.panelTopSection.Size = new System.Drawing.Size(1215, 420);
+            this.panelTopSection.TabIndex = 0;
+            // 
+            // btnDetailBack
+            // 
+            this.btnDetailBack.AllowFocus = false;
+            this.btnDetailBack.Appearance.BackColor = System.Drawing.Color.Transparent;
+            this.btnDetailBack.Appearance.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Bold);
+            this.btnDetailBack.Appearance.ForeColor = System.Drawing.Color.White;
+            this.btnDetailBack.Appearance.Options.UseBackColor = true;
+            this.btnDetailBack.Appearance.Options.UseFont = true;
+            this.btnDetailBack.Appearance.Options.UseForeColor = true;
+            this.btnDetailBack.ButtonStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
+            this.btnDetailBack.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnDetailBack.Location = new System.Drawing.Point(20, 10);
+            this.btnDetailBack.Name = "btnDetailBack";
+            this.btnDetailBack.Size = new System.Drawing.Size(100, 40);
+            this.btnDetailBack.TabIndex = 0;
+            this.btnDetailBack.Text = "< Back";
+            this.btnDetailBack.Click += new System.EventHandler(this.btnDetailBack_Click);
+            // 
+            // peDetailImage
+            // 
+            this.peDetailImage.Location = new System.Drawing.Point(20, 60);
+            this.peDetailImage.Name = "peDetailImage";
+            this.peDetailImage.Properties.Appearance.BackColor = System.Drawing.Color.Black;
+            this.peDetailImage.Properties.Appearance.Options.UseBackColor = true;
+            this.peDetailImage.Properties.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
+            this.peDetailImage.Properties.ShowCameraMenuItem = DevExpress.XtraEditors.Controls.CameraMenuItemVisibility.Auto;
+            this.peDetailImage.Properties.SizeMode = DevExpress.XtraEditors.Controls.PictureSizeMode.Zoom;
+            this.peDetailImage.Size = new System.Drawing.Size(480, 320);
+            this.peDetailImage.TabIndex = 1;
+            // 
+            // lblDetailTitle
+            // 
+            this.lblDetailTitle.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.lblDetailTitle.Appearance.Font = new System.Drawing.Font("Segoe UI", 26F, System.Drawing.FontStyle.Bold);
+            this.lblDetailTitle.Appearance.ForeColor = System.Drawing.Color.White;
+            this.lblDetailTitle.Appearance.Options.UseFont = true;
+            this.lblDetailTitle.Appearance.Options.UseForeColor = true;
+            this.lblDetailTitle.Appearance.Options.UseTextOptions = true;
+            this.lblDetailTitle.Appearance.TextOptions.WordWrap = DevExpress.Utils.WordWrap.Wrap;
+            this.lblDetailTitle.AutoSizeMode = DevExpress.XtraEditors.LabelAutoSizeMode.Vertical;
+            this.lblDetailTitle.Location = new System.Drawing.Point(520, 60);
+            this.lblDetailTitle.Name = "lblDetailTitle";
+            this.lblDetailTitle.Size = new System.Drawing.Size(1531, 47);
+            this.lblDetailTitle.TabIndex = 2;
+            this.lblDetailTitle.Text = "Game Title";
+            // 
+            // lblDetailDeveloper
+            // 
+            this.lblDetailDeveloper.Appearance.Font = new System.Drawing.Font("Segoe UI", 12F);
+            this.lblDetailDeveloper.Appearance.ForeColor = System.Drawing.Color.LightGray;
+            this.lblDetailDeveloper.Appearance.Options.UseFont = true;
+            this.lblDetailDeveloper.Appearance.Options.UseForeColor = true;
+            this.lblDetailDeveloper.Location = new System.Drawing.Point(520, 120);
+            this.lblDetailDeveloper.Name = "lblDetailDeveloper";
+            this.lblDetailDeveloper.Size = new System.Drawing.Size(153, 21);
+            this.lblDetailDeveloper.TabIndex = 3;
+            this.lblDetailDeveloper.Text = "Released: 2024-01-01";
+            // 
+            // lblDetailGenres
+            // 
+            this.lblDetailGenres.Appearance.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Italic);
+            this.lblDetailGenres.Appearance.ForeColor = System.Drawing.Color.Gray;
+            this.lblDetailGenres.Appearance.Options.UseFont = true;
+            this.lblDetailGenres.Appearance.Options.UseForeColor = true;
+            this.lblDetailGenres.Location = new System.Drawing.Point(520, 150);
+            this.lblDetailGenres.Name = "lblDetailGenres";
+            this.lblDetailGenres.Size = new System.Drawing.Size(66, 17);
+            this.lblDetailGenres.TabIndex = 6;
+            this.lblDetailGenres.Text = "Action, RPG";
+            // 
+            // lblDetailRating
+            // 
+            this.lblDetailRating.Appearance.Font = new System.Drawing.Font("Segoe UI", 18F, System.Drawing.FontStyle.Bold);
+            this.lblDetailRating.Appearance.ForeColor = System.Drawing.Color.Gold;
+            this.lblDetailRating.Appearance.Options.UseFont = true;
+            this.lblDetailRating.Appearance.Options.UseForeColor = true;
+            this.lblDetailRating.Location = new System.Drawing.Point(520, 200);
+            this.lblDetailRating.Name = "lblDetailRating";
+            this.lblDetailRating.Size = new System.Drawing.Size(67, 32);
+            this.lblDetailRating.TabIndex = 4;
+            this.lblDetailRating.Text = "★ 4.5";
+            // 
+            // lblDetailMetacritic
+            // 
+            this.lblDetailMetacritic.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(190)))), ((int)(((byte)(0)))));
+            this.lblDetailMetacritic.Appearance.Font = new System.Drawing.Font("Segoe UI", 14F, System.Drawing.FontStyle.Bold);
+            this.lblDetailMetacritic.Appearance.ForeColor = System.Drawing.Color.White;
+            this.lblDetailMetacritic.Appearance.Options.UseBackColor = true;
+            this.lblDetailMetacritic.Appearance.Options.UseFont = true;
+            this.lblDetailMetacritic.Appearance.Options.UseForeColor = true;
+            this.lblDetailMetacritic.Appearance.Options.UseTextOptions = true;
+            this.lblDetailMetacritic.Appearance.TextOptions.HAlignment = DevExpress.Utils.HorzAlignment.Center;
+            this.lblDetailMetacritic.AutoSizeMode = DevExpress.XtraEditors.LabelAutoSizeMode.None;
+            this.lblDetailMetacritic.Location = new System.Drawing.Point(520, 240);
+            this.lblDetailMetacritic.Name = "lblDetailMetacritic";
+            this.lblDetailMetacritic.Size = new System.Drawing.Size(55, 35);
+            this.lblDetailMetacritic.TabIndex = 7;
+            this.lblDetailMetacritic.Text = "95";
+            // 
+            // lblDetailPlaytime
+            // 
+            this.lblDetailPlaytime.Appearance.Font = new System.Drawing.Font("Segoe UI", 14F);
+            this.lblDetailPlaytime.Appearance.ForeColor = System.Drawing.Color.White;
+            this.lblDetailPlaytime.Appearance.Options.UseFont = true;
+            this.lblDetailPlaytime.Appearance.Options.UseForeColor = true;
+            this.lblDetailPlaytime.Location = new System.Drawing.Point(520, 280);
+            this.lblDetailPlaytime.Name = "lblDetailPlaytime";
+            this.lblDetailPlaytime.Size = new System.Drawing.Size(93, 25);
+            this.lblDetailPlaytime.TabIndex = 8;
+            this.lblDetailPlaytime.Text = "⏱ 25 Hours";
             // 
             // MainForm
             // 
@@ -673,6 +907,12 @@
             ((System.ComponentModel.ISupportInitialize)(this.panelControl7)).EndInit();
             this.panelControl7.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.searchControlSearchPage.Properties)).EndInit();
+            this.pageGameDetail.ResumeLayout(false);
+            this.scrollableDetailContainer.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.panelTopSection)).EndInit();
+            this.panelTopSection.ResumeLayout(false);
+            this.panelTopSection.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.peDetailImage.Properties)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -716,5 +956,19 @@
         private DevExpress.XtraEditors.SimpleButton btnSearchNext;
         private DevExpress.XtraEditors.SimpleButton btnSearchPrev;
         private DevExpress.XtraBars.Navigation.NavigationPage pageGameDetail;
+        private DevExpress.XtraEditors.XtraScrollableControl scrollableDetailContainer;
+        private DevExpress.XtraEditors.SimpleButton btnDetailBack;
+        private DevExpress.XtraEditors.PictureEdit peDetailImage;
+        private DevExpress.XtraEditors.LabelControl lblDetailTitle;
+        private DevExpress.XtraEditors.LabelControl lblDetailDeveloper;
+        private DevExpress.XtraEditors.LabelControl lblDetailGenres;
+        private DevExpress.XtraEditors.LabelControl lblDetailRating;
+        private DevExpress.XtraEditors.LabelControl lblDetailMetacritic;
+        private DevExpress.XtraEditors.LabelControl lblDetailPlaytime;
+        private DevExpress.XtraEditors.LabelControl lblDescriptionHeader;
+        private DevExpress.XtraEditors.LabelControl lblDetailDescription;
+        private DevExpress.XtraEditors.LabelControl lblRequirementsHeader;
+        private DevExpress.XtraEditors.LabelControl lblDetailRequirements;
+        private DevExpress.XtraEditors.PanelControl panelTopSection;
     }
 }
