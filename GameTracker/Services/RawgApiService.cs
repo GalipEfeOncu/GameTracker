@@ -94,4 +94,17 @@ public class RawgApiService
             return null;
         }
     }
+
+    // Oyunun ekran görüntülerini çeker
+    public async Task<List<Screenshot>> GetGameScreenshotsAsync(int gameId)
+    {
+        string url = $"{_baseUrl}/games/{gameId}/screenshots?key={_apiKey}";
+        try
+        {
+            var response = await _httpClient.GetStringAsync(url);
+            var result = JsonConvert.DeserializeObject<ScreenshotResponse>(response);
+            return result?.Results ?? new List<Screenshot>();
+        }
+        catch (Exception) { return new List<Screenshot>(); }
+    }
 }

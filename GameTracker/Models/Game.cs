@@ -1,5 +1,6 @@
-﻿using System.Collections.Generic;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
+using System.Collections.Generic;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace GameTracker.Models
 {
@@ -55,9 +56,33 @@ namespace GameTracker.Models
 
         [JsonProperty("publishers")]
         public List<Publisher> Publishers { get; set; }
+
+        [JsonProperty("stores")]
+        public List<StoreWrapper> Stores { get; set; }
+
+        [JsonProperty("tags")]
+        public List<Tag> Tags { get; set; }
+
+        [JsonProperty("short_screenshots")]
+        public List<Screenshot> ShortScreenshots { get; set; }
     }
 
     // --- Alt Classlar ---
+
+    public class ScreenshotResponse
+    {
+        [JsonProperty("results")]
+        public List<Screenshot> Results { get; set; }
+    }
+
+    public class Screenshot
+    {
+        [JsonProperty("id")]
+        public int Id { get; set; }
+
+        [JsonProperty("image")]
+        public string ImageUrl { get; set; }
+    }
 
     public class PlatformWrapper
     {
@@ -76,6 +101,27 @@ namespace GameTracker.Models
         [JsonProperty("id")]
         public int Id { get; set; }
 
+        [JsonProperty("name")]
+        public string Name { get; set; }
+
+        [JsonProperty("slug")]
+        public string Slug { get; set; }
+    }
+
+    public class StoreWrapper
+    {
+        [JsonProperty("store")]
+        public StoreInfo Store { get; set; }
+    }
+
+    public class StoreInfo
+    {
+        [JsonProperty("name")]
+        public string Name { get; set; }
+    }
+
+    public class Tag
+    {
         [JsonProperty("name")]
         public string Name { get; set; }
 

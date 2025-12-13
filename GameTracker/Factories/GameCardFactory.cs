@@ -18,34 +18,25 @@ namespace GameTracker.Factories
         /// <param name="game">Kart üzerinde gösterilecek oyun nesnesi.</param>
         /// <param name="metrics">Kartın boyut ve yerleşim hesaplamaları.</param>
         /// <param name="imageManager">Resim yükleme işlemlerini yönetecek servis.</param>
-        /// <param name="isLibraryContext">Kartın kütüphane sayfasında olup olmadığını belirtir. Menü içeriğini değiştirir.</param>
-        /// <param name="onStatusChange">Oyun durumu değiştirildiğinde tetiklenecek eylem (Delegate).</param>
-        /// <param name="onRemove">Oyun kaldırılmak istendiğinde tetiklenecek eylem (Delegate).</param>
+        /// <param name="onCardClick">Kart tıklandığında (Detay açmak için) tetiklenecek eylem.</param>
         /// <returns>Yapılandırılmış GameCardControl nesnesi döndürür.</returns>
         public static GameCardControl CreateCard(
             Game game,
             LayoutMetrics metrics,
             ImageManager imageManager,
-            bool isLibraryContext,
-            Action<Game, string> onStatusChange,
-            Action<Game> onRemove, Action<Game> onCardClick)
+            Action<Game> onCardClick)
         {
 
             var card = new GameCardControl();   // Kartı oluştur
             ConfigureCardDimensions(card, metrics); // Boyutları ayarla
             card.SetData(game);  // Veriyi karta bas
 
-            var contextMenu = CreateContextMenu(game, isLibraryContext, onStatusChange, onRemove);  // Context Menu oluştur ve bağla
-            card.ContextMenuStrip = contextMenu;
-            card.peGameImage.ContextMenuStrip = contextMenu;
-            card.lblGameTitle.ContextMenuStrip = contextMenu;
-
             // Kullanıcı resme, yazıya veya kartın kendisine tıklasa da detay açılsın.
             card.Click += (s, e) => onCardClick?.Invoke(game);
             card.peGameImage.Click += (s, e) => onCardClick?.Invoke(game);
             card.lblGameTitle.Click += (s, e) => onCardClick?.Invoke(game);
 
-            // 5. Resmi asenkron olarak yükle
+            // Resmi asenkron olarak yükle
             imageManager.LoadImageAsync(game.BackgroundImage, card.peGameImage, 420);
 
             return card;
@@ -66,65 +57,6 @@ namespace GameTracker.Factories
             // UserControl içindeki panel boyutlandırması
             card.borderPanel.Height = metrics.ImageHeight;
             card.borderPanel.Width = metrics.CardWidth;
-        }
-
-        /// <summary>
-        /// Oyunun bulunduğu bağlama (Kütüphane veya Arama) göre uygun sağ tık menüsünü oluşturur.
-        /// </summary>
-        private static ContextMenuStrip CreateContextMenu(
-            Game game,
-            bool isLibraryContext,
-            Action<Game, string> onStatusChange,
-            Action<Game> onRemove)
-        {
-            var contextMenu = new ContextMenuStrip();
-
-            if (isLibraryContext)
-            {
-                // --- KÜTÜPHANE MODU MENÜSÜ ---
-
-                // Durum Değiştirme Alt Menüsü
-                ToolStripMenuItem changeStatusItem = new ToolStripMenuItem("Move to...");
-                AddStatusMenuItem(changeStatusItem, "Plan to Play", "PlanToPlay", game, onStatusChange);
-                AddStatusMenuItem(changeStatusItem, "Playing", "Playing", game, onStatusChange);
-                AddStatusMenuItem(changeStatusItem, "Played", "Played", game, onStatusChange);
-
-                contextMenu.Items.Add(changeStatusItem);
-
-                // Kaldırma Seçeneği
-                ToolStripMenuItem removeItem = new ToolStripMenuItem("Remove from Library");
-                removeItem.Click += (s, e) => onRemove?.Invoke(game);
-                contextMenu.Items.Add(removeItem);
-            }
-            else
-            {
-                // --- KEŞİF/ARAMA MODU MENÜSÜ ---
-
-                // Kütüphaneye Ekleme Alt Menüsü
-                ToolStripMenuItem addToLibItem = new ToolStripMenuItem("Add to Library");
-                AddStatusMenuItem(addToLibItem, "Plan to Play", "PlanToPlay", game, onStatusChange);
-                AddStatusMenuItem(addToLibItem, "Playing", "Playing", game, onStatusChange);
-                AddStatusMenuItem(addToLibItem, "Played", "Played", game, onStatusChange);
-
-                contextMenu.Items.Add(addToLibItem);
-            }
-
-            return contextMenu;
-        }
-
-        /// <summary>
-        /// Menüye durum değiştirme seçeneklerini ekleyen yardımcı metot.
-        /// </summary>
-        private static void AddStatusMenuItem(
-            ToolStripMenuItem parentItem,
-            string title,
-            string statusCode,
-            Game game,
-            Action<Game, string> action)
-        {
-            var item = new ToolStripMenuItem(title);
-            item.Click += (s, e) => action?.Invoke(game, statusCode);
-            parentItem.DropDownItems.Add(item);
         }
     }
 }

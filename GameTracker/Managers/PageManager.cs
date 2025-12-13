@@ -65,7 +65,7 @@ namespace GameTracker.Managers
         /// <returns>Geçiş başarılıysa true, son sayfadaysa false döner.</returns>
         public bool NextPage()
         {
-            if (CurrentPage < TotalPages)
+            if (CurrentPage < TotalPages - 1)
             {
                 CurrentPage++;
                 return true;

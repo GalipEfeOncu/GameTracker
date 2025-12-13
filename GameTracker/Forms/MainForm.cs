@@ -66,10 +66,19 @@ namespace GameTracker
             searchManager = new PageManager(24);
 
             UiHelper.InitializeFlowPanels(flowLayoutPanelPopulerGames, flowLayoutPanelLibrary, flowLayoutPanelSearch);
-            UiHelper.EnableDoubleBuffering(flowLayoutPanelPopulerGames, flowLayoutPanelLibrary, flowLayoutPanelSearch);
+            UiHelper.EnableDoubleBuffering(flowLayoutPanelPopulerGames, flowLayoutPanelLibrary, flowLayoutPanelSearch, flowLayoutScreenshots, scrollableDetailContainer);
+
+            var activePanel = navigationFrame1.SelectedPage?.Controls[0] as FlowLayoutPanel;
+            RecalculateLayoutMetrics(activePanel);
+            RefreshActivePage();
 
             // Resize timer'ı başlat
             InitializeResizeTimer();
+
+            AddHoverEffectToButton(btnLibPlanToPlay);
+            AddHoverEffectToButton(btnLibPlaying);
+            AddHoverEffectToButton(btnLibPlayed);
+            AddHoverEffectToButton(btnLibDropped);
         }
 
         /// <summary>
@@ -221,13 +230,13 @@ namespace GameTracker
             // Eğer sonuç yoksa (AllItems.Count 0 ise)
             if (manager.AllItems.Count == 0)
             {
+                targetPanel.Controls.Clear(); // Paneli temizle
+                pageLabel.Text = "Page 0 / 0";
                 if (noResultLabel != null)
                 {
-                    targetPanel.Controls.Clear(); // Paneli temizle
                     noResultLabel.Width = targetPanel.Width - 50;
                     targetPanel.Controls.Add(noResultLabel);
                     noResultLabel.Visible = true;
-                    pageLabel.Text = "Page 0 / 0";
                 }
                 return true; // İşlemi durdur
             }
@@ -248,29 +257,12 @@ namespace GameTracker
 
             foreach (var game in games)
             {
-                // Factory'i çağırıyoruz.
-                // Action'lar için lambda expression kullanıyoruz.
-                // (g, status) => AddGameToDb(g, status) kısmı bizim 'Action'ımız.
-                var card = GameCardFactory.CreateCard(game, currentLayoutMetrics, imageManager, isLibraryContext: isLibrary,
-                    onStatusChange: (g, status) =>
-                    {
-                        // Eğer zaten kütüphanedeysek update, değilse add çalışır
-                        if (isLibrary) UpdateGameStatusDb(g, status);
-                        else AddGameToDb(g, status);
-                    },
-                    onRemove: (g) => RemoveGameFromDb(g), onCardClick: (g) => ShowGameDetails(g)
-                );
+                // onStatusChange parametresine 'null' vererek kart üzerindeki sağ tıkı iptal ediyoruz.
+                // Artık aksiyonu sadece detay sayfasından alacağız.
+                var card = GameCardFactory.CreateCard(game, currentLayoutMetrics, imageManager, onCardClick: (g) => ShowGameDetails(g));
 
                 panel.Controls.Add(card);
             }
-        }
-
-        /// <summary>
-        /// Sayfa bilgisi label'ını günceller.
-        /// </summary>
-        private void UpdatePageLabel(LabelControl label, int currentPage, int totalPages)
-        {
-            label.Text = $"Page {currentPage} / {totalPages}";
         }
 
         #endregion
@@ -347,7 +339,7 @@ namespace GameTracker
                 return;
 
             // Veriyi çek
-            var myGames = LibraryManager.GetUserLibrary(Session.UserId);
+            var myGames = LibraryManager.GetUserLibrary(Session.UserId, currentLibraryFilter);
 
             // Veriyi manager'a yükle (SetDataSource kullanıyoruz çünkü liste sıfırdan yükleniyor)
             libraryManager.SetDataSource(myGames);
@@ -508,7 +500,7 @@ namespace GameTracker
                         lblDetailGenres.Text = "Genre info not available";
                     }
 
-                    // --- İSTATİSTİKLER (SAĞ TARAF) ---
+                    // --- İSTATİSTİKLER ---
                     lblDetailRating.Text = $"★ {fullGame.Rating:0.0} / 5"; // 0.0 formatı (örn: 4.5)
 
                     // Metacritic (Varsa yaz, yoksa N/A)
@@ -516,6 +508,12 @@ namespace GameTracker
                         lblDetailMetacritic.Text = fullGame.Metacritic.ToString();
                     else
                         lblDetailMetacritic.Text = "N/A";
+
+                    // --- YAŞ SINIRI (ESRB) ---
+                    if (fullGame.EsrbRating != null)
+                        lblDetailAge.Text = fullGame.EsrbRating.Name; // "Mature", "Everyone" vs.
+                    else
+                        lblDetailAge.Text = "Not Rated";
 
                     // Playtime
                     if (fullGame.Playtime > 0)
@@ -560,6 +558,40 @@ namespace GameTracker
                     {
                         lblDetailRequirements.Text = "PC requirements not found or available.";
                     }
+
+                    // --- PLATFORMLAR ---
+                    if (fullGame.Platforms != null && fullGame.Platforms.Any())
+                    {
+                        var platNames = fullGame.Platforms.Select(p => p.Platform.Name).Take(5); // İlk 5'i al çok uzamasın
+                        lblDetailPlatforms.Text = string.Join(", ", platNames);
+                    }
+                    else lblDetailPlatforms.Text = "Platforms: N/A";
+
+                    // --- MAĞAZALAR ---
+                    if (fullGame.Stores != null && fullGame.Stores.Any())
+                    {
+                        var storeNames = fullGame.Stores.Select(s => s.Store.Name);
+                        lblDetailStores.Text = "Stores: " + string.Join(", ", storeNames);
+                    }
+                    else lblDetailStores.Text = "Store info unavailable";
+
+                    // --- OYNANIŞ ---
+                    // API'de "Tags" içinde "Singleplayer", "Multiplayer" geçer.
+                    var modes = new List<string>();
+                    if (fullGame.Tags != null)
+                    {
+                        if (fullGame.Tags.Any(t => t.Slug == "singleplayer")) modes.Add("Singleplayer");
+                        if (fullGame.Tags.Any(t => t.Slug == "multiplayer")) modes.Add("Multiplayer");
+                        if (fullGame.Tags.Any(t => t.Slug == "co-op")) modes.Add("Co-op");
+                    }
+                    lblDetailModes.Text = modes.Any() ? string.Join(" • ", modes) : "Mode info N/A";
+
+                    // --- KÜTÜPHANE BUTONUNU GÜNCELLE ---
+                    // Burası çok önemli: Oyunun ID'sini bildiğimiz için durumunu kontrol edelim
+                    UpdateLibraryButtonState(fullGame);
+
+                    // --- EKRAN GÖRÜNTÜLERİ ---
+                    LoadScreenshots(fullGame.Id);
                 }
             }
             catch (Exception ex)
@@ -577,6 +609,83 @@ namespace GameTracker
             return rawReq.Replace("Minimum:", "").Replace("Recommended:", "").Trim();
         }
 
+        /// <summary>
+        /// Kütüphane butonunun görünümünü oyunun durumuna göre günceller.
+        /// </summary>
+        private void UpdateLibraryButtonState(Game game)
+        {
+            if (Session.UserId <= 0) return;
+
+            bool isInLib = LibraryManager.IsGameInLibrary(Session.UserId, game.Id);
+
+            if (isInLib)
+            {
+                btnLibraryAction.Text = "✔ In Library";
+                btnLibraryAction.Appearance.BackColor = System.Drawing.Color.FromArgb(40, 44, 60); // Koyu Gri (Pasif gibi)
+                btnLibraryAction.Appearance.ForeColor = System.Drawing.Color.LightGreen;
+            }
+            else
+            {
+                btnLibraryAction.Text = "+ Add to Library";
+                btnLibraryAction.Appearance.BackColor = System.Drawing.Color.FromArgb(40, 167, 69); // Yeşil (Aktif)
+                btnLibraryAction.Appearance.ForeColor = System.Drawing.Color.White;
+            }
+
+            // Butonun Tag özelliğine oyunu atıyoruz ki tıklayınca hangi oyun olduğunu bilelim
+            btnLibraryAction.Tag = game;
+        }
+
+        private void btnLibraryAction_Click(object sender, EventArgs e)
+        {
+            if (btnLibraryAction.Tag is Game game) // Tag'den oyunu al
+            {
+                // Context Menu oluştur
+                ContextMenuStrip menu = new ContextMenuStrip();
+
+                // Durum seçenekleri
+                menu.Items.Add("Plan to Play", null, (s, args) => AddOrUpdateGame(game, "PlanToPlay"));
+                menu.Items.Add("Playing", null, (s, args) => AddOrUpdateGame(game, "Playing"));
+                menu.Items.Add("Played", null, (s, args) => AddOrUpdateGame(game, "Played"));
+                menu.Items.Add("Dropped", null, (s, args) => AddOrUpdateGame(game, "Dropped"));
+
+                menu.Items.Add(new ToolStripSeparator());
+
+                // Silme seçeneği
+                menu.Items.Add("Remove from Library", null, (s, args) =>
+                {
+                    RemoveGameFromDb(game);
+                    UpdateLibraryButtonState(game); // Butonu güncelle
+                });
+
+                // Menüyü butonun hemen altında göster
+                menu.Show(btnLibraryAction, 0, btnLibraryAction.Height);
+            }
+        }
+
+        // Yardımcı Metot: Hem Ekleme Hem Güncelleme yapar
+        private void AddOrUpdateGame(Game game, string status)
+        {
+            if (!ValidateUserSession()) return;
+
+            bool exists = LibraryManager.IsGameInLibrary(Session.UserId, game.Id);
+
+            if (exists)
+            {
+                // Varsa güncelle
+                LibraryManager.UpdateGameStatus(Session.UserId, game.Id, status);
+                MyMessageBox.Show($"Game status updated to: {status}", "Updated");
+            }
+            else
+            {
+                // Yoksa ekle
+                LibraryManager.AddGameToLibrary(Session.UserId, game, status);
+                MyMessageBox.Show($"Game added to library as: {status}", "Success");
+            }
+
+            // İşlem bitince butonu güncelle
+            UpdateLibraryButtonState(game);
+        }
+
         private void btnDetailBack_Click(object sender, EventArgs e)
         {
             // Nereden geldiysek oraya dönelim, yoksa Home'a dönelim
@@ -584,6 +693,39 @@ namespace GameTracker
                 navigationFrame1.SelectedPage = previousPage;
             else
                 navigationFrame1.SelectedPage = pageHome;
+        }
+
+        private async void LoadScreenshots(int gameId)
+        {
+            // Paneli temizle
+            flowLayoutScreenshots.Controls.Clear();
+
+            // API'den çek
+            var screenshots = await rawgapi.GetGameScreenshotsAsync(gameId);
+
+            if (screenshots != null && screenshots.Any())
+            {
+                foreach (var ss in screenshots)
+                {
+                    PictureEdit pe = new PictureEdit();
+                    pe.Properties.SizeMode = DevExpress.XtraEditors.Controls.PictureSizeMode.Zoom;
+                    pe.Properties.ShowCameraMenuItem = DevExpress.XtraEditors.Controls.CameraMenuItemVisibility.Auto;
+                    pe.Properties.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
+                    pe.BackColor = System.Drawing.Color.Transparent;
+                    pe.Size = new System.Drawing.Size(330, 200);
+                    pe.Properties.AllowFocused = false;
+                    pe.Properties.ShowMenu = false;
+
+                    // Resmi Yükle
+                    imageManager.LoadImageAsync(ss.ImageUrl, pe, 600); // 600px kalite 
+                    flowLayoutScreenshots.Controls.Add(pe);
+                }
+            }
+            else
+            {
+                // Screenshot yoksa paneli gizle ki boşluk kalmasın
+                flowLayoutScreenshots.Visible = false;
+            }
         }
 
         #endregion
@@ -689,5 +831,82 @@ namespace GameTracker
             navigationFrame1.SelectedPage = pageSettings;
         }
         #endregion
+
+        #region Library Filter Logic
+
+        // Global bir değişken tutalım ki şu an hangi filtredeyiz bilelim
+        private string currentLibraryFilter = null;
+
+        // Tüm filtre butonları bu evente bağlı
+        private void FilterLibrary_Click(object sender, EventArgs e)
+        {
+            var clickedButton = sender as SimpleButton;
+            if (clickedButton == null) return;
+
+            string selectedTag = clickedButton.Tag as string;
+
+            // --- TOGGLE (AÇ/KAPA) MANTIĞI ---
+            if (currentLibraryFilter == selectedTag)
+            {
+                // Eğer zaten bu filtredeysek, filtreyi kaldır (Hepsini göster)
+                currentLibraryFilter = null;
+                HighlightActiveFilterButton(null); // Hiçbir butonu yakma
+            }
+            else
+            {
+                // Yeni bir filtre seçildi
+                currentLibraryFilter = selectedTag;
+                HighlightActiveFilterButton(clickedButton); // Sadece bunu yak
+            }
+
+            // Listeyi yeni duruma göre güncelle
+            LoadLibraryGames();
+        }
+
+        // Buton renklerini ayarlayan yardımcı metot
+        private void HighlightActiveFilterButton(SimpleButton activeButton)
+        {
+            // Paneldeki tüm butonları bul
+            var buttons = new[] { btnLibPlanToPlay, btnLibPlaying, btnLibPlayed, btnLibDropped };
+
+            foreach (var btn in buttons)
+            {
+                if (btn == activeButton)
+                {
+                    // Aktif Buton: Yeşil ve Kalın Font
+                    btn.Appearance.BackColor = System.Drawing.Color.FromArgb(40, 167, 69);
+                    btn.Appearance.ForeColor = System.Drawing.Color.White;
+                    btn.Appearance.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
+                }
+                else
+                {
+                    // Pasif Buton: Koyu Gri ve Normal Font
+                    btn.Appearance.BackColor = System.Drawing.Color.FromArgb(32, 34, 50);
+                    btn.Appearance.ForeColor = System.Drawing.Color.WhiteSmoke;
+                    btn.Appearance.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular);
+                }
+            }
+        }
+        #endregion
+
+        /// <summary>
+        /// Butonlara hover (üzerine gelme) efekti ekler.
+        /// </summary>
+        private void AddHoverEffectToButton(SimpleButton btn)
+        {
+            // Butonun kenarlıklarını kaldır (Zaten kaldırmıştık ama garanti olsun)
+            btn.ButtonStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
+
+            // Hover (Üzerine gelince) Rengi: O soldaki menüdeki koyu gri tonu
+            btn.AppearanceHovered.BackColor = System.Drawing.Color.FromArgb(40, 42, 60);
+            btn.AppearanceHovered.ForeColor = System.Drawing.Color.White;
+
+            // DevExpress'e "Bu ayarları kullan" diyoruz
+            btn.AppearanceHovered.Options.UseBackColor = true;
+            btn.AppearanceHovered.Options.UseForeColor = true;
+
+            // El işareti çıksın (Hand Cursor)
+            btn.Cursor = Cursors.Hand;
+        }
     }
 }
