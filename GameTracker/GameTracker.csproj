@@ -104,6 +104,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Data\DatabaseHelper.cs" />
+    <Compile Include="EmailService.cs" />
     <Compile Include="Factories\GameCardFactory.cs" />
     <Compile Include="Helpers\UIHelper.cs" />
     <Compile Include="Managers\PageManager.cs" />

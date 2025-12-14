@@ -1,6 +1,5 @@
 ﻿using Newtonsoft.Json;
 using System.Collections.Generic;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace GameTracker.Models
 {
@@ -144,13 +143,19 @@ namespace GameTracker.Models
         public int Id { get; set; }
 
         [JsonProperty("name")]
-        public string Name { get; set; } // "Mature", "Everyone" vs.
+        public string Name { get; set; }
+
+        [JsonProperty("slug")]
+        public string Slug { get; set; }
     }
 
     public class Genre
     {
         [JsonProperty("name")]
         public string Name { get; set; }
+
+        [JsonProperty("slug")]
+        public string Slug { get; set; }
     }
 
     public class Developer

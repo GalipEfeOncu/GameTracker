@@ -1,5 +1,5 @@
-﻿using DevExpress.XtraEditors.DXErrorProvider;
-using System;
+﻿using System;
+using System.Windows.Forms;
 
 namespace GameTracker
 {
@@ -110,6 +110,15 @@ namespace GameTracker
             SignupForm signupForm = new SignupForm();
             signupForm.Show();
             this.Hide();
+        }
+
+        /// <summary>
+        /// Form tamamen kapandığında uygulamayı sonlandırır.
+        /// </summary>
+        protected override void OnFormClosed(FormClosedEventArgs e)
+        {
+            base.OnFormClosed(e);
+            Application.Exit();
         }
     }
 }

@@ -58,5 +58,29 @@ namespace GameTracker.Properties {
                 this["RememberMe"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Home")]
+        public string StartPage {
+            get {
+                return ((string)(this["StartPage"]));
+            }
+            set {
+                this["StartPage"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool ShowNSFW {
+            get {
+                return ((bool)(this["ShowNSFW"]));
+            }
+            set {
+                this["ShowNSFW"] = value;
+            }
+        }
     }
 }

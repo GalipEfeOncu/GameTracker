@@ -53,6 +53,32 @@
             this.panelControl7 = new DevExpress.XtraEditors.PanelControl();
             this.searchControlSearchPage = new DevExpress.XtraEditors.SearchControl();
             this.pageSettings = new DevExpress.XtraBars.Navigation.NavigationPage();
+            this.flowSettingsMain = new System.Windows.Forms.FlowLayoutPanel();
+            this.pnlAccountSettings = new DevExpress.XtraEditors.PanelControl();
+            this.lblPassWarning = new DevExpress.XtraEditors.LabelControl();
+            this.lblUsernameWarning = new DevExpress.XtraEditors.LabelControl();
+            this.txtNewPassAgain = new DevExpress.XtraEditors.TextEdit();
+            this.lblAccountHeader = new DevExpress.XtraEditors.LabelControl();
+            this.separatorAccount = new DevExpress.XtraEditors.LabelControl();
+            this.lblChangeUser = new DevExpress.XtraEditors.LabelControl();
+            this.txtNewUsername = new DevExpress.XtraEditors.TextEdit();
+            this.btnUpdateUsername = new DevExpress.XtraEditors.SimpleButton();
+            this.lblChangePass = new DevExpress.XtraEditors.LabelControl();
+            this.txtCurrentPass = new DevExpress.XtraEditors.TextEdit();
+            this.txtNewPass = new DevExpress.XtraEditors.TextEdit();
+            this.btnUpdatePass = new DevExpress.XtraEditors.SimpleButton();
+            this.pnlAppPreferences = new DevExpress.XtraEditors.PanelControl();
+            this.lblPrefHeader = new DevExpress.XtraEditors.LabelControl();
+            this.separatorPref = new DevExpress.XtraEditors.LabelControl();
+            this.lblStartPage = new DevExpress.XtraEditors.LabelControl();
+            this.cmbStartPage = new DevExpress.XtraEditors.ComboBoxEdit();
+            this.lblNSFW = new DevExpress.XtraEditors.LabelControl();
+            this.toggleNSFW = new DevExpress.XtraEditors.ToggleSwitch();
+            this.pnlSystemData = new DevExpress.XtraEditors.PanelControl();
+            this.lblSystemHeader = new DevExpress.XtraEditors.LabelControl();
+            this.separatorSystem = new DevExpress.XtraEditors.LabelControl();
+            this.btnClearCache = new DevExpress.XtraEditors.SimpleButton();
+            this.btnLogout = new DevExpress.XtraEditors.SimpleButton();
             this.pageGameDetail = new DevExpress.XtraBars.Navigation.NavigationPage();
             this.scrollableDetailContainer = new DevExpress.XtraEditors.XtraScrollableControl();
             this.lblDetailRequirements = new DevExpress.XtraEditors.LabelControl();
@@ -95,6 +121,20 @@
             ((System.ComponentModel.ISupportInitialize)(this.panelControl7)).BeginInit();
             this.panelControl7.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.searchControlSearchPage.Properties)).BeginInit();
+            this.pageSettings.SuspendLayout();
+            this.flowSettingsMain.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pnlAccountSettings)).BeginInit();
+            this.pnlAccountSettings.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.txtNewPassAgain.Properties)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtNewUsername.Properties)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtCurrentPass.Properties)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtNewPass.Properties)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pnlAppPreferences)).BeginInit();
+            this.pnlAppPreferences.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.cmbStartPage.Properties)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.toggleNSFW.Properties)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pnlSystemData)).BeginInit();
+            this.pnlSystemData.SuspendLayout();
             this.pageGameDetail.SuspendLayout();
             this.scrollableDetailContainer.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.panelControl2)).BeginInit();
@@ -677,8 +717,391 @@
             // pageSettings
             // 
             this.pageSettings.Caption = "pageSettings";
+            this.pageSettings.Controls.Add(this.flowSettingsMain);
             this.pageSettings.Name = "pageSettings";
             this.pageSettings.Size = new System.Drawing.Size(1278, 718);
+            // 
+            // flowSettingsMain
+            // 
+            this.flowSettingsMain.AutoScroll = true;
+            this.flowSettingsMain.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(26)))), ((int)(((byte)(29)))), ((int)(((byte)(41)))));
+            this.flowSettingsMain.Controls.Add(this.pnlAccountSettings);
+            this.flowSettingsMain.Controls.Add(this.pnlAppPreferences);
+            this.flowSettingsMain.Controls.Add(this.pnlSystemData);
+            this.flowSettingsMain.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.flowSettingsMain.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
+            this.flowSettingsMain.Location = new System.Drawing.Point(0, 0);
+            this.flowSettingsMain.Name = "flowSettingsMain";
+            this.flowSettingsMain.Padding = new System.Windows.Forms.Padding(40);
+            this.flowSettingsMain.Size = new System.Drawing.Size(1278, 718);
+            this.flowSettingsMain.TabIndex = 0;
+            this.flowSettingsMain.WrapContents = false;
+            // 
+            // pnlAccountSettings
+            // 
+            this.pnlAccountSettings.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(32)))), ((int)(((byte)(34)))), ((int)(((byte)(50)))));
+            this.pnlAccountSettings.Appearance.Options.UseBackColor = true;
+            this.pnlAccountSettings.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
+            this.pnlAccountSettings.Controls.Add(this.lblPassWarning);
+            this.pnlAccountSettings.Controls.Add(this.lblUsernameWarning);
+            this.pnlAccountSettings.Controls.Add(this.txtNewPassAgain);
+            this.pnlAccountSettings.Controls.Add(this.lblAccountHeader);
+            this.pnlAccountSettings.Controls.Add(this.separatorAccount);
+            this.pnlAccountSettings.Controls.Add(this.lblChangeUser);
+            this.pnlAccountSettings.Controls.Add(this.txtNewUsername);
+            this.pnlAccountSettings.Controls.Add(this.btnUpdateUsername);
+            this.pnlAccountSettings.Controls.Add(this.lblChangePass);
+            this.pnlAccountSettings.Controls.Add(this.txtCurrentPass);
+            this.pnlAccountSettings.Controls.Add(this.txtNewPass);
+            this.pnlAccountSettings.Controls.Add(this.btnUpdatePass);
+            this.pnlAccountSettings.Location = new System.Drawing.Point(40, 40);
+            this.pnlAccountSettings.Margin = new System.Windows.Forms.Padding(0, 0, 0, 30);
+            this.pnlAccountSettings.Name = "pnlAccountSettings";
+            this.pnlAccountSettings.Size = new System.Drawing.Size(800, 260);
+            this.pnlAccountSettings.TabIndex = 0;
+            // 
+            // lblPassWarning
+            // 
+            this.lblPassWarning.Appearance.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(80)))), ((int)(((byte)(80)))));
+            this.lblPassWarning.Appearance.Options.UseForeColor = true;
+            this.lblPassWarning.Appearance.Options.UseTextOptions = true;
+            this.lblPassWarning.Appearance.TextOptions.WordWrap = DevExpress.Utils.WordWrap.Wrap;
+            this.lblPassWarning.AutoSizeMode = DevExpress.XtraEditors.LabelAutoSizeMode.None;
+            this.lblPassWarning.Location = new System.Drawing.Point(166, 202);
+            this.lblPassWarning.Name = "lblPassWarning";
+            this.lblPassWarning.Size = new System.Drawing.Size(154, 28);
+            this.lblPassWarning.TabIndex = 11;
+            this.lblPassWarning.Text = "Warning";
+            this.lblPassWarning.Visible = false;
+            // 
+            // lblUsernameWarning
+            // 
+            this.lblUsernameWarning.Appearance.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(80)))), ((int)(((byte)(80)))));
+            this.lblUsernameWarning.Appearance.Options.UseForeColor = true;
+            this.lblUsernameWarning.Appearance.Options.UseTextOptions = true;
+            this.lblUsernameWarning.Appearance.TextOptions.WordWrap = DevExpress.Utils.WordWrap.Wrap;
+            this.lblUsernameWarning.AutoSizeMode = DevExpress.XtraEditors.LabelAutoSizeMode.None;
+            this.lblUsernameWarning.Location = new System.Drawing.Point(526, 127);
+            this.lblUsernameWarning.Name = "lblUsernameWarning";
+            this.lblUsernameWarning.Size = new System.Drawing.Size(154, 28);
+            this.lblUsernameWarning.TabIndex = 10;
+            this.lblUsernameWarning.Text = "Warning";
+            this.lblUsernameWarning.Visible = false;
+            // 
+            // txtNewPassAgain
+            // 
+            this.txtNewPassAgain.Location = new System.Drawing.Point(20, 160);
+            this.txtNewPassAgain.Name = "txtNewPassAgain";
+            this.txtNewPassAgain.Properties.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(45)))), ((int)(((byte)(48)))), ((int)(((byte)(65)))));
+            this.txtNewPassAgain.Properties.Appearance.Font = new System.Drawing.Font("Segoe UI", 10F);
+            this.txtNewPassAgain.Properties.Appearance.ForeColor = System.Drawing.Color.White;
+            this.txtNewPassAgain.Properties.Appearance.Options.UseBackColor = true;
+            this.txtNewPassAgain.Properties.Appearance.Options.UseFont = true;
+            this.txtNewPassAgain.Properties.Appearance.Options.UseForeColor = true;
+            this.txtNewPassAgain.Properties.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
+            this.txtNewPassAgain.Properties.NullValuePrompt = "New Password Again";
+            this.txtNewPassAgain.Properties.UseSystemPasswordChar = true;
+            this.txtNewPassAgain.Size = new System.Drawing.Size(300, 22);
+            this.txtNewPassAgain.TabIndex = 9;
+            // 
+            // lblAccountHeader
+            // 
+            this.lblAccountHeader.Appearance.Font = new System.Drawing.Font("Segoe UI", 14F, System.Drawing.FontStyle.Bold);
+            this.lblAccountHeader.Appearance.ForeColor = System.Drawing.Color.White;
+            this.lblAccountHeader.Appearance.Options.UseFont = true;
+            this.lblAccountHeader.Appearance.Options.UseForeColor = true;
+            this.lblAccountHeader.Location = new System.Drawing.Point(20, 15);
+            this.lblAccountHeader.Name = "lblAccountHeader";
+            this.lblAccountHeader.Size = new System.Drawing.Size(151, 25);
+            this.lblAccountHeader.TabIndex = 0;
+            this.lblAccountHeader.Text = "Account Settings";
+            // 
+            // separatorAccount
+            // 
+            this.separatorAccount.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(63)))), ((int)(((byte)(80)))));
+            this.separatorAccount.Appearance.Options.UseBackColor = true;
+            this.separatorAccount.AutoSizeMode = DevExpress.XtraEditors.LabelAutoSizeMode.None;
+            this.separatorAccount.Location = new System.Drawing.Point(20, 50);
+            this.separatorAccount.Name = "separatorAccount";
+            this.separatorAccount.Size = new System.Drawing.Size(760, 1);
+            this.separatorAccount.TabIndex = 1;
+            // 
+            // lblChangeUser
+            // 
+            this.lblChangeUser.Appearance.Font = new System.Drawing.Font("Segoe UI", 9F);
+            this.lblChangeUser.Appearance.ForeColor = System.Drawing.Color.Gray;
+            this.lblChangeUser.Appearance.Options.UseFont = true;
+            this.lblChangeUser.Appearance.Options.UseForeColor = true;
+            this.lblChangeUser.Location = new System.Drawing.Point(380, 60);
+            this.lblChangeUser.Name = "lblChangeUser";
+            this.lblChangeUser.Size = new System.Drawing.Size(97, 15);
+            this.lblChangeUser.TabIndex = 2;
+            this.lblChangeUser.Text = "Change Username";
+            // 
+            // txtNewUsername
+            // 
+            this.txtNewUsername.Location = new System.Drawing.Point(380, 85);
+            this.txtNewUsername.Name = "txtNewUsername";
+            this.txtNewUsername.Properties.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(45)))), ((int)(((byte)(48)))), ((int)(((byte)(65)))));
+            this.txtNewUsername.Properties.Appearance.Font = new System.Drawing.Font("Segoe UI", 10F);
+            this.txtNewUsername.Properties.Appearance.ForeColor = System.Drawing.Color.White;
+            this.txtNewUsername.Properties.Appearance.Options.UseBackColor = true;
+            this.txtNewUsername.Properties.Appearance.Options.UseFont = true;
+            this.txtNewUsername.Properties.Appearance.Options.UseForeColor = true;
+            this.txtNewUsername.Properties.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
+            this.txtNewUsername.Properties.NullValuePrompt = "New Username";
+            this.txtNewUsername.Size = new System.Drawing.Size(300, 22);
+            this.txtNewUsername.TabIndex = 3;
+            // 
+            // btnUpdateUsername
+            // 
+            this.btnUpdateUsername.AllowFocus = false;
+            this.btnUpdateUsername.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(122)))), ((int)(((byte)(204)))));
+            this.btnUpdateUsername.Appearance.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+            this.btnUpdateUsername.Appearance.ForeColor = System.Drawing.Color.White;
+            this.btnUpdateUsername.Appearance.Options.UseBackColor = true;
+            this.btnUpdateUsername.Appearance.Options.UseFont = true;
+            this.btnUpdateUsername.Appearance.Options.UseForeColor = true;
+            this.btnUpdateUsername.ButtonStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
+            this.btnUpdateUsername.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnUpdateUsername.Location = new System.Drawing.Point(380, 127);
+            this.btnUpdateUsername.Name = "btnUpdateUsername";
+            this.btnUpdateUsername.Size = new System.Drawing.Size(140, 28);
+            this.btnUpdateUsername.TabIndex = 4;
+            this.btnUpdateUsername.Text = "Update Username";
+            this.btnUpdateUsername.Click += new System.EventHandler(this.btnUpdateUsername_Click);
+            // 
+            // lblChangePass
+            // 
+            this.lblChangePass.Appearance.Font = new System.Drawing.Font("Segoe UI", 9F);
+            this.lblChangePass.Appearance.ForeColor = System.Drawing.Color.Gray;
+            this.lblChangePass.Appearance.Options.UseFont = true;
+            this.lblChangePass.Appearance.Options.UseForeColor = true;
+            this.lblChangePass.Location = new System.Drawing.Point(20, 60);
+            this.lblChangePass.Name = "lblChangePass";
+            this.lblChangePass.Size = new System.Drawing.Size(94, 15);
+            this.lblChangePass.TabIndex = 5;
+            this.lblChangePass.Text = "Change Password";
+            // 
+            // txtCurrentPass
+            // 
+            this.txtCurrentPass.Location = new System.Drawing.Point(20, 85);
+            this.txtCurrentPass.Name = "txtCurrentPass";
+            this.txtCurrentPass.Properties.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(45)))), ((int)(((byte)(48)))), ((int)(((byte)(65)))));
+            this.txtCurrentPass.Properties.Appearance.Font = new System.Drawing.Font("Segoe UI", 10F);
+            this.txtCurrentPass.Properties.Appearance.ForeColor = System.Drawing.Color.White;
+            this.txtCurrentPass.Properties.Appearance.Options.UseBackColor = true;
+            this.txtCurrentPass.Properties.Appearance.Options.UseFont = true;
+            this.txtCurrentPass.Properties.Appearance.Options.UseForeColor = true;
+            this.txtCurrentPass.Properties.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
+            this.txtCurrentPass.Properties.NullValuePrompt = "Current Password";
+            this.txtCurrentPass.Properties.UseSystemPasswordChar = true;
+            this.txtCurrentPass.Size = new System.Drawing.Size(300, 22);
+            this.txtCurrentPass.TabIndex = 6;
+            // 
+            // txtNewPass
+            // 
+            this.txtNewPass.Location = new System.Drawing.Point(20, 125);
+            this.txtNewPass.Name = "txtNewPass";
+            this.txtNewPass.Properties.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(45)))), ((int)(((byte)(48)))), ((int)(((byte)(65)))));
+            this.txtNewPass.Properties.Appearance.Font = new System.Drawing.Font("Segoe UI", 10F);
+            this.txtNewPass.Properties.Appearance.ForeColor = System.Drawing.Color.White;
+            this.txtNewPass.Properties.Appearance.Options.UseBackColor = true;
+            this.txtNewPass.Properties.Appearance.Options.UseFont = true;
+            this.txtNewPass.Properties.Appearance.Options.UseForeColor = true;
+            this.txtNewPass.Properties.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
+            this.txtNewPass.Properties.NullValuePrompt = "New Password";
+            this.txtNewPass.Properties.UseSystemPasswordChar = true;
+            this.txtNewPass.Size = new System.Drawing.Size(300, 22);
+            this.txtNewPass.TabIndex = 7;
+            // 
+            // btnUpdatePass
+            // 
+            this.btnUpdatePass.AllowFocus = false;
+            this.btnUpdatePass.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(122)))), ((int)(((byte)(204)))));
+            this.btnUpdatePass.Appearance.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+            this.btnUpdatePass.Appearance.ForeColor = System.Drawing.Color.White;
+            this.btnUpdatePass.Appearance.Options.UseBackColor = true;
+            this.btnUpdatePass.Appearance.Options.UseFont = true;
+            this.btnUpdatePass.Appearance.Options.UseForeColor = true;
+            this.btnUpdatePass.ButtonStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
+            this.btnUpdatePass.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnUpdatePass.Location = new System.Drawing.Point(20, 200);
+            this.btnUpdatePass.Name = "btnUpdatePass";
+            this.btnUpdatePass.Size = new System.Drawing.Size(140, 30);
+            this.btnUpdatePass.TabIndex = 8;
+            this.btnUpdatePass.Text = "Update Password";
+            this.btnUpdatePass.Click += new System.EventHandler(this.btnUpdatePass_Click);
+            // 
+            // pnlAppPreferences
+            // 
+            this.pnlAppPreferences.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(32)))), ((int)(((byte)(34)))), ((int)(((byte)(50)))));
+            this.pnlAppPreferences.Appearance.Options.UseBackColor = true;
+            this.pnlAppPreferences.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
+            this.pnlAppPreferences.Controls.Add(this.lblPrefHeader);
+            this.pnlAppPreferences.Controls.Add(this.separatorPref);
+            this.pnlAppPreferences.Controls.Add(this.lblStartPage);
+            this.pnlAppPreferences.Controls.Add(this.cmbStartPage);
+            this.pnlAppPreferences.Controls.Add(this.lblNSFW);
+            this.pnlAppPreferences.Controls.Add(this.toggleNSFW);
+            this.pnlAppPreferences.Location = new System.Drawing.Point(40, 330);
+            this.pnlAppPreferences.Margin = new System.Windows.Forms.Padding(0, 0, 0, 30);
+            this.pnlAppPreferences.Name = "pnlAppPreferences";
+            this.pnlAppPreferences.Size = new System.Drawing.Size(800, 140);
+            this.pnlAppPreferences.TabIndex = 1;
+            // 
+            // lblPrefHeader
+            // 
+            this.lblPrefHeader.Appearance.Font = new System.Drawing.Font("Segoe UI", 14F, System.Drawing.FontStyle.Bold);
+            this.lblPrefHeader.Appearance.ForeColor = System.Drawing.Color.White;
+            this.lblPrefHeader.Appearance.Options.UseFont = true;
+            this.lblPrefHeader.Appearance.Options.UseForeColor = true;
+            this.lblPrefHeader.Location = new System.Drawing.Point(20, 15);
+            this.lblPrefHeader.Name = "lblPrefHeader";
+            this.lblPrefHeader.Size = new System.Drawing.Size(146, 25);
+            this.lblPrefHeader.TabIndex = 0;
+            this.lblPrefHeader.Text = "App Preferences";
+            // 
+            // separatorPref
+            // 
+            this.separatorPref.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(63)))), ((int)(((byte)(80)))));
+            this.separatorPref.Appearance.Options.UseBackColor = true;
+            this.separatorPref.AutoSizeMode = DevExpress.XtraEditors.LabelAutoSizeMode.None;
+            this.separatorPref.Location = new System.Drawing.Point(20, 50);
+            this.separatorPref.Name = "separatorPref";
+            this.separatorPref.Size = new System.Drawing.Size(760, 1);
+            this.separatorPref.TabIndex = 1;
+            // 
+            // lblStartPage
+            // 
+            this.lblStartPage.Appearance.Font = new System.Drawing.Font("Segoe UI", 9F);
+            this.lblStartPage.Appearance.ForeColor = System.Drawing.Color.Gray;
+            this.lblStartPage.Appearance.Options.UseFont = true;
+            this.lblStartPage.Appearance.Options.UseForeColor = true;
+            this.lblStartPage.Location = new System.Drawing.Point(20, 60);
+            this.lblStartPage.Name = "lblStartPage";
+            this.lblStartPage.Size = new System.Drawing.Size(53, 15);
+            this.lblStartPage.TabIndex = 2;
+            this.lblStartPage.Text = "Start Page";
+            // 
+            // cmbStartPage
+            // 
+            this.cmbStartPage.Location = new System.Drawing.Point(20, 85);
+            this.cmbStartPage.Name = "cmbStartPage";
+            this.cmbStartPage.Properties.AllowFocused = false;
+            this.cmbStartPage.Properties.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(45)))), ((int)(((byte)(48)))), ((int)(((byte)(65)))));
+            this.cmbStartPage.Properties.Appearance.Font = new System.Drawing.Font("Segoe UI", 10F);
+            this.cmbStartPage.Properties.Appearance.ForeColor = System.Drawing.Color.White;
+            this.cmbStartPage.Properties.Appearance.Options.UseBackColor = true;
+            this.cmbStartPage.Properties.Appearance.Options.UseFont = true;
+            this.cmbStartPage.Properties.Appearance.Options.UseForeColor = true;
+            this.cmbStartPage.Properties.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
+            this.cmbStartPage.Properties.Items.AddRange(new object[] {
+            "Popular Games (Home)",
+            "My Library"});
+            this.cmbStartPage.Size = new System.Drawing.Size(200, 22);
+            this.cmbStartPage.TabIndex = 3;
+            this.cmbStartPage.SelectedIndexChanged += new System.EventHandler(this.cmbStartPage_SelectedIndexChanged);
+            // 
+            // lblNSFW
+            // 
+            this.lblNSFW.Appearance.Font = new System.Drawing.Font("Segoe UI", 9F);
+            this.lblNSFW.Appearance.ForeColor = System.Drawing.Color.Gray;
+            this.lblNSFW.Appearance.Options.UseFont = true;
+            this.lblNSFW.Appearance.Options.UseForeColor = true;
+            this.lblNSFW.Location = new System.Drawing.Point(380, 60);
+            this.lblNSFW.Name = "lblNSFW";
+            this.lblNSFW.Size = new System.Drawing.Size(159, 15);
+            this.lblNSFW.TabIndex = 4;
+            this.lblNSFW.Text = "Show Mature Content (NSFW)";
+            // 
+            // toggleNSFW
+            // 
+            this.toggleNSFW.Location = new System.Drawing.Point(380, 85);
+            this.toggleNSFW.Name = "toggleNSFW";
+            this.toggleNSFW.Properties.AllowFocused = false;
+            this.toggleNSFW.Properties.Appearance.Font = new System.Drawing.Font("Segoe UI", 10F);
+            this.toggleNSFW.Properties.Appearance.ForeColor = System.Drawing.Color.Silver;
+            this.toggleNSFW.Properties.Appearance.Options.UseFont = true;
+            this.toggleNSFW.Properties.Appearance.Options.UseForeColor = true;
+            this.toggleNSFW.Properties.OffText = "Off";
+            this.toggleNSFW.Properties.OnText = "On";
+            this.toggleNSFW.Size = new System.Drawing.Size(150, 22);
+            this.toggleNSFW.TabIndex = 5;
+            this.toggleNSFW.Toggled += new System.EventHandler(this.toggleNSFW_Toggled);
+            // 
+            // pnlSystemData
+            // 
+            this.pnlSystemData.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(32)))), ((int)(((byte)(34)))), ((int)(((byte)(50)))));
+            this.pnlSystemData.Appearance.Options.UseBackColor = true;
+            this.pnlSystemData.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
+            this.pnlSystemData.Controls.Add(this.lblSystemHeader);
+            this.pnlSystemData.Controls.Add(this.separatorSystem);
+            this.pnlSystemData.Controls.Add(this.btnClearCache);
+            this.pnlSystemData.Controls.Add(this.btnLogout);
+            this.pnlSystemData.Location = new System.Drawing.Point(40, 500);
+            this.pnlSystemData.Margin = new System.Windows.Forms.Padding(0, 0, 0, 30);
+            this.pnlSystemData.Name = "pnlSystemData";
+            this.pnlSystemData.Size = new System.Drawing.Size(800, 140);
+            this.pnlSystemData.TabIndex = 2;
+            // 
+            // lblSystemHeader
+            // 
+            this.lblSystemHeader.Appearance.Font = new System.Drawing.Font("Segoe UI", 14F, System.Drawing.FontStyle.Bold);
+            this.lblSystemHeader.Appearance.ForeColor = System.Drawing.Color.White;
+            this.lblSystemHeader.Appearance.Options.UseFont = true;
+            this.lblSystemHeader.Appearance.Options.UseForeColor = true;
+            this.lblSystemHeader.Location = new System.Drawing.Point(20, 15);
+            this.lblSystemHeader.Name = "lblSystemHeader";
+            this.lblSystemHeader.Size = new System.Drawing.Size(148, 25);
+            this.lblSystemHeader.TabIndex = 0;
+            this.lblSystemHeader.Text = "System and Data";
+            // 
+            // separatorSystem
+            // 
+            this.separatorSystem.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(63)))), ((int)(((byte)(80)))));
+            this.separatorSystem.Appearance.Options.UseBackColor = true;
+            this.separatorSystem.AutoSizeMode = DevExpress.XtraEditors.LabelAutoSizeMode.None;
+            this.separatorSystem.Location = new System.Drawing.Point(20, 50);
+            this.separatorSystem.Name = "separatorSystem";
+            this.separatorSystem.Size = new System.Drawing.Size(760, 1);
+            this.separatorSystem.TabIndex = 1;
+            // 
+            // btnClearCache
+            // 
+            this.btnClearCache.AllowFocus = false;
+            this.btnClearCache.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(140)))), ((int)(((byte)(0)))));
+            this.btnClearCache.Appearance.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+            this.btnClearCache.Appearance.ForeColor = System.Drawing.Color.White;
+            this.btnClearCache.Appearance.Options.UseBackColor = true;
+            this.btnClearCache.Appearance.Options.UseFont = true;
+            this.btnClearCache.Appearance.Options.UseForeColor = true;
+            this.btnClearCache.ButtonStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
+            this.btnClearCache.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnClearCache.Location = new System.Drawing.Point(20, 70);
+            this.btnClearCache.Name = "btnClearCache";
+            this.btnClearCache.Size = new System.Drawing.Size(200, 30);
+            this.btnClearCache.TabIndex = 2;
+            this.btnClearCache.Text = "Clear Image Cache";
+            this.btnClearCache.Click += new System.EventHandler(this.btnClearCache_Click);
+            // 
+            // btnLogout
+            // 
+            this.btnLogout.AllowFocus = false;
+            this.btnLogout.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(53)))), ((int)(((byte)(69)))));
+            this.btnLogout.Appearance.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+            this.btnLogout.Appearance.ForeColor = System.Drawing.Color.White;
+            this.btnLogout.Appearance.Options.UseBackColor = true;
+            this.btnLogout.Appearance.Options.UseFont = true;
+            this.btnLogout.Appearance.Options.UseForeColor = true;
+            this.btnLogout.ButtonStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
+            this.btnLogout.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnLogout.Location = new System.Drawing.Point(380, 70);
+            this.btnLogout.Name = "btnLogout";
+            this.btnLogout.Size = new System.Drawing.Size(150, 30);
+            this.btnLogout.TabIndex = 3;
+            this.btnLogout.Text = "Log Out";
+            this.btnLogout.Click += new System.EventHandler(this.btnLogout_Click);
             // 
             // pageGameDetail
             // 
@@ -719,7 +1142,7 @@
             this.lblDetailRequirements.Location = new System.Drawing.Point(0, 880);
             this.lblDetailRequirements.Name = "lblDetailRequirements";
             this.lblDetailRequirements.Padding = new System.Windows.Forms.Padding(20, 0, 20, 50);
-            this.lblDetailRequirements.Size = new System.Drawing.Size(1278, 65);
+            this.lblDetailRequirements.Size = new System.Drawing.Size(1261, 65);
             this.lblDetailRequirements.TabIndex = 12;
             this.lblDetailRequirements.Text = "Requirements...";
             // 
@@ -734,7 +1157,7 @@
             this.lblRequirementsHeader.Location = new System.Drawing.Point(0, 810);
             this.lblRequirementsHeader.Name = "lblRequirementsHeader";
             this.lblRequirementsHeader.Padding = new System.Windows.Forms.Padding(20, 30, 0, 10);
-            this.lblRequirementsHeader.Size = new System.Drawing.Size(1278, 70);
+            this.lblRequirementsHeader.Size = new System.Drawing.Size(1261, 70);
             this.lblRequirementsHeader.TabIndex = 11;
             this.lblRequirementsHeader.Text = "System Requirements";
             // 
@@ -752,7 +1175,7 @@
             this.lblDetailDescription.Location = new System.Drawing.Point(0, 790);
             this.lblDetailDescription.Name = "lblDetailDescription";
             this.lblDetailDescription.Padding = new System.Windows.Forms.Padding(20, 0, 20, 0);
-            this.lblDetailDescription.Size = new System.Drawing.Size(1278, 20);
+            this.lblDetailDescription.Size = new System.Drawing.Size(1261, 20);
             this.lblDetailDescription.TabIndex = 10;
             this.lblDetailDescription.Text = "Game description...";
             // 
@@ -767,7 +1190,7 @@
             this.lblDescriptionHeader.Location = new System.Drawing.Point(0, 730);
             this.lblDescriptionHeader.Name = "lblDescriptionHeader";
             this.lblDescriptionHeader.Padding = new System.Windows.Forms.Padding(20, 20, 0, 10);
-            this.lblDescriptionHeader.Size = new System.Drawing.Size(1278, 60);
+            this.lblDescriptionHeader.Size = new System.Drawing.Size(1261, 60);
             this.lblDescriptionHeader.TabIndex = 9;
             this.lblDescriptionHeader.Text = "About";
             // 
@@ -781,7 +1204,7 @@
             this.panelControl2.Dock = System.Windows.Forms.DockStyle.Top;
             this.panelControl2.Location = new System.Drawing.Point(0, 450);
             this.panelControl2.Name = "panelControl2";
-            this.panelControl2.Size = new System.Drawing.Size(1278, 280);
+            this.panelControl2.Size = new System.Drawing.Size(1261, 280);
             this.panelControl2.TabIndex = 26;
             // 
             // flowLayoutScreenshots
@@ -792,7 +1215,7 @@
             this.flowLayoutScreenshots.Location = new System.Drawing.Point(0, 60);
             this.flowLayoutScreenshots.Name = "flowLayoutScreenshots";
             this.flowLayoutScreenshots.Padding = new System.Windows.Forms.Padding(0, 10, 0, 20);
-            this.flowLayoutScreenshots.Size = new System.Drawing.Size(1278, 240);
+            this.flowLayoutScreenshots.Size = new System.Drawing.Size(1261, 240);
             this.flowLayoutScreenshots.TabIndex = 8;
             this.flowLayoutScreenshots.WrapContents = false;
             // 
@@ -807,7 +1230,7 @@
             this.lblSS.Location = new System.Drawing.Point(0, 0);
             this.lblSS.Name = "lblSS";
             this.lblSS.Padding = new System.Windows.Forms.Padding(20, 20, 0, 10);
-            this.lblSS.Size = new System.Drawing.Size(1278, 60);
+            this.lblSS.Size = new System.Drawing.Size(1261, 60);
             this.lblSS.TabIndex = 10;
             this.lblSS.Text = "Screen Shots";
             // 
@@ -832,7 +1255,7 @@
             this.panelTopSection.Dock = System.Windows.Forms.DockStyle.Top;
             this.panelTopSection.Location = new System.Drawing.Point(0, 0);
             this.panelTopSection.Name = "panelTopSection";
-            this.panelTopSection.Size = new System.Drawing.Size(1278, 450);
+            this.panelTopSection.Size = new System.Drawing.Size(1261, 450);
             this.panelTopSection.TabIndex = 0;
             // 
             // btnLibraryAction
@@ -846,7 +1269,7 @@
             this.btnLibraryAction.Appearance.Options.UseForeColor = true;
             this.btnLibraryAction.ButtonStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
             this.btnLibraryAction.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnLibraryAction.Location = new System.Drawing.Point(1009, 70);
+            this.btnLibraryAction.Location = new System.Drawing.Point(992, 70);
             this.btnLibraryAction.Name = "btnLibraryAction";
             this.btnLibraryAction.Size = new System.Drawing.Size(220, 50);
             this.btnLibraryAction.TabIndex = 20;
@@ -952,7 +1375,7 @@
             this.lblDetailTitle.AutoSizeMode = DevExpress.XtraEditors.LabelAutoSizeMode.Vertical;
             this.lblDetailTitle.Location = new System.Drawing.Point(530, 65);
             this.lblDetailTitle.Name = "lblDetailTitle";
-            this.lblDetailTitle.Size = new System.Drawing.Size(1546, 50);
+            this.lblDetailTitle.Size = new System.Drawing.Size(1529, 50);
             this.lblDetailTitle.TabIndex = 2;
             this.lblDetailTitle.Text = "Game Title";
             // 
@@ -1058,6 +1481,23 @@
             ((System.ComponentModel.ISupportInitialize)(this.panelControl7)).EndInit();
             this.panelControl7.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.searchControlSearchPage.Properties)).EndInit();
+            this.pageSettings.ResumeLayout(false);
+            this.flowSettingsMain.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.pnlAccountSettings)).EndInit();
+            this.pnlAccountSettings.ResumeLayout(false);
+            this.pnlAccountSettings.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.txtNewPassAgain.Properties)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtNewUsername.Properties)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtCurrentPass.Properties)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtNewPass.Properties)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pnlAppPreferences)).EndInit();
+            this.pnlAppPreferences.ResumeLayout(false);
+            this.pnlAppPreferences.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.cmbStartPage.Properties)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.toggleNSFW.Properties)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pnlSystemData)).EndInit();
+            this.pnlSystemData.ResumeLayout(false);
+            this.pnlSystemData.PerformLayout();
             this.pageGameDetail.ResumeLayout(false);
             this.scrollableDetailContainer.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.panelControl2)).EndInit();
@@ -1131,5 +1571,39 @@
         private System.Windows.Forms.FlowLayoutPanel flowLayoutScreenshots;
         private DevExpress.XtraEditors.LabelControl lblSS;
         private DevExpress.XtraEditors.PanelControl panelControl2;
+
+        // --- SETTINGS VARIABLES ---
+        private System.Windows.Forms.FlowLayoutPanel flowSettingsMain;
+
+        // Card 1: Account
+        private DevExpress.XtraEditors.PanelControl pnlAccountSettings;
+        private DevExpress.XtraEditors.LabelControl lblAccountHeader;
+        private DevExpress.XtraEditors.LabelControl separatorAccount;
+        private DevExpress.XtraEditors.LabelControl lblChangeUser;
+        private DevExpress.XtraEditors.TextEdit txtNewUsername;
+        private DevExpress.XtraEditors.SimpleButton btnUpdateUsername;
+        private DevExpress.XtraEditors.LabelControl lblChangePass;
+        private DevExpress.XtraEditors.TextEdit txtCurrentPass;
+        private DevExpress.XtraEditors.TextEdit txtNewPass;
+        private DevExpress.XtraEditors.SimpleButton btnUpdatePass;
+
+        // Card 2: Preferences
+        private DevExpress.XtraEditors.PanelControl pnlAppPreferences;
+        private DevExpress.XtraEditors.LabelControl lblPrefHeader;
+        private DevExpress.XtraEditors.LabelControl separatorPref;
+        private DevExpress.XtraEditors.LabelControl lblStartPage;
+        private DevExpress.XtraEditors.ComboBoxEdit cmbStartPage;
+        private DevExpress.XtraEditors.LabelControl lblNSFW;
+        private DevExpress.XtraEditors.ToggleSwitch toggleNSFW;
+
+        // Card 3: System
+        private DevExpress.XtraEditors.PanelControl pnlSystemData;
+        private DevExpress.XtraEditors.LabelControl lblSystemHeader;
+        private DevExpress.XtraEditors.LabelControl separatorSystem;
+        private DevExpress.XtraEditors.SimpleButton btnClearCache;
+        private DevExpress.XtraEditors.SimpleButton btnLogout;
+        private DevExpress.XtraEditors.TextEdit txtNewPassAgain;
+        private DevExpress.XtraEditors.LabelControl lblUsernameWarning;
+        private DevExpress.XtraEditors.LabelControl lblPassWarning;
     }
 }

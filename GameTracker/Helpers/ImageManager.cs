@@ -50,7 +50,14 @@ namespace GameTracker
                 {
                     var img = Image.FromStream(ms);
                     imageCache[resizedUrl] = img; // Cache'e ekler
-                    pictureEdit.Image = FixTo3x2(img);
+                    if (pictureEdit.InvokeRequired)
+                    {
+                        pictureEdit.Invoke(new Action(() => pictureEdit.Image = FixTo3x2(img)));
+                    }
+                    else
+                    {
+                        pictureEdit.Image = FixTo3x2(img);
+                    }
                 }
             }
             catch (Exception ex)
@@ -107,6 +114,27 @@ namespace GameTracker
                 img?.Dispose();
             }
             imageCache.Clear();
+            GC.Collect();
+        }
+
+        /// <summary>
+        /// Cache'te biriken resimleri siler ve RAM'i boşaltır.
+        /// </summary>
+        public void ClearMemoryCache()
+        {
+            // 1. Mevcut resimleri bellekten uçur
+            foreach (var img in imageCache.Values)
+            {
+                img?.Dispose(); // Resim kaynağını serbest bırak
+            }
+
+            // 2. Listeyi sıfırla
+            imageCache.Clear();
+
+            // 3. Çöp toplayıcıyı (Garbage Collector) göreve çağır (Opsiyonel ama etkili)
+            // Bu komut RAM'de boşta kalan alanları anında temizler.
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
         }
     }
 }

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace GameTracker
+﻿namespace GameTracker
 {
     public static class Session
     {

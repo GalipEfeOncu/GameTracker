@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Data.SqlClient;
 using System.Windows.Forms;
 
 namespace GameTracker
@@ -72,14 +71,47 @@ namespace GameTracker
             }
 
             // Database
-
             try
             {
-                //System.Data.DataRow user = UserManager.LoginUser(email, password);
-
                 if (UserManager.IsEmailExists(email))
                 {
                     ShowError("User with this email already exists");
+                    return;
+                }
+
+                // --- E-POSTA DOĞRULAMA ADIMLARI ---
+                // Doğrulama kodu üret
+                Random rnd = new Random();
+                string verificationCode = rnd.Next(100000, 999999).ToString();
+
+                // Mail gönder
+                this.Cursor = Cursors.WaitCursor;
+                bool mailSent = Helpers.EmailService.SendVerificationCode(email, verificationCode);
+                this.Cursor = Cursors.Default;
+
+                if (!mailSent)
+                {
+                    MyMessageBox.Show("Could not send verification email. Please check your email address.", "Error");
+                    return;
+                }
+
+                // Kullanıcıdan Kodu İste
+                string userEnteredCode = DevExpress.XtraEditors.XtraInputBox.Show(
+                    "A verification code has been sent to your email.\nPlease enter it below:",
+                    "Verify Email",
+                    "");
+
+                // Kullanıcı "İptal"e basarsa veya boş bırakırsa işlemi kes
+                if (string.IsNullOrEmpty(userEnteredCode))
+                {
+                    MyMessageBox.Show("Registration cancelled.", "Info");
+                    return;
+                }
+
+                // Kod yanlışsa işlemi kes
+                if (userEnteredCode != verificationCode)
+                {
+                    MyMessageBox.Show("Invalid verification code! Registration cancelled.", "Failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
 
