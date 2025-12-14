@@ -17,7 +17,7 @@
 
         private void InitializeComponent()
         {
-            this.panelControl1 = new DevExpress.XtraEditors.PanelControl();
+            this.panelSideBar = new DevExpress.XtraEditors.PanelControl();
             this.btnSearch = new DevExpress.XtraEditors.SimpleButton();
             this.btnSettings = new DevExpress.XtraEditors.SimpleButton();
             this.btnLibrary = new DevExpress.XtraEditors.SimpleButton();
@@ -102,8 +102,8 @@
             this.lblDetailRating = new DevExpress.XtraEditors.LabelControl();
             this.lblDetailMetacritic = new DevExpress.XtraEditors.LabelControl();
             this.lblDetailPlaytime = new DevExpress.XtraEditors.LabelControl();
-            ((System.ComponentModel.ISupportInitialize)(this.panelControl1)).BeginInit();
-            this.panelControl1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.panelSideBar)).BeginInit();
+            this.panelSideBar.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.navigationFrame1)).BeginInit();
             this.navigationFrame1.SuspendLayout();
             this.pageHome.SuspendLayout();
@@ -144,26 +144,26 @@
             ((System.ComponentModel.ISupportInitialize)(this.peDetailImage.Properties)).BeginInit();
             this.SuspendLayout();
             // 
-            // panelControl1
+            // panelSideBar
             // 
-            this.panelControl1.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(32)))), ((int)(((byte)(34)))), ((int)(((byte)(50)))));
-            this.panelControl1.Appearance.Options.UseBackColor = true;
-            this.panelControl1.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
-            this.panelControl1.Controls.Add(this.btnSearch);
-            this.panelControl1.Controls.Add(this.btnSettings);
-            this.panelControl1.Controls.Add(this.btnLibrary);
-            this.panelControl1.Controls.Add(this.btnHomeMenu);
-            this.panelControl1.Controls.Add(this.lblTitle);
-            this.panelControl1.Dock = System.Windows.Forms.DockStyle.Left;
-            this.panelControl1.Location = new System.Drawing.Point(0, 0);
-            this.panelControl1.Name = "panelControl1";
-            this.panelControl1.Size = new System.Drawing.Size(220, 718);
-            this.panelControl1.TabIndex = 0;
+            this.panelSideBar.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(32)))), ((int)(((byte)(34)))), ((int)(((byte)(50)))));
+            this.panelSideBar.Appearance.Options.UseBackColor = true;
+            this.panelSideBar.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
+            this.panelSideBar.Controls.Add(this.btnSearch);
+            this.panelSideBar.Controls.Add(this.btnSettings);
+            this.panelSideBar.Controls.Add(this.btnLibrary);
+            this.panelSideBar.Controls.Add(this.btnHomeMenu);
+            this.panelSideBar.Controls.Add(this.lblTitle);
+            this.panelSideBar.Dock = System.Windows.Forms.DockStyle.Left;
+            this.panelSideBar.Location = new System.Drawing.Point(0, 0);
+            this.panelSideBar.Name = "panelSideBar";
+            this.panelSideBar.Size = new System.Drawing.Size(220, 718);
+            this.panelSideBar.TabIndex = 0;
             // 
             // btnSearch
             // 
             this.btnSearch.AllowFocus = false;
-            this.btnSearch.Appearance.BackColor = System.Drawing.Color.Transparent;
+            this.btnSearch.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(32)))), ((int)(((byte)(34)))), ((int)(((byte)(50)))));
             this.btnSearch.Appearance.Font = new System.Drawing.Font("Segoe UI", 11F);
             this.btnSearch.Appearance.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(160)))), ((int)(((byte)(160)))), ((int)(((byte)(180)))));
             this.btnSearch.Appearance.Options.UseBackColor = true;
@@ -212,7 +212,7 @@
             // btnLibrary
             // 
             this.btnLibrary.AllowFocus = false;
-            this.btnLibrary.Appearance.BackColor = System.Drawing.Color.Transparent;
+            this.btnLibrary.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(32)))), ((int)(((byte)(34)))), ((int)(((byte)(50)))));
             this.btnLibrary.Appearance.Font = new System.Drawing.Font("Segoe UI", 11F);
             this.btnLibrary.Appearance.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(160)))), ((int)(((byte)(160)))), ((int)(((byte)(180)))));
             this.btnLibrary.Appearance.Options.UseBackColor = true;
@@ -236,7 +236,7 @@
             // btnHomeMenu
             // 
             this.btnHomeMenu.AllowFocus = false;
-            this.btnHomeMenu.Appearance.BackColor = System.Drawing.Color.Transparent;
+            this.btnHomeMenu.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(32)))), ((int)(((byte)(34)))), ((int)(((byte)(50)))));
             this.btnHomeMenu.Appearance.Font = new System.Drawing.Font("Segoe UI", 11F);
             this.btnHomeMenu.Appearance.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(160)))), ((int)(((byte)(160)))), ((int)(((byte)(180)))));
             this.btnHomeMenu.Appearance.Options.UseBackColor = true;
@@ -346,6 +346,7 @@
             // 
             // btnHomeNext
             // 
+            this.btnHomeNext.AllowFocus = false;
             this.btnHomeNext.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.btnHomeNext.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(122)))), ((int)(((byte)(204)))));
             this.btnHomeNext.Appearance.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
@@ -364,6 +365,7 @@
             // 
             // btnHomePrev
             // 
+            this.btnHomePrev.AllowFocus = false;
             this.btnHomePrev.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(44)))), ((int)(((byte)(60)))));
             this.btnHomePrev.Appearance.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
             this.btnHomePrev.Appearance.ForeColor = System.Drawing.Color.White;
@@ -398,7 +400,6 @@
             // 
             // pageLibrary
             // 
-            this.pageLibrary.Caption = "pageLibrary";
             this.pageLibrary.Controls.Add(this.flowLayoutPanelLibrary);
             this.pageLibrary.Controls.Add(this.panelLibPagination);
             this.pageLibrary.Controls.Add(this.panelControl6);
@@ -447,6 +448,7 @@
             // 
             // btnLibNext
             // 
+            this.btnLibNext.AllowFocus = false;
             this.btnLibNext.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.btnLibNext.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(122)))), ((int)(((byte)(204)))));
             this.btnLibNext.Appearance.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
@@ -465,6 +467,7 @@
             // 
             // btnLibPrev
             // 
+            this.btnLibPrev.AllowFocus = false;
             this.btnLibPrev.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(44)))), ((int)(((byte)(60)))));
             this.btnLibPrev.Appearance.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
             this.btnLibPrev.Appearance.ForeColor = System.Drawing.Color.White;
@@ -587,7 +590,6 @@
             // 
             // pageSearch
             // 
-            this.pageSearch.Caption = "pageSearch";
             this.pageSearch.Controls.Add(this.flowLayoutPanelSearch);
             this.pageSearch.Controls.Add(this.panelSearchPagination);
             this.pageSearch.Controls.Add(this.panelControl7);
@@ -651,6 +653,7 @@
             // 
             // btnSearchNext
             // 
+            this.btnSearchNext.AllowFocus = false;
             this.btnSearchNext.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.btnSearchNext.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(122)))), ((int)(((byte)(204)))));
             this.btnSearchNext.Appearance.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
@@ -669,6 +672,7 @@
             // 
             // btnSearchPrev
             // 
+            this.btnSearchPrev.AllowFocus = false;
             this.btnSearchPrev.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(44)))), ((int)(((byte)(60)))));
             this.btnSearchPrev.Appearance.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
             this.btnSearchPrev.Appearance.ForeColor = System.Drawing.Color.White;
@@ -1107,7 +1111,6 @@
             // 
             this.pageGameDetail.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(26)))), ((int)(((byte)(29)))), ((int)(((byte)(41)))));
             this.pageGameDetail.Appearance.Options.UseBackColor = true;
-            this.pageGameDetail.Caption = "pageGameDetail";
             this.pageGameDetail.Controls.Add(this.scrollableDetailContainer);
             this.pageGameDetail.Name = "pageGameDetail";
             this.pageGameDetail.Size = new System.Drawing.Size(1278, 718);
@@ -1260,6 +1263,7 @@
             // 
             // btnLibraryAction
             // 
+            this.btnLibraryAction.AllowFocus = false;
             this.btnLibraryAction.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.btnLibraryAction.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(167)))), ((int)(((byte)(69)))));
             this.btnLibraryAction.Appearance.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Bold);
@@ -1338,13 +1342,14 @@
             this.btnDetailBack.Appearance.Options.UseBackColor = true;
             this.btnDetailBack.Appearance.Options.UseFont = true;
             this.btnDetailBack.Appearance.Options.UseForeColor = true;
+            this.btnDetailBack.AppearanceHovered.Options.UseBackColor = true;
             this.btnDetailBack.ButtonStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
             this.btnDetailBack.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnDetailBack.Location = new System.Drawing.Point(20, 10);
             this.btnDetailBack.Name = "btnDetailBack";
-            this.btnDetailBack.Size = new System.Drawing.Size(100, 40);
+            this.btnDetailBack.Size = new System.Drawing.Size(40, 40);
             this.btnDetailBack.TabIndex = 0;
-            this.btnDetailBack.Text = "< Back";
+            this.btnDetailBack.Text = "<";
             this.btnDetailBack.Click += new System.EventHandler(this.btnDetailBack_Click);
             // 
             // peDetailImage
@@ -1454,15 +1459,15 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1498, 718);
             this.Controls.Add(this.navigationFrame1);
-            this.Controls.Add(this.panelControl1);
+            this.Controls.Add(this.panelSideBar);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Name = "MainForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "GameTracker";
             this.Load += new System.EventHandler(this.MainForm_Load);
             this.Resize += new System.EventHandler(this.MainForm_Resize);
-            ((System.ComponentModel.ISupportInitialize)(this.panelControl1)).EndInit();
-            this.panelControl1.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.panelSideBar)).EndInit();
+            this.panelSideBar.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.navigationFrame1)).EndInit();
             this.navigationFrame1.ResumeLayout(false);
             this.pageHome.ResumeLayout(false);
@@ -1512,7 +1517,7 @@
 
         #endregion
 
-        private DevExpress.XtraEditors.PanelControl panelControl1;
+        private DevExpress.XtraEditors.PanelControl panelSideBar;
         private DevExpress.XtraEditors.SimpleButton btnHomeMenu;
         private DevExpress.XtraEditors.LabelControl lblTitle;
         private DevExpress.XtraEditors.SimpleButton btnSettings;

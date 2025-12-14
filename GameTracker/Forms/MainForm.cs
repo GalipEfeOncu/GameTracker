@@ -5,6 +5,7 @@ using GameTracker.Managers;
 using GameTracker.Models;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -74,10 +75,10 @@ namespace GameTracker
             LoadUserPreferences();
 
             // Görsel efektler
-            AddHoverEffectToButton(btnLibPlanToPlay);
-            AddHoverEffectToButton(btnLibPlaying);
-            AddHoverEffectToButton(btnLibPlayed);
-            AddHoverEffectToButton(btnLibDropped);
+            AddHoverEffectToButton(btnLibPlanToPlay, Color.FromArgb(40, 42, 60), Color.WhiteSmoke);
+            AddHoverEffectToButton(btnLibPlaying, Color.FromArgb(40, 42, 60), Color.WhiteSmoke);
+            AddHoverEffectToButton(btnLibPlayed, Color.FromArgb(40, 42, 60), Color.WhiteSmoke);
+            AddHoverEffectToButton(btnLibDropped, Color.FromArgb(40, 42, 60), Color.WhiteSmoke);
 
             // Resize timer'ı başlat
             InitializeResizeTimer();
@@ -289,6 +290,59 @@ namespace GameTracker
 
         #endregion
 
+        #region Side Bar Actions
+
+        private void btnHomeMenu_Click(object sender, EventArgs e)
+        {
+            HighlightActiveSidebarButton(btnHomeMenu);
+            navigationFrame1.SelectedPage = pageHome;
+            ResizePage();
+        }
+
+        private void btnLibrary_Click(object sender, EventArgs e)
+        {
+            HighlightActiveSidebarButton(btnLibrary);
+            navigationFrame1.SelectedPage = pageLibrary;
+            LoadLibraryGames();
+            ResizePage();
+        }
+
+        private void btnSearch_Click(object sender, EventArgs e)
+        {
+            HighlightActiveSidebarButton(btnSearch);
+            navigationFrame1.SelectedPage = pageSearch;
+            ResizePage();
+        }
+
+        private void btnSettings_Click(object sender, EventArgs e)
+        {
+            HighlightActiveSidebarButton(btnSettings);
+            navigationFrame1.SelectedPage = pageSettings;
+        }
+
+        // Sidebar butonlarının aktiflik durumunu yöneten babayiğit metodumuz
+        private void HighlightActiveSidebarButton(SimpleButton activeButton)
+        {
+            // Sidebar'daki tüm butonları buraya yazıyoruz
+            var sideButtons = new[] { btnHomeMenu, btnLibrary, btnSearch, btnSettings };
+
+            foreach (var btn in sideButtons)
+            {
+                if (btn == activeButton)
+                {
+                    btn.Appearance.BackColor = Color.FromArgb(40, 42, 60);
+                    btn.Appearance.ForeColor = Color.White;
+                }
+                else
+                {
+                    btn.Appearance.BackColor = Color.Transparent;
+                    btn.Appearance.ForeColor = Color.FromArgb(170, 170, 170);
+                }
+            }
+        }
+
+        #endregion
+
         #region Home Page Actions
 
         /// <summary>
@@ -390,13 +444,13 @@ namespace GameTracker
             {
                 if (btn == activeButton)
                 {
-                    btn.Appearance.BackColor = System.Drawing.Color.FromArgb(40, 167, 69);
-                    btn.Appearance.ForeColor = System.Drawing.Color.White;
+                    btn.Appearance.BackColor = Color.FromArgb(22, 24, 40);
+                    btn.Appearance.ForeColor = Color.White;
                 }
                 else
                 {
-                    btn.Appearance.BackColor = System.Drawing.Color.FromArgb(32, 34, 50);
-                    btn.Appearance.ForeColor = System.Drawing.Color.WhiteSmoke;
+                    btn.Appearance.BackColor = Color.FromArgb(32, 34, 50);
+                    btn.Appearance.ForeColor = Color.WhiteSmoke;
                 }
             }
         }
@@ -479,12 +533,12 @@ namespace GameTracker
         /// </summary>
         private async void ShowGameDetails(Game simpleGame)
         {
-            // 1. Navigation
-            previousPage = navigationFrame1.SelectedPage as DevExpress.XtraBars.Navigation.NavigationPage;
+            // Navigation
+            previousPage = navigationFrame1.SelectedPage;
             navigationFrame1.SelectedPage = pageGameDetail;
             scrollableDetailContainer.VerticalScroll.Value = 0;
 
-            // 2. Basit Verileri Göster
+            // Basit Verileri Göster
             lblDetailTitle.Text = simpleGame.Name;
             peDetailImage.Image = null;
             await imageManager.LoadImageAsync(simpleGame.BackgroundImage, peDetailImage, 600);
@@ -498,7 +552,7 @@ namespace GameTracker
             lblDetailDescription.Text = "Fetching details from RAWG...";
             lblDetailRequirements.Text = "Checking system requirements...";
 
-            // 3. API Detay Sorgusu
+            // API Detay Sorgusu
             try
             {
                 Game fullGame = await rawgapi.GetGameDetailsAsync(simpleGame.Id);
@@ -586,7 +640,7 @@ namespace GameTracker
                     pe.Properties.SizeMode = DevExpress.XtraEditors.Controls.PictureSizeMode.Zoom;
                     pe.Properties.ShowCameraMenuItem = DevExpress.XtraEditors.Controls.CameraMenuItemVisibility.Auto;
                     pe.Properties.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
-                    pe.BackColor = System.Drawing.Color.Transparent;
+                    pe.BackColor = Color.Transparent;
                     pe.Size = new System.Drawing.Size(330, 200);
                     pe.Properties.AllowFocused = false;
                     pe.Properties.ShowMenu = false;
@@ -668,39 +722,6 @@ namespace GameTracker
         }
 
         /// <summary>
-        /// Oyunu veritabanına ekler.
-        /// </summary>
-        /// <param name="game">Eklenecek oyun</param>
-        /// <param name="status">Oyunun durumu (PlanToPlay, Playing, Played)</param>
-        private void AddGameToDb(Game game, string status)
-        {
-            if (!ValidateUserSession())
-                return;
-
-            bool success = LibraryManager.AddGameToLibrary(Session.UserId, game, status);
-
-            if (success)
-                MyMessageBox.Show($"{game.Name} added to {status} list!", "Success");
-            else
-                MyMessageBox.Show($"{game.Name} is already in your library!", "Info");
-        }
-
-        /// <summary>
-        /// Oyunun durumunu veritabanında günceller.
-        /// </summary>
-        /// <param name="game">Güncellenecek oyun</param>
-        /// <param name="newStatus">Yeni durum</param>
-        private void UpdateGameStatusDb(Game game, string newStatus)
-        {
-            if (!ValidateUserSession())
-                return;
-
-            bool success = LibraryManager.UpdateGameStatus(Session.UserId, game.Id, newStatus);
-            if (success)
-                LoadLibraryGames();
-        }
-
-        /// <summary>
         /// Oyunu veritabanından kaldırır.
         /// </summary>
         /// <param name="game">Kaldırılacak oyun</param>
@@ -726,14 +747,14 @@ namespace GameTracker
             if (isInLib)
             {
                 btnLibraryAction.Text = "✔ In Library";
-                btnLibraryAction.Appearance.BackColor = System.Drawing.Color.FromArgb(40, 44, 60); // Koyu Gri (Pasif gibi)
-                btnLibraryAction.Appearance.ForeColor = System.Drawing.Color.LightGreen;
+                btnLibraryAction.Appearance.BackColor = Color.FromArgb(40, 44, 60); // Koyu Gri (Pasif gibi)
+                btnLibraryAction.Appearance.ForeColor = Color.LightGreen;
             }
             else
             {
                 btnLibraryAction.Text = "+ Add to Library";
-                btnLibraryAction.Appearance.BackColor = System.Drawing.Color.FromArgb(40, 167, 69); // Yeşil (Aktif)
-                btnLibraryAction.Appearance.ForeColor = System.Drawing.Color.White;
+                btnLibraryAction.Appearance.BackColor = Color.FromArgb(40, 167, 69); // Yeşil (Aktif)
+                btnLibraryAction.Appearance.ForeColor = Color.White;
             }
 
             // Butonun Tag özelliğine oyunu atıyoruz ki tıklayınca hangi oyun olduğunu bilelim
@@ -933,42 +954,16 @@ namespace GameTracker
         /// <summary>
         /// Butonlara hover efekti ekler.
         /// </summary>
-        private void AddHoverEffectToButton(SimpleButton btn)
+        private void AddHoverEffectToButton(SimpleButton btn, Color backclr, Color foreclr)
         {
             // Hover 
-            btn.AppearanceHovered.BackColor = System.Drawing.Color.FromArgb(40, 42, 60);
-            btn.AppearanceHovered.ForeColor = System.Drawing.Color.White;
+            btn.AppearanceHovered.BackColor = Color.FromArgb(40, 42, 60);
+            btn.AppearanceHovered.ForeColor = Color.White;
 
             btn.AppearanceHovered.Options.UseBackColor = true;
             btn.AppearanceHovered.Options.UseForeColor = true;
 
             btn.Cursor = Cursors.Hand;
-        }
-        #endregion
-
-        #region Navigation Menu
-        private void btnHomeMenu_Click(object sender, EventArgs e)
-        {
-            navigationFrame1.SelectedPage = pageHome;
-            ResizePage();
-        }
-
-        private void btnLibrary_Click(object sender, EventArgs e)
-        {
-            navigationFrame1.SelectedPage = pageLibrary;
-            LoadLibraryGames();
-            ResizePage();
-        }
-
-        private void btnSearch_Click(object sender, EventArgs e)
-        {
-            navigationFrame1.SelectedPage = pageSearch;
-            ResizePage();
-        }
-
-        private void btnSettings_Click(object sender, EventArgs e)
-        {
-            navigationFrame1.SelectedPage = pageSettings;
         }
         #endregion
     }
