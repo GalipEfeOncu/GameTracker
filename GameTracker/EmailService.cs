@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Configuration;
 using System.Net;
 using System.Net.Mail;
 
@@ -6,8 +7,8 @@ namespace GameTracker.Helpers
 {
     public static class EmailService
     {
-        private static readonly string senderEmail = "timeywimeyefe@gmail.com";
-        private static readonly string senderPassword = "vksr sulk cqmb pccm";
+        private static readonly string senderEmail = ConfigurationManager.AppSettings["MailAddress"];
+        private static readonly string senderPassword = ConfigurationManager.AppSettings["MailPassword"];
 
         public static bool SendVerificationCode(string receiverEmail, string code)
         {

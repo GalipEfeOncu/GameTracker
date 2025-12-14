@@ -3,6 +3,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Drawing;
 using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace GameTracker
 {
@@ -28,7 +29,7 @@ namespace GameTracker
         /// <param name="imageUrl">Orijinal resim URL'si.</param>
         /// <param name="pictureEdit">Resmin yükleneceği PictureEdit kontrolü.</param>
         /// <param name="targetWidth">API'den istenecek resmin yaklaşık genişliği.</param>
-        public async void LoadImageAsync(string imageUrl, PictureEdit pictureEdit, int targetWidth)
+        public async Task LoadImageAsync(string imageUrl, PictureEdit pictureEdit, int targetWidth)
         {
             if (string.IsNullOrEmpty(imageUrl)) return;
 
@@ -52,7 +53,15 @@ namespace GameTracker
                     imageCache[resizedUrl] = img; // Cache'e ekler
                     if (pictureEdit.InvokeRequired)
                     {
-                        pictureEdit.Invoke(new Action(() => pictureEdit.Image = FixTo3x2(img)));
+                        pictureEdit.Invoke(new Action(() =>
+                        {
+                            var oldImage = pictureEdit.Image;
+                            pictureEdit.Image = FixTo3x2(img);
+                            if (oldImage != null && !imageCache.Values.Contains(oldImage))
+                            {
+                                oldImage.Dispose();
+                            }
+                        }));
                     }
                     else
                     {

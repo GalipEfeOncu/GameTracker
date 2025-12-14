@@ -1,20 +1,29 @@
-﻿using DevExpress.XtraExport.Xls;
-using GameTracker.Models;
+﻿using GameTracker.Models;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Net.Http;
-using System.Security.Cryptography;
 using System.Threading.Tasks;
 
 namespace GameTracker
 {
     public class RawgApiService
     {
-        private readonly string _apiKey = "e05bb5b0ad0b4391b17c84790dbcd2e0";
+        private readonly string _apiKey;
         private readonly string _baseUrl = "https://api.rawg.io/api";
         private static readonly HttpClient _httpClient = new HttpClient { Timeout = TimeSpan.FromSeconds(30) };
+
+        public RawgApiService()
+        {
+            // Anahtarı config'den çekiyoruz
+            _apiKey = ConfigurationManager.AppSettings["RawgApiKey"];
+
+            // Anahtar yoksa hata fırlat
+            if (string.IsNullOrEmpty(_apiKey))
+                throw new Exception("API Key bulunamadı! Lütfen Secrets.config dosyasını kontrol et.");
+        }
 
         /// <summary>
         /// NSFW filtresine göre dışlanacak etiketlerin listesini döndürür.
@@ -108,7 +117,8 @@ namespace GameTracker
         {
             if (string.IsNullOrWhiteSpace(searchTerm)) return new List<Game>();
 
-            string url = $"{_baseUrl}/games?key={_apiKey}&search={searchTerm}&page_size={pageSize}"; // Temel URL
+            string encodedSearch = Uri.EscapeDataString(searchTerm);
+            string url = $"{_baseUrl}/games?key={_apiKey}&search={encodedSearch}&page_size={pageSize}"; // Temel URL
             url += GetNsfwFilterParam(); // NSFW Filtresini ekle 
 
             return await GetGamesAsync(url);

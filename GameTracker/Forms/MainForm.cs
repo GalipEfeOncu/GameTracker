@@ -487,7 +487,7 @@ namespace GameTracker
             // 2. Basit Verileri Göster
             lblDetailTitle.Text = simpleGame.Name;
             peDetailImage.Image = null;
-            imageManager.LoadImageAsync(simpleGame.BackgroundImage, peDetailImage, 600);
+            await imageManager.LoadImageAsync(simpleGame.BackgroundImage, peDetailImage, 600);
 
             // Loading Mesajları
             lblDetailDeveloper.Text = "Loading info...";
@@ -592,7 +592,7 @@ namespace GameTracker
                     pe.Properties.ShowMenu = false;
 
                     // Resmi Yükle
-                    imageManager.LoadImageAsync(ss.ImageUrl, pe, 600); // 600px kalite 
+                    await imageManager.LoadImageAsync(ss.ImageUrl, pe, 600); // 600px kalite 
                     flowLayoutScreenshots.Controls.Add(pe);
                 }
             }
