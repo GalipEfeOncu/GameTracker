@@ -34,13 +34,21 @@ namespace GameTracker.Services
 
             // Prompt ayarı
             string prompt = $@"
-            I like these games: {gamesString}. 
-            Based on this list, recommend 5 similar games that I might like. 
-            Rules:
-            1. Do not recommend games already in the list.
-            2. Return ONLY the game names separated by a comma. 
-            3. Do not write any intro or outro text.
-            Example Output: The Witcher 3, Cyberpunk 2077, Hades, God of War, Starfield";
+            I like these games: {gamesString}
+
+            Task:
+            Recommend EXACTLY 20 similar games that I might like.
+
+            STRICT RULES (DO NOT BREAK):
+            - Recommend EXACTLY 20 games, no more, no less.
+            - Do NOT recommend any game already in the list.
+            - Return ONLY the full game names.
+            - Separate game names with a comma and a single space.
+            - Do NOT add numbering, line breaks, explanations, or any extra text.
+            - If you cannot find enough games, invent NONE — think harder instead.
+
+            VALID OUTPUT FORMAT EXAMPLE:
+            Game A, Game B, Game C, Game D, Game E, Game F, Game G, Game H, Game I, Game J, Game K, Game L, Game M, Game N, Game O";
 
             // JSON Gövdesi (Google'ın istediği tam format)
             var requestBody = new

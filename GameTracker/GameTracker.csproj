@@ -31,6 +31,9 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>icon_ %281%29.ico</ApplicationIcon>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="DevExpress.BonusSkins.v24.1" />
     <Reference Include="DevExpress.Data.Desktop.v24.1" />
@@ -104,7 +107,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Data\DatabaseHelper.cs" />
-    <Compile Include="EmailService.cs" />
+    <Compile Include="Services\EmailService.cs" />
     <Compile Include="Factories\GameCardFactory.cs" />
     <Compile Include="Helpers\UIHelper.cs" />
     <Compile Include="Managers\PageManager.cs" />
@@ -175,6 +178,7 @@
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
     </Compile>
     <EmbeddedResource Include="Resource1.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -197,6 +201,11 @@
     <None Include="Secrets.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="icon-removebg-preview.ico" />
+    <Content Include="icon_ %281%29.ico" />
+    <None Include="Resources\icon_ %281%29.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.

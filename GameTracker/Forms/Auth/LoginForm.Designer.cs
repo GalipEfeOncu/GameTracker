@@ -23,8 +23,8 @@
             this.BtnLogin = new DevExpress.XtraEditors.SimpleButton();
             this.lblGoSignup = new DevExpress.XtraEditors.HyperlinkLabelControl();
             this.panelCntrlLogin = new DevExpress.XtraEditors.PanelControl();
-            this.lblTitle = new DevExpress.XtraEditors.LabelControl();
             this.lblError = new DevExpress.XtraEditors.LabelControl();
+            this.lblTitle = new DevExpress.XtraEditors.LabelControl();
             ((System.ComponentModel.ISupportInitialize)(this.txtEmail.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.txtPassword.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.chckBoxRememberMe.Properties)).BeginInit();
@@ -79,6 +79,7 @@
             // 
             // BtnLogin
             // 
+            this.BtnLogin.AllowFocus = false;
             this.BtnLogin.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(122)))), ((int)(((byte)(204)))));
             this.BtnLogin.Appearance.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Bold);
             this.BtnLogin.Appearance.ForeColor = System.Drawing.Color.White;
@@ -130,21 +131,6 @@
             this.panelCntrlLogin.Size = new System.Drawing.Size(350, 450);
             this.panelCntrlLogin.TabIndex = 0;
             // 
-            // lblTitle
-            // 
-            this.lblTitle.Appearance.Font = new System.Drawing.Font("Segoe UI", 24F, System.Drawing.FontStyle.Bold);
-            this.lblTitle.Appearance.ForeColor = System.Drawing.Color.White;
-            this.lblTitle.Appearance.Options.UseFont = true;
-            this.lblTitle.Appearance.Options.UseForeColor = true;
-            this.lblTitle.Appearance.Options.UseTextOptions = true;
-            this.lblTitle.Appearance.TextOptions.HAlignment = DevExpress.Utils.HorzAlignment.Center;
-            this.lblTitle.AutoSizeMode = DevExpress.XtraEditors.LabelAutoSizeMode.None;
-            this.lblTitle.Location = new System.Drawing.Point(25, 30);
-            this.lblTitle.Name = "lblTitle";
-            this.lblTitle.Size = new System.Drawing.Size(300, 50);
-            this.lblTitle.TabIndex = 0;
-            this.lblTitle.Text = "Welcome Back";
-            // 
             // lblError
             // 
             this.lblError.Appearance.Font = new System.Drawing.Font("Segoe UI", 10F);
@@ -160,6 +146,21 @@
             this.lblError.TabIndex = 6;
             this.lblError.Text = "Warning";
             // 
+            // lblTitle
+            // 
+            this.lblTitle.Appearance.Font = new System.Drawing.Font("Segoe UI", 24F, System.Drawing.FontStyle.Bold);
+            this.lblTitle.Appearance.ForeColor = System.Drawing.Color.White;
+            this.lblTitle.Appearance.Options.UseFont = true;
+            this.lblTitle.Appearance.Options.UseForeColor = true;
+            this.lblTitle.Appearance.Options.UseTextOptions = true;
+            this.lblTitle.Appearance.TextOptions.HAlignment = DevExpress.Utils.HorzAlignment.Center;
+            this.lblTitle.AutoSizeMode = DevExpress.XtraEditors.LabelAutoSizeMode.None;
+            this.lblTitle.Location = new System.Drawing.Point(25, 30);
+            this.lblTitle.Name = "lblTitle";
+            this.lblTitle.Size = new System.Drawing.Size(300, 50);
+            this.lblTitle.TabIndex = 0;
+            this.lblTitle.Text = "Welcome Back";
+            // 
             // LoginForm
             // 
             this.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(26)))), ((int)(((byte)(29)))), ((int)(((byte)(41)))));
@@ -168,6 +169,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(821, 561);
             this.Controls.Add(this.panelCntrlLogin);
+            this.IconOptions.Image = global::GameTracker.Properties.Resources.icon___1_;
             this.Name = "LoginForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Login - GameTracker";

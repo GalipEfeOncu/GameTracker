@@ -32,10 +32,11 @@ namespace GameTracker
         private PageManager homeManager;
         private PageManager libraryManager;
         private PageManager searchManager;
+        private PageManager aiManager;
 
         // Global ayarlar
         private int cardsPerPage = 24;
-        private int gameToLoadPerRequest = 100;
+        private int gameToLoadPerRequest = 40;
         private LayoutMetrics currentLayoutMetrics;
 
         // --- Durum Değişkenleri ---
@@ -44,7 +45,7 @@ namespace GameTracker
         private DevExpress.XtraBars.Navigation.NavigationPage previousPage; // Geri butonu için hafıza
 
         // --- UI Optimizasyon ---
-        private Timer resizeTimer; // Pencere boyutlandırma performans yönetimi
+        private Timer resizeTimer; // Pencere boyutlandırma performans yönetim
 
         #endregion
 
@@ -68,10 +69,11 @@ namespace GameTracker
             homeManager = new PageManager(24);
             libraryManager = new PageManager(24);
             searchManager = new PageManager(24);
+            aiManager = new PageManager(24);
 
             // Arayüz optimizasyonları
-            UiHelper.InitializeFlowPanels(flowLayoutPanelPopulerGames, flowLayoutPanelLibrary, flowLayoutPanelSearch);
-            UiHelper.EnableDoubleBuffering(flowLayoutPanelPopulerGames, flowLayoutPanelLibrary, flowLayoutPanelSearch, flowLayoutScreenshots, scrollableDetailContainer);
+            UiHelper.InitializeFlowPanels(flowLayoutPanelPopulerGames, flowLayoutPanelLibrary, flowLayoutPanelSearch, flowAI);
+            UiHelper.EnableDoubleBuffering(flowLayoutPanelPopulerGames, flowLayoutPanelLibrary, flowLayoutPanelSearch, flowLayoutScreenshots, scrollableDetailContainer, flowAI);
 
             // Kullanıcı tercihlerini yükle
             InitializeUserPreferences();
@@ -88,8 +90,8 @@ namespace GameTracker
         }
 
         /// <summary>
-        /// Pencere boyutlandırma optimizasyonu için timer'ı başlatır.
-        /// Flicker problemini önler.
+        /// Pencere boyutlandırma optimizasyonu için timer'ı başlatır
+        /// Flicker önlemi için
         /// </summary>
         private void InitializeResizeTimer()
         {
@@ -99,14 +101,14 @@ namespace GameTracker
         }
 
         /// <summary>
-        /// Kullanıcının başlangıç sayfası tercihine göre uygulamayı açar.
+        /// Kullanıcının başlangıç sayfası tercihine göre uygulamayı açar
         /// </summary>
         private void InitializeUserPreferences()
         {
             if (Properties.Settings.Default.StartPage == "Library")
             {
                 navigationFrame1.SelectedPage = pageLibrary;
-                LoadLibraryGames(); // Kütüphane verilerini çek
+                LoadLibraryGames();
             }
             else
                 navigationFrame1.SelectedPage = pageHome;
@@ -132,7 +134,6 @@ namespace GameTracker
 
         /// <summary>
         /// Form tamamen görünür olduğunda çalışır.
-        /// API isteklerini başlatmak için en güvenli yerdir.
         /// </summary>
         protected override async void OnShown(EventArgs e)
         {
@@ -186,7 +187,7 @@ namespace GameTracker
         {
             resizeTimer.Stop();
 
-            // Aktif panel'i bul
+            // Aktif paneli bul
             var activePanel = navigationFrame1.SelectedPage?.Controls[0] as FlowLayoutPanel;
             if (activePanel == null)
                 return;
@@ -203,10 +204,11 @@ namespace GameTracker
             currentLayoutMetrics = layoutCalculator.Calculate(panel.ClientSize);
             cardsPerPage = currentLayoutMetrics.CardsPerPage;
 
-            // Yöneticilere yeni kart kapasitesini bildir
+            // Managerlara yeni kart kapasitesini bildir
             homeManager.ItemsPerPage = cardsPerPage;
             libraryManager.ItemsPerPage = cardsPerPage;
             searchManager.ItemsPerPage = cardsPerPage;
+            aiManager.ItemsPerPage = cardsPerPage;
         }
 
         /// <summary>
@@ -214,12 +216,16 @@ namespace GameTracker
         /// </summary>
         private void RefreshActivePage()
         {
-            if (navigationFrame1.SelectedPage == pageHome)
+            var page = navigationFrame1.SelectedPage;
+
+            if (page == pageHome)
                 RenderPage(homeManager, flowLayoutPanelPopulerGames, lblHomePage);
-            else if (navigationFrame1.SelectedPage == pageLibrary)
+            else if (page == pageLibrary)
                 RenderPage(libraryManager, flowLayoutPanelLibrary, lblLibPage);
-            else if (navigationFrame1.SelectedPage == pageSearch)
+            else if (page == pageSearch)
                 RenderPage(searchManager, flowLayoutPanelSearch, lblSearchPage, lblNoResult);
+            else if (page == pageAI)
+                RenderPage(aiManager, flowAI, null);
         }
 
         private void ResizePage()
@@ -228,10 +234,7 @@ namespace GameTracker
             if (activePanel == null)
                 return;
 
-            // Layout metriklerini yeniden hesapla
             RecalculateLayoutMetrics(activePanel);
-
-            // Aktif sayfayı yeniden render et
             RefreshActivePage();
         }
 
@@ -246,13 +249,12 @@ namespace GameTracker
         /// <param name="targetPanel">Kartların ekleneceği panel.</param>
         /// <param name="pageLabel">Sayfa numarasını gösteren etiket.</param>
         /// <param name="noResultLabel">Veri yoksa gösterilecek uyarı etiketi.</param>
-        private void RenderPage(PageManager manager, FlowLayoutPanel targetPanel, LabelControl pageLabel, LabelControl noResultLabel = null)
+        private void RenderPage(PageManager manager, FlowLayoutPanel targetPanel, LabelControl pageLabel = null, LabelControl noResultLabel = null)
         {
             if (HandleNoResults(manager, targetPanel, pageLabel, noResultLabel))
                 return;
 
-            // Verileri çek
-            var gamesToShow = manager.GetCurrentPageItems();
+            var gamesToShow = manager.GetCurrentPageItems(); // Verileri çek
 
             targetPanel.SuspendLayout();
             targetPanel.Controls.Clear();
@@ -260,7 +262,9 @@ namespace GameTracker
             AddGameCardsToPanel(gamesToShow, targetPanel);
 
             targetPanel.ResumeLayout();
-            pageLabel.Text = manager.GetPageInfoString(); // Etiketi güncelle
+
+            if (pageLabel != null)
+                pageLabel.Text = manager.GetPageInfoString(); // Etiketi güncelle
         }
 
         /// <summary>
@@ -268,6 +272,8 @@ namespace GameTracker
         /// </summary>
         private bool HandleNoResults(PageManager manager, FlowLayoutPanel targetPanel, LabelControl pageLabel, LabelControl noResultLabel)
         {
+            if (pageLabel == null) return false;
+
             if (manager.AllItems.Count == 0)
             {
                 targetPanel.Controls.Clear();
@@ -283,7 +289,7 @@ namespace GameTracker
             }
 
             if (noResultLabel != null) noResultLabel.Visible = false;
-            return false; // Devam et
+            return false;
         }
 
         /// <summary>
@@ -330,7 +336,16 @@ namespace GameTracker
             navigationFrame1.SelectedPage = pageSettings;
         }
 
-        // Sidebar butonlarının aktiflik durumunu yöneten babayiğit metodumuz
+        private void btnMenuAI_Click(object sender, EventArgs e)
+        {
+            HighlightActiveSidebarButton(btnMenuAI);
+            navigationFrame1.SelectedPage = pageAI;
+        }
+
+        /// <summary>
+        /// Sidebar butonlarının aktiflik durumunu yönetir.
+        /// </summary>
+        /// <param name="activeButton"> Aktifliği kontrol edilecek sidebar butonu. </param>
         private void HighlightActiveSidebarButton(SimpleButton activeButton)
         {
             // Sidebar'daki tüm butonları buraya yazıyoruz
@@ -429,7 +444,7 @@ namespace GameTracker
 
             string selectedTag = clickedButton.Tag as string;
 
-            // Toggle mantığı: Aynı butona basılırsa filtreyi kaldır
+            // Aynı butona basılırsa filtreyi kaldır
             if (currentLibraryFilter == selectedTag)
             {
                 currentLibraryFilter = null;
@@ -478,6 +493,73 @@ namespace GameTracker
         }
         #endregion
 
+        #region AI Page Logic
+        private async void btnGenerateAI_Click(object sender, EventArgs e)
+        {
+            flowAI.Controls.Clear();
+            this.Cursor = Cursors.WaitCursor;
+
+            try
+            {
+                // Kullanıcı girişi kontrolü
+                if (Session.UserId <= 0)
+                {
+                    MyMessageBox.Show("Please login to get recommendations!", "Warning");
+                    return;
+                }
+
+                var myGames = LibraryManager.GetUserLibrary(Session.UserId, null);
+
+                // En az 3 oyun kontrolü
+                if (myGames.Count < 3)
+                {
+                    MyMessageBox.Show("Add at least 3 games to your library so AI can understand your taste!", "Not Enough Data");
+                    return;
+                }
+
+                // Sadece isimleri listeye çevir
+                List<string> gameNames = myGames.Select(g => g.Name).ToList();
+
+                // Gemini'a sor
+                var recommendedNames = await geminiService.GetRecommendationsAsync(gameNames);
+                List<Game> foundGames = new List<Game>();
+
+                // Öneri yoksa uyar
+                if (recommendedNames.Count == 0)
+                {
+                    MyMessageBox.Show("AI couldn't find suggestions right now. Try again later.", "AI Error");
+                    return;
+                }
+
+                flowAI.Controls.Clear(); // Loading yazısını sil
+
+                // Gelen isimleri RAWG'da aratıp kartlarını oluştur
+                foreach (var gameName in recommendedNames)
+                {
+                    // RAWG'da arama yap, en alakalı ilk sonucu al
+                    var searchResults = await rawgapi.GetGamesBySearchAsync(gameName, 1);
+
+                    if (searchResults != null && searchResults.Any())
+                    {
+                        var game = searchResults.First();
+                        foundGames.Add(game);
+                    }
+                }
+                aiManager.SetDataSource(foundGames);
+                RenderPage(aiManager, flowAI, null);
+            }
+            catch (Exception ex)
+            {
+                MyMessageBox.Show($"Error: {ex.Message}", "Error");
+            }
+            finally
+            {
+                this.Cursor = Cursors.Default;
+            }
+        }
+
+        #endregion
+
         #region Search Page Logic
 
         private async void PerformSearch()
@@ -509,7 +591,7 @@ namespace GameTracker
         private async Task ExecuteSearch(string searchTerm)
         {
             var results = await rawgapi.GetGamesBySearchAsync(searchTerm, 50);
-            searchManager.SetDataSource(results); // Veriyi manager'a ver
+            searchManager.SetDataSource(results); // Veriyi managera ver
             RenderPage(searchManager, flowLayoutPanelSearch, lblSearchPage, lblNoResult);
         }
 
@@ -632,7 +714,7 @@ namespace GameTracker
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Detay Hatası: {ex.Message}");
-                // Hata olsa bile eldeki basit veriyle devam, kullanıcıya hata basmıyoruz.
+                // Hata olsa bile eldeki basit veriyle devam, kullanıcıya hata basma
             }
         }
 
@@ -686,7 +768,7 @@ namespace GameTracker
 
         private void btnLibraryAction_Click(object sender, EventArgs e)
         {
-            if (btnLibraryAction.Tag is Game game) // Tag'den oyunu al
+            if (btnLibraryAction.Tag is Game game) // Tagden oyunu al
             {
                 // Context Menu oluştur
                 ContextMenuStrip menu = new ContextMenuStrip();
@@ -757,13 +839,13 @@ namespace GameTracker
             if (isInLib)
             {
                 btnLibraryAction.Text = "✔ In Library";
-                btnLibraryAction.Appearance.BackColor = Color.FromArgb(40, 44, 60); // Koyu Gri (Pasif gibi)
+                btnLibraryAction.Appearance.BackColor = Color.FromArgb(40, 44, 60); // Koyu Gri
                 btnLibraryAction.Appearance.ForeColor = Color.LightGreen;
             }
             else
             {
                 btnLibraryAction.Text = "+ Add to Library";
-                btnLibraryAction.Appearance.BackColor = Color.FromArgb(40, 167, 69); // Yeşil (Aktif)
+                btnLibraryAction.Appearance.BackColor = Color.FromArgb(40, 167, 69); // Yeşil
                 btnLibraryAction.Appearance.ForeColor = Color.White;
             }
 
@@ -818,7 +900,7 @@ namespace GameTracker
 
                 if (success)
                 {
-                    // Session'ı güncelle
+                    // Sessionı güncelle
                     Session.Username = newName;
                     MyMessageBox.Show($"Username updated to '{newName}' successfully!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     txtNewUsername.Text = ""; // Inputu temizle
@@ -976,75 +1058,5 @@ namespace GameTracker
             btn.Cursor = Cursors.Hand;
         }
         #endregion
-
-        private async void btnGenerateAI_Click(object sender, EventArgs e)
-        {
-            flowAI.Controls.Clear();
-            this.Cursor = Cursors.WaitCursor;
-
-            try
-            {
-                // Kullanıcı girişi kontrolü
-                if (Session.UserId <= 0)
-                {
-                    MyMessageBox.Show("Please login to get recommendations!", "Warning");
-                    return;
-                }
-
-                var myGames = LibraryManager.GetUserLibrary(Session.UserId, null);
-
-                // En az 3 oyun kontrolü
-                if (myGames.Count < 3)
-                {
-                    MyMessageBox.Show("Add at least 3 games to your library so AI can understand your taste!", "Not Enough Data");
-                    return;
-                }
-
-                // Sadece isimleri listeye çevir
-                List<string> gameNames = myGames.Select(g => g.Name).ToList();
-
-                // Gemini'a sor
-                var recommendedNames = await geminiService.GetRecommendationsAsync(gameNames);
-
-                // Öneri yoksa uyar
-                if (recommendedNames.Count == 0)
-                {
-                    MyMessageBox.Show("AI couldn't find suggestions right now. Try again later.", "AI Error");
-                    return;
-                }
-
-                flowAI.Controls.Clear(); // Loading yazısını sil
-
-                // Gelen isimleri RAWG'da aratıp kartlarını oluştur
-                foreach (var gameName in recommendedNames)
-                {
-                    // RAWG'da arama yap, en alakalı ilk sonucu al
-                    var searchResults = await rawgapi.GetGamesBySearchAsync(gameName, 1);
-
-                    if (searchResults != null && searchResults.Any())
-                    {
-                        var game = searchResults.First();
-
-                        // Kartı oluştur
-                        var card = GameCardFactory.CreateCard(game, currentLayoutMetrics, imageManager, (g) => ShowGameDetails(g));
-                        flowAI.Controls.Add(card);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                MyMessageBox.Show($"Error: {ex.Message}", "Error");
-            }
-            finally
-            {
-                this.Cursor = Cursors.Default;
-            }
-        }
-
-        private void btnMenuAI_Click(object sender, EventArgs e)
-        {
-            HighlightActiveSidebarButton(btnMenuAI);
-            navigationFrame1.SelectedPage = pageAI;
-        }
     }
 }

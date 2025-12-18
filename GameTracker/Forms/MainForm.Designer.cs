@@ -334,7 +334,6 @@
             // 
             // pageHome
             // 
-            this.pageHome.Caption = "pageHome";
             this.pageHome.Controls.Add(this.flowLayoutPanelPopulerGames);
             this.pageHome.Controls.Add(this.panelHomePagination);
             this.pageHome.Controls.Add(this.lblPopulerGames);
@@ -439,7 +438,6 @@
             // 
             // pageLibrary
             // 
-            this.pageLibrary.Caption = "pageLibrary";
             this.pageLibrary.Controls.Add(this.flowLayoutPanelLibrary);
             this.pageLibrary.Controls.Add(this.panelLibPagination);
             this.pageLibrary.Controls.Add(this.panelControl6);
@@ -630,7 +628,6 @@
             // 
             // pageSearch
             // 
-            this.pageSearch.Caption = "pageSearch";
             this.pageSearch.Controls.Add(this.flowLayoutPanelSearch);
             this.pageSearch.Controls.Add(this.panelSearchPagination);
             this.pageSearch.Controls.Add(this.panelControl7);
@@ -759,13 +756,14 @@
             this.searchControlSearchPage.Properties.AutoHeight = false;
             this.searchControlSearchPage.Properties.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
             this.searchControlSearchPage.Properties.NullValuePrompt = "Search for games...";
+            this.searchControlSearchPage.Properties.ShowClearButton = false;
+            this.searchControlSearchPage.Properties.ShowSearchButton = false;
             this.searchControlSearchPage.Size = new System.Drawing.Size(600, 36);
             this.searchControlSearchPage.TabIndex = 14;
             this.searchControlSearchPage.KeyDown += new System.Windows.Forms.KeyEventHandler(this.searchControlSearchPage_KeyDown_1);
             // 
             // pageSettings
             // 
-            this.pageSettings.Caption = "pageSettings";
             this.pageSettings.Controls.Add(this.flowSettingsMain);
             this.pageSettings.Name = "pageSettings";
             this.pageSettings.Size = new System.Drawing.Size(1278, 718);
@@ -1156,7 +1154,6 @@
             // 
             this.pageGameDetail.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(26)))), ((int)(((byte)(29)))), ((int)(((byte)(41)))));
             this.pageGameDetail.Appearance.Options.UseBackColor = true;
-            this.pageGameDetail.Caption = "pageGameDetail";
             this.pageGameDetail.Controls.Add(this.scrollableDetailContainer);
             this.pageGameDetail.Name = "pageGameDetail";
             this.pageGameDetail.Size = new System.Drawing.Size(1278, 718);
@@ -1499,7 +1496,6 @@
             // 
             this.pageAI.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(46)))));
             this.pageAI.Appearance.Options.UseBackColor = true;
-            this.pageAI.Caption = "pageAI";
             this.pageAI.Controls.Add(this.flowAI);
             this.pageAI.Controls.Add(this.panelSuggest);
             this.pageAI.Name = "pageAI";
@@ -1575,6 +1571,7 @@
             this.Controls.Add(this.navigationFrame1);
             this.Controls.Add(this.panelSideBar);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.IconOptions.Image = global::GameTracker.Properties.Resources.icon___1_;
             this.Name = "MainForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "GameTracker";

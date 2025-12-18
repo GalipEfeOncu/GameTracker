@@ -163,6 +163,7 @@
             // 
             // btnSignup
             // 
+            this.btnSignup.AllowFocus = false;
             this.btnSignup.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(122)))), ((int)(((byte)(204)))));
             this.btnSignup.Appearance.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Bold);
             this.btnSignup.Appearance.ForeColor = System.Drawing.Color.White;
@@ -204,6 +205,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(821, 561);
             this.Controls.Add(this.panelCntrlSignup);
+            this.IconOptions.Image = global::GameTracker.Properties.Resources.icon___1_;
             this.Name = "SignupForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Sign Up - GameTracker";

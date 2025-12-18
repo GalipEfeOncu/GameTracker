@@ -8,29 +8,35 @@ namespace GameTracker
 {
     public class UserManager
     {
-        // Bu metot veritabanına sadece "Var mı?" diye sorar.
-        // Kayıt yapmaz, login yapmaz, sadece kontrol eder.
+        /// <summary>
+        /// Bu email'in sistemde kayıtlı olup olmadığını kontrol eder.
+        /// </summary>
+        /// <param name="email"> Kullanıcının maili </param>
+        /// <returns></returns>
         public static bool IsEmailExists(string email)
         {
             // Varsa 1 döner, yoksa boş döner.
             string query = "SELECT TOP 1 1 FROM users WHERE email = @email";
-
-            SqlParameter[] parameters = new SqlParameter[]
-            {
-                new SqlParameter("@email", email)
-            };
-
+            SqlParameter[] parameters = new SqlParameter[] { new SqlParameter("@email", email) };
             DataTable dt = DatabaseHelper.ExecuteQuery(query, parameters);
 
             // Eğer satır sayısı 0'dan büyükse, demek ki böyle bir mail var.
             return dt.Rows.Count > 0;
         }
 
+        /// <summary>
+        /// Kullanıcıyı kayıt eder.
+        /// </summary>
+        /// <param name="username">Kullanıcının kullanıcı adı</param>
+        /// <param name="email">Kullanıcının maili</param>
+        /// <param name="password">Kullanıcının parolası</param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
         public static bool RegisterUser(string username, string email, string password)
         {
             try
             {
-                string passwordHash = HashPassword(password);
+                string passwordHash = HashPassword(password, email);
 
                 string query = @"INSERT INTO users (username, email, password, created_at) 
                                VALUES (@username, @email, @password, GETDATE())";
@@ -47,50 +53,67 @@ namespace GameTracker
             }
             catch (SqlException ex)
             {
-                // Unique constraint hatası (aynı username veya email varsa)
+                // aynı username veya email varsa
                 if (ex.Number == 2627 || ex.Number == 2601)
-                {
                     throw new Exception("Bu kullanıcı adı veya email zaten kullanılıyor.");
-                }
                 throw;
             }
         }
 
-        public static DataRow LoginUser(string usernameOrEmail, string password)
+        /// <summary>
+        /// Kullanıcıyı giriş yapar.
+        /// </summary>
+        /// <param name="usernameOrEmail">Kullanıcının kullanıcı adı veya maili</param>
+        /// <param name="password">Kullanıcının parolası</param>
+        /// <returns></returns>
+        public static DataRow LoginUser(string usernameOrEmail, string plainPassword)
         {
-            string passwordHash = HashPassword(password);
-
-            string query = @"SELECT user_id, username, email, created_at 
+            string query = @"SELECT user_id, username, email, password, created_at 
                             FROM users 
-                            WHERE (username = @usernameOrEmail OR email = @usernameOrEmail) 
-                            AND password = @password";
+                            WHERE username = @usernameOrEmail OR email = @usernameOrEmail";
 
             SqlParameter[] parameters = new SqlParameter[]
             {
-                new SqlParameter("@usernameOrEmail", usernameOrEmail),
-                new SqlParameter("@password", passwordHash)
+                new SqlParameter("@usernameOrEmail", usernameOrEmail)
             };
 
             DataTable dt = DatabaseHelper.ExecuteQuery(query, parameters);
 
+            // kullanıcı bulunduysa
             if (dt.Rows.Count > 0)
             {
-                return dt.Rows[0];
+                DataRow userRow = dt.Rows[0];
+
+                // DB'deki gerçek maili ve hashli şifreyi al
+                string dbEmail = userRow["email"].ToString();
+                string dbPasswordHash = userRow["password"].ToString();
+
+                // Girilen şifreyi, DB'den gelen mail ile tekrar hashle
+                string computedHash = HashPassword(plainPassword, dbEmail);
+
+                // Eşleşiyorsa giriş başarılı
+                if (computedHash == dbPasswordHash)
+                    return userRow;
             }
 
             return null;
         }
 
-        private static string HashPassword(string password)
+        /// <summary>
+        /// Kullanıcının parolasını hashler.
+        /// </summary>
+        /// <param name="password"></param>
+        /// <returns></returns>
+        private static string HashPassword(string password, string salt)
         {
+            string saltedPass = password + salt;
             using (SHA256 sha256 = SHA256.Create())
             {
-                byte[] bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
+                byte[] bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(saltedPass));
                 StringBuilder builder = new StringBuilder();
                 foreach (byte b in bytes)
-                {
                     builder.Append(b.ToString("x2"));
-                }
+
                 return builder.ToString();
             }
         }
@@ -127,7 +150,7 @@ namespace GameTracker
         /// </summary>
         public static bool VerifyPassword(int userId, string plainPassword)
         {
-            string hash = HashPassword(plainPassword);
+            string hash = HashPassword(plainPassword, Session.Email);
             string query = "SELECT COUNT(*) FROM users WHERE user_id = @userId AND password = @password";
 
             SqlParameter[] parameters = new SqlParameter[]
@@ -145,7 +168,9 @@ namespace GameTracker
         /// </summary>
         public static bool UpdatePassword(int userId, string newPlainPassword)
         {
-            string newHash = HashPassword(newPlainPassword);
+            if (string.IsNullOrEmpty(Session.Email)) return false;
+
+            string newHash = HashPassword(newPlainPassword, Session.Email);
             string query = "UPDATE users SET password = @password WHERE user_id = @userId";
 
             SqlParameter[] parameters = new SqlParameter[]

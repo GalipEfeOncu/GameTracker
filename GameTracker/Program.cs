@@ -42,7 +42,7 @@ namespace GameTracker
                 }
                 catch
                 {
-                    // Bir hata olursa çaktırmayız ve login formu açarız
+                    // Bir hata olursa çaktırmadan login formunu aç
                     isAutoLogin = false;
                 }
             }

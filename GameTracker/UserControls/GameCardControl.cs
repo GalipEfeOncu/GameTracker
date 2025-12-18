@@ -140,6 +140,21 @@ namespace GameTracker
             }
         }
 
+        protected override void OnVisibleChanged(EventArgs e)
+        {
+            base.OnVisibleChanged(e);
+
+            // Başka sayfaya gidildiyse hover durumunu zorla kapat  
+            if (!this.Visible)
+                SetHoverState(false);
+            else
+            {
+                // Geri dönüldüğünde fare pozisyonunu kontrol et
+                if (!ClientRectangle.Contains(PointToClient(Cursor.Position)))
+                    SetHoverState(false);
+            }
+        }
+
         #endregion
 
         #region Context Menu Override
