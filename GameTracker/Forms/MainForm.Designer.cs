@@ -640,10 +640,10 @@
             // flowLayoutPanelSearch
             // 
             this.flowLayoutPanelSearch.AutoScroll = true;
-            this.flowLayoutPanelSearch.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(26)))), ((int)(((byte)(29)))), ((int)(((byte)(41))))); // Ana arka plan
+            this.flowLayoutPanelSearch.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(26)))), ((int)(((byte)(29)))), ((int)(((byte)(41)))));
             this.flowLayoutPanelSearch.Controls.Add(this.lblNoResult);
             this.flowLayoutPanelSearch.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.flowLayoutPanelSearch.Location = new System.Drawing.Point(0, 80); // Header yüksekliği kadar aşağıda
+            this.flowLayoutPanelSearch.Location = new System.Drawing.Point(0, 80);
             this.flowLayoutPanelSearch.Name = "flowLayoutPanelSearch";
             this.flowLayoutPanelSearch.Padding = new System.Windows.Forms.Padding(30, 20, 0, 20);
             this.flowLayoutPanelSearch.Size = new System.Drawing.Size(1278, 588);
@@ -653,7 +653,7 @@
             // 
             this.lblNoResult.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.lblNoResult.Appearance.Font = new System.Drawing.Font("Segoe UI Semibold", 16F, System.Drawing.FontStyle.Bold);
-            this.lblNoResult.Appearance.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(80)))), ((int)(((byte)(80)))), ((int)(((byte)(90))))); // Silik bir gri
+            this.lblNoResult.Appearance.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(80)))), ((int)(((byte)(80)))), ((int)(((byte)(90)))));
             this.lblNoResult.Appearance.Options.UseFont = true;
             this.lblNoResult.Appearance.Options.UseForeColor = true;
             this.lblNoResult.Appearance.Options.UseTextOptions = true;
@@ -735,7 +735,7 @@
             // 
             // panelControl7
             // 
-            this.panelControl7.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(39)))), ((int)(((byte)(41)))), ((int)(((byte)(61))))); // Header rengi
+            this.panelControl7.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(39)))), ((int)(((byte)(41)))), ((int)(((byte)(61)))));
             this.panelControl7.Appearance.Options.UseBackColor = true;
             this.panelControl7.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
             this.panelControl7.Controls.Add(this.searchControlSearchPage);
@@ -750,17 +750,15 @@
             this.searchControlSearchPage.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.searchControlSearchPage.Location = new System.Drawing.Point(340, 22);
             this.searchControlSearchPage.Name = "searchControlSearchPage";
-            this.searchControlSearchPage.Properties.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(32)))), ((int)(((byte)(45))))); // Kutu içi biraz daha koyu
+            this.searchControlSearchPage.Properties.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(32)))), ((int)(((byte)(45)))));
             this.searchControlSearchPage.Properties.Appearance.Font = new System.Drawing.Font("Segoe UI", 12F);
             this.searchControlSearchPage.Properties.Appearance.ForeColor = System.Drawing.Color.White;
             this.searchControlSearchPage.Properties.Appearance.Options.UseBackColor = true;
             this.searchControlSearchPage.Properties.Appearance.Options.UseFont = true;
             this.searchControlSearchPage.Properties.Appearance.Options.UseForeColor = true;
+            this.searchControlSearchPage.Properties.AutoHeight = false;
             this.searchControlSearchPage.Properties.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
             this.searchControlSearchPage.Properties.NullValuePrompt = "Search for games...";
-            this.searchControlSearchPage.Properties.ShowClearButton = true;
-            this.searchControlSearchPage.Properties.ShowSearchButton = true;
-            this.searchControlSearchPage.Properties.AutoHeight = false;
             this.searchControlSearchPage.Size = new System.Drawing.Size(600, 36);
             this.searchControlSearchPage.TabIndex = 14;
             this.searchControlSearchPage.KeyDown += new System.Windows.Forms.KeyEventHandler(this.searchControlSearchPage_KeyDown_1);
@@ -1193,7 +1191,7 @@
             this.lblDetailRequirements.Location = new System.Drawing.Point(0, 880);
             this.lblDetailRequirements.Name = "lblDetailRequirements";
             this.lblDetailRequirements.Padding = new System.Windows.Forms.Padding(20, 0, 20, 50);
-            this.lblDetailRequirements.Size = new System.Drawing.Size(1261, 65);
+            this.lblDetailRequirements.Size = new System.Drawing.Size(1278, 65);
             this.lblDetailRequirements.TabIndex = 12;
             this.lblDetailRequirements.Text = "Requirements...";
             // 
@@ -1208,7 +1206,7 @@
             this.lblRequirementsHeader.Location = new System.Drawing.Point(0, 810);
             this.lblRequirementsHeader.Name = "lblRequirementsHeader";
             this.lblRequirementsHeader.Padding = new System.Windows.Forms.Padding(20, 30, 0, 10);
-            this.lblRequirementsHeader.Size = new System.Drawing.Size(1261, 70);
+            this.lblRequirementsHeader.Size = new System.Drawing.Size(1278, 70);
             this.lblRequirementsHeader.TabIndex = 11;
             this.lblRequirementsHeader.Text = "System Requirements";
             // 
@@ -1226,7 +1224,7 @@
             this.lblDetailDescription.Location = new System.Drawing.Point(0, 790);
             this.lblDetailDescription.Name = "lblDetailDescription";
             this.lblDetailDescription.Padding = new System.Windows.Forms.Padding(20, 0, 20, 0);
-            this.lblDetailDescription.Size = new System.Drawing.Size(1261, 20);
+            this.lblDetailDescription.Size = new System.Drawing.Size(1278, 20);
             this.lblDetailDescription.TabIndex = 10;
             this.lblDetailDescription.Text = "Game description...";
             // 
@@ -1241,7 +1239,7 @@
             this.lblDescriptionHeader.Location = new System.Drawing.Point(0, 730);
             this.lblDescriptionHeader.Name = "lblDescriptionHeader";
             this.lblDescriptionHeader.Padding = new System.Windows.Forms.Padding(20, 20, 0, 10);
-            this.lblDescriptionHeader.Size = new System.Drawing.Size(1261, 60);
+            this.lblDescriptionHeader.Size = new System.Drawing.Size(1278, 60);
             this.lblDescriptionHeader.TabIndex = 9;
             this.lblDescriptionHeader.Text = "About";
             // 
@@ -1255,7 +1253,7 @@
             this.panelControl2.Dock = System.Windows.Forms.DockStyle.Top;
             this.panelControl2.Location = new System.Drawing.Point(0, 450);
             this.panelControl2.Name = "panelControl2";
-            this.panelControl2.Size = new System.Drawing.Size(1261, 280);
+            this.panelControl2.Size = new System.Drawing.Size(1278, 280);
             this.panelControl2.TabIndex = 26;
             // 
             // flowLayoutScreenshots
@@ -1266,7 +1264,7 @@
             this.flowLayoutScreenshots.Location = new System.Drawing.Point(0, 60);
             this.flowLayoutScreenshots.Name = "flowLayoutScreenshots";
             this.flowLayoutScreenshots.Padding = new System.Windows.Forms.Padding(0, 10, 0, 20);
-            this.flowLayoutScreenshots.Size = new System.Drawing.Size(1261, 240);
+            this.flowLayoutScreenshots.Size = new System.Drawing.Size(1278, 240);
             this.flowLayoutScreenshots.TabIndex = 8;
             this.flowLayoutScreenshots.WrapContents = false;
             // 
@@ -1281,7 +1279,7 @@
             this.lblSS.Location = new System.Drawing.Point(0, 0);
             this.lblSS.Name = "lblSS";
             this.lblSS.Padding = new System.Windows.Forms.Padding(20, 20, 0, 10);
-            this.lblSS.Size = new System.Drawing.Size(1261, 60);
+            this.lblSS.Size = new System.Drawing.Size(1278, 60);
             this.lblSS.TabIndex = 10;
             this.lblSS.Text = "Screen Shots";
             // 
@@ -1306,7 +1304,7 @@
             this.panelTopSection.Dock = System.Windows.Forms.DockStyle.Top;
             this.panelTopSection.Location = new System.Drawing.Point(0, 0);
             this.panelTopSection.Name = "panelTopSection";
-            this.panelTopSection.Size = new System.Drawing.Size(1261, 450);
+            this.panelTopSection.Size = new System.Drawing.Size(1278, 450);
             this.panelTopSection.TabIndex = 0;
             // 
             // btnLibraryAction
@@ -1321,7 +1319,7 @@
             this.btnLibraryAction.Appearance.Options.UseForeColor = true;
             this.btnLibraryAction.ButtonStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
             this.btnLibraryAction.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnLibraryAction.Location = new System.Drawing.Point(975, 70);
+            this.btnLibraryAction.Location = new System.Drawing.Point(992, 70);
             this.btnLibraryAction.Name = "btnLibraryAction";
             this.btnLibraryAction.Size = new System.Drawing.Size(220, 50);
             this.btnLibraryAction.TabIndex = 20;
@@ -1428,7 +1426,7 @@
             this.lblDetailTitle.AutoSizeMode = DevExpress.XtraEditors.LabelAutoSizeMode.Vertical;
             this.lblDetailTitle.Location = new System.Drawing.Point(530, 65);
             this.lblDetailTitle.Name = "lblDetailTitle";
-            this.lblDetailTitle.Size = new System.Drawing.Size(1512, 50);
+            this.lblDetailTitle.Size = new System.Drawing.Size(1529, 50);
             this.lblDetailTitle.TabIndex = 2;
             this.lblDetailTitle.Text = "Game Title";
             // 
@@ -1501,6 +1499,7 @@
             // 
             this.pageAI.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(46)))));
             this.pageAI.Appearance.Options.UseBackColor = true;
+            this.pageAI.Caption = "pageAI";
             this.pageAI.Controls.Add(this.flowAI);
             this.pageAI.Controls.Add(this.panelSuggest);
             this.pageAI.Name = "pageAI";

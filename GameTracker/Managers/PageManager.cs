@@ -63,14 +63,21 @@ namespace GameTracker.Managers
         /// Bir sonraki sayfaya geçmeye çalışır.
         /// </summary>
         /// <returns>Geçiş başarılıysa true, son sayfadaysa false döner.</returns>
-        public bool NextPage()
+        public bool NextPage(bool isHome)
         {
-            if (CurrentPage < TotalPages - 1)
+            if (isHome)
             {
-                CurrentPage++;
-                return true;
+                if (CurrentPage >= TotalPages - 1)
+                    return false;
             }
-            return false;
+            else
+            {
+                if (CurrentPage >= TotalPages)
+                    return false;
+            }
+
+            CurrentPage++;
+            return true;
         }
 
         /// <summary>

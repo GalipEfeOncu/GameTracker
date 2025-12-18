@@ -85,7 +85,6 @@ namespace GameTracker
 
             // Resize timer'ı başlat
             InitializeResizeTimer();
-
         }
 
         /// <summary>
@@ -124,17 +123,25 @@ namespace GameTracker
         /// <summary>
         /// Form yüklendiğinde çalışır. API'den ilk verileri çeker.
         /// </summary>
-        private async void MainForm_Load(object sender, EventArgs e)
+        private void MainForm_Load(object sender, EventArgs e)
         {
             // Layout metriklerini hesapla
             currentLayoutMetrics = layoutCalculator.Calculate(flowLayoutPanelPopulerGames.ClientSize);
             cardsPerPage = currentLayoutMetrics.CardsPerPage;
+        }
 
-            // İlk Home verilerini yükle
-            await LoadHomeGamesAsync(homeApiPage, gameToLoadPerRequest);
+        /// <summary>
+        /// Form tamamen görünür olduğunda çalışır.
+        /// API isteklerini başlatmak için en güvenli yerdir.
+        /// </summary>
+        protected override async void OnShown(EventArgs e)
+        {
+            base.OnShown(e);
 
-            // Eğer ana sayfa açıksa render et
-            if (navigationFrame1.SelectedPage == pageHome)
+            if (homeManager.AllItems.Count == 0) // Zaten veri varsa tekrar çekme
+                await LoadHomeGamesAsync(homeApiPage, gameToLoadPerRequest); // Kullanıcı kütüphanede olsa bile home verisini çek
+
+            if (navigationFrame1.SelectedPage == pageHome) // Kullanıcı Homeda ise hemen çiz
                 RenderPage(homeManager, flowLayoutPanelPopulerGames, lblHomePage);
         }
 
@@ -377,14 +384,14 @@ namespace GameTracker
         /// </summary>
         private async void btnHomeNext_Click(object sender, EventArgs e)
         {
-            if (homeManager.NextPage())
+            if (homeManager.NextPage(true))
                 RenderPage(homeManager, flowLayoutPanelPopulerGames, lblHomePage);
             else // Eğer son sayfadaysak API'den yeni veri çek
             {
                 await LoadMoreHomeGames();
 
                 // Yeni veri gelince NextPage yap
-                if (homeManager.NextPage())
+                if (homeManager.NextPage(true))
                     RenderPage(homeManager, flowLayoutPanelPopulerGames, lblHomePage);
             }
         }
@@ -460,7 +467,7 @@ namespace GameTracker
 
         private void btnLibNext_Click(object sender, EventArgs e)
         {
-            if (libraryManager.NextPage())
+            if (libraryManager.NextPage(false))
                 RenderPage(libraryManager, flowLayoutPanelLibrary, lblLibPage);
         }
 
@@ -517,7 +524,7 @@ namespace GameTracker
 
         private void btnSearchNext_Click(object sender, EventArgs e)
         {
-            if (searchManager.NextPage())
+            if (searchManager.NextPage(false))
                 RenderPage(searchManager, flowLayoutPanelSearch, lblSearchPage, lblNoResult);
         }
 
