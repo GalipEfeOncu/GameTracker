@@ -18,6 +18,7 @@
         private void InitializeComponent()
         {
             this.panelSideBar = new DevExpress.XtraEditors.PanelControl();
+            this.btnMenuAI = new DevExpress.XtraEditors.SimpleButton();
             this.btnSearch = new DevExpress.XtraEditors.SimpleButton();
             this.btnSettings = new DevExpress.XtraEditors.SimpleButton();
             this.btnLibrary = new DevExpress.XtraEditors.SimpleButton();
@@ -102,6 +103,11 @@
             this.lblDetailRating = new DevExpress.XtraEditors.LabelControl();
             this.lblDetailMetacritic = new DevExpress.XtraEditors.LabelControl();
             this.lblDetailPlaytime = new DevExpress.XtraEditors.LabelControl();
+            this.pageAI = new DevExpress.XtraBars.Navigation.NavigationPage();
+            this.flowAI = new System.Windows.Forms.FlowLayoutPanel();
+            this.panelSuggest = new DevExpress.XtraEditors.PanelControl();
+            this.btnGenerateAI = new DevExpress.XtraEditors.SimpleButton();
+            this.lblAI = new DevExpress.XtraEditors.LabelControl();
             ((System.ComponentModel.ISupportInitialize)(this.panelSideBar)).BeginInit();
             this.panelSideBar.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.navigationFrame1)).BeginInit();
@@ -142,6 +148,9 @@
             ((System.ComponentModel.ISupportInitialize)(this.panelTopSection)).BeginInit();
             this.panelTopSection.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.peDetailImage.Properties)).BeginInit();
+            this.pageAI.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.panelSuggest)).BeginInit();
+            this.panelSuggest.SuspendLayout();
             this.SuspendLayout();
             // 
             // panelSideBar
@@ -149,6 +158,7 @@
             this.panelSideBar.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(32)))), ((int)(((byte)(34)))), ((int)(((byte)(50)))));
             this.panelSideBar.Appearance.Options.UseBackColor = true;
             this.panelSideBar.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
+            this.panelSideBar.Controls.Add(this.btnMenuAI);
             this.panelSideBar.Controls.Add(this.btnSearch);
             this.panelSideBar.Controls.Add(this.btnSettings);
             this.panelSideBar.Controls.Add(this.btnLibrary);
@@ -159,6 +169,30 @@
             this.panelSideBar.Name = "panelSideBar";
             this.panelSideBar.Size = new System.Drawing.Size(220, 718);
             this.panelSideBar.TabIndex = 0;
+            // 
+            // btnMenuAI
+            // 
+            this.btnMenuAI.AllowFocus = false;
+            this.btnMenuAI.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(32)))), ((int)(((byte)(34)))), ((int)(((byte)(50)))));
+            this.btnMenuAI.Appearance.Font = new System.Drawing.Font("Segoe UI", 11F);
+            this.btnMenuAI.Appearance.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(160)))), ((int)(((byte)(160)))), ((int)(((byte)(180)))));
+            this.btnMenuAI.Appearance.Options.UseBackColor = true;
+            this.btnMenuAI.Appearance.Options.UseFont = true;
+            this.btnMenuAI.Appearance.Options.UseForeColor = true;
+            this.btnMenuAI.Appearance.Options.UseTextOptions = true;
+            this.btnMenuAI.Appearance.TextOptions.HAlignment = DevExpress.Utils.HorzAlignment.Near;
+            this.btnMenuAI.AppearanceHovered.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(42)))), ((int)(((byte)(60)))));
+            this.btnMenuAI.AppearanceHovered.ForeColor = System.Drawing.Color.White;
+            this.btnMenuAI.AppearanceHovered.Options.UseBackColor = true;
+            this.btnMenuAI.AppearanceHovered.Options.UseForeColor = true;
+            this.btnMenuAI.ButtonStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
+            this.btnMenuAI.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnMenuAI.Location = new System.Drawing.Point(10, 201);
+            this.btnMenuAI.Name = "btnMenuAI";
+            this.btnMenuAI.Size = new System.Drawing.Size(200, 45);
+            this.btnMenuAI.TabIndex = 5;
+            this.btnMenuAI.Text = "  For You (AI)";
+            this.btnMenuAI.Click += new System.EventHandler(this.btnMenuAI_Click);
             // 
             // btnSearch
             // 
@@ -177,7 +211,7 @@
             this.btnSearch.AppearanceHovered.Options.UseForeColor = true;
             this.btnSearch.ButtonStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
             this.btnSearch.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnSearch.Location = new System.Drawing.Point(10, 200);
+            this.btnSearch.Location = new System.Drawing.Point(10, 252);
             this.btnSearch.Name = "btnSearch";
             this.btnSearch.Size = new System.Drawing.Size(200, 45);
             this.btnSearch.TabIndex = 4;
@@ -282,6 +316,7 @@
             this.navigationFrame1.Controls.Add(this.pageSearch);
             this.navigationFrame1.Controls.Add(this.pageSettings);
             this.navigationFrame1.Controls.Add(this.pageGameDetail);
+            this.navigationFrame1.Controls.Add(this.pageAI);
             this.navigationFrame1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.navigationFrame1.Location = new System.Drawing.Point(220, 0);
             this.navigationFrame1.Name = "navigationFrame1";
@@ -290,7 +325,8 @@
             this.pageLibrary,
             this.pageSearch,
             this.pageSettings,
-            this.pageGameDetail});
+            this.pageGameDetail,
+            this.pageAI});
             this.navigationFrame1.SelectedPage = this.pageHome;
             this.navigationFrame1.Size = new System.Drawing.Size(1278, 718);
             this.navigationFrame1.TabIndex = 1;
@@ -298,6 +334,7 @@
             // 
             // pageHome
             // 
+            this.pageHome.Caption = "pageHome";
             this.pageHome.Controls.Add(this.flowLayoutPanelPopulerGames);
             this.pageHome.Controls.Add(this.panelHomePagination);
             this.pageHome.Controls.Add(this.lblPopulerGames);
@@ -383,8 +420,10 @@
             // 
             // lblPopulerGames
             // 
+            this.lblPopulerGames.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(39)))), ((int)(((byte)(41)))), ((int)(((byte)(61)))));
             this.lblPopulerGames.Appearance.Font = new System.Drawing.Font("Segoe UI", 24F, System.Drawing.FontStyle.Bold);
             this.lblPopulerGames.Appearance.ForeColor = System.Drawing.Color.White;
+            this.lblPopulerGames.Appearance.Options.UseBackColor = true;
             this.lblPopulerGames.Appearance.Options.UseFont = true;
             this.lblPopulerGames.Appearance.Options.UseForeColor = true;
             this.lblPopulerGames.Appearance.Options.UseTextOptions = true;
@@ -400,6 +439,7 @@
             // 
             // pageLibrary
             // 
+            this.pageLibrary.Caption = "pageLibrary";
             this.pageLibrary.Controls.Add(this.flowLayoutPanelLibrary);
             this.pageLibrary.Controls.Add(this.panelLibPagination);
             this.pageLibrary.Controls.Add(this.panelControl6);
@@ -485,7 +525,7 @@
             // 
             // panelControl6
             // 
-            this.panelControl6.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(26)))), ((int)(((byte)(29)))), ((int)(((byte)(41)))));
+            this.panelControl6.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(39)))), ((int)(((byte)(41)))), ((int)(((byte)(61)))));
             this.panelControl6.Appearance.Options.UseBackColor = true;
             this.panelControl6.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
             this.panelControl6.Controls.Add(this.btnLibPlayed);
@@ -590,6 +630,7 @@
             // 
             // pageSearch
             // 
+            this.pageSearch.Caption = "pageSearch";
             this.pageSearch.Controls.Add(this.flowLayoutPanelSearch);
             this.pageSearch.Controls.Add(this.panelSearchPagination);
             this.pageSearch.Controls.Add(this.panelControl7);
@@ -599,27 +640,31 @@
             // flowLayoutPanelSearch
             // 
             this.flowLayoutPanelSearch.AutoScroll = true;
+            this.flowLayoutPanelSearch.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(26)))), ((int)(((byte)(29)))), ((int)(((byte)(41))))); // Ana arka plan
             this.flowLayoutPanelSearch.Controls.Add(this.lblNoResult);
             this.flowLayoutPanelSearch.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.flowLayoutPanelSearch.Location = new System.Drawing.Point(0, 70);
+            this.flowLayoutPanelSearch.Location = new System.Drawing.Point(0, 80); // Header yüksekliği kadar aşağıda
             this.flowLayoutPanelSearch.Name = "flowLayoutPanelSearch";
-            this.flowLayoutPanelSearch.Padding = new System.Windows.Forms.Padding(20);
-            this.flowLayoutPanelSearch.Size = new System.Drawing.Size(1278, 598);
+            this.flowLayoutPanelSearch.Padding = new System.Windows.Forms.Padding(30, 20, 0, 20);
+            this.flowLayoutPanelSearch.Size = new System.Drawing.Size(1278, 588);
             this.flowLayoutPanelSearch.TabIndex = 16;
             // 
             // lblNoResult
             // 
             this.lblNoResult.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.lblNoResult.Appearance.Font = new System.Drawing.Font("Segoe UI", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblNoResult.Appearance.Font = new System.Drawing.Font("Segoe UI Semibold", 16F, System.Drawing.FontStyle.Bold);
+            this.lblNoResult.Appearance.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(80)))), ((int)(((byte)(80)))), ((int)(((byte)(90))))); // Silik bir gri
             this.lblNoResult.Appearance.Options.UseFont = true;
+            this.lblNoResult.Appearance.Options.UseForeColor = true;
             this.lblNoResult.Appearance.Options.UseTextOptions = true;
             this.lblNoResult.Appearance.TextOptions.HAlignment = DevExpress.Utils.HorzAlignment.Center;
             this.lblNoResult.Appearance.TextOptions.VAlignment = DevExpress.Utils.VertAlignment.Center;
             this.lblNoResult.AutoSizeMode = DevExpress.XtraEditors.LabelAutoSizeMode.None;
-            this.lblNoResult.Location = new System.Drawing.Point(23, 23);
+            this.lblNoResult.Location = new System.Drawing.Point(33, 23);
             this.lblNoResult.Name = "lblNoResult";
-            this.lblNoResult.Size = new System.Drawing.Size(1197, 52);
+            this.lblNoResult.Size = new System.Drawing.Size(1197, 100);
             this.lblNoResult.TabIndex = 0;
+            this.lblNoResult.Text = "Start typing to search games...";
             // 
             // panelSearchPagination
             // 
@@ -690,31 +735,33 @@
             // 
             // panelControl7
             // 
-            this.panelControl7.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(26)))), ((int)(((byte)(29)))), ((int)(((byte)(41)))));
+            this.panelControl7.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(39)))), ((int)(((byte)(41)))), ((int)(((byte)(61))))); // Header rengi
             this.panelControl7.Appearance.Options.UseBackColor = true;
             this.panelControl7.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
             this.panelControl7.Controls.Add(this.searchControlSearchPage);
             this.panelControl7.Dock = System.Windows.Forms.DockStyle.Top;
             this.panelControl7.Location = new System.Drawing.Point(0, 0);
             this.panelControl7.Name = "panelControl7";
-            this.panelControl7.Size = new System.Drawing.Size(1278, 70);
+            this.panelControl7.Size = new System.Drawing.Size(1278, 80);
             this.panelControl7.TabIndex = 15;
             // 
             // searchControlSearchPage
             // 
-            this.searchControlSearchPage.Location = new System.Drawing.Point(20, 20);
+            this.searchControlSearchPage.Anchor = System.Windows.Forms.AnchorStyles.Top;
+            this.searchControlSearchPage.Location = new System.Drawing.Point(340, 22);
             this.searchControlSearchPage.Name = "searchControlSearchPage";
-            this.searchControlSearchPage.Properties.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(37)))), ((int)(((byte)(40)))), ((int)(((byte)(55)))));
+            this.searchControlSearchPage.Properties.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(32)))), ((int)(((byte)(45))))); // Kutu içi biraz daha koyu
             this.searchControlSearchPage.Properties.Appearance.Font = new System.Drawing.Font("Segoe UI", 12F);
             this.searchControlSearchPage.Properties.Appearance.ForeColor = System.Drawing.Color.White;
             this.searchControlSearchPage.Properties.Appearance.Options.UseBackColor = true;
             this.searchControlSearchPage.Properties.Appearance.Options.UseFont = true;
             this.searchControlSearchPage.Properties.Appearance.Options.UseForeColor = true;
             this.searchControlSearchPage.Properties.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
-            this.searchControlSearchPage.Properties.NullValuePrompt = "Search games...";
-            this.searchControlSearchPage.Properties.ShowClearButton = false;
-            this.searchControlSearchPage.Properties.ShowSearchButton = false;
-            this.searchControlSearchPage.Size = new System.Drawing.Size(400, 26);
+            this.searchControlSearchPage.Properties.NullValuePrompt = "Search for games...";
+            this.searchControlSearchPage.Properties.ShowClearButton = true;
+            this.searchControlSearchPage.Properties.ShowSearchButton = true;
+            this.searchControlSearchPage.Properties.AutoHeight = false;
+            this.searchControlSearchPage.Size = new System.Drawing.Size(600, 36);
             this.searchControlSearchPage.TabIndex = 14;
             this.searchControlSearchPage.KeyDown += new System.Windows.Forms.KeyEventHandler(this.searchControlSearchPage_KeyDown_1);
             // 
@@ -1111,6 +1158,7 @@
             // 
             this.pageGameDetail.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(26)))), ((int)(((byte)(29)))), ((int)(((byte)(41)))));
             this.pageGameDetail.Appearance.Options.UseBackColor = true;
+            this.pageGameDetail.Caption = "pageGameDetail";
             this.pageGameDetail.Controls.Add(this.scrollableDetailContainer);
             this.pageGameDetail.Name = "pageGameDetail";
             this.pageGameDetail.Size = new System.Drawing.Size(1278, 718);
@@ -1273,7 +1321,7 @@
             this.btnLibraryAction.Appearance.Options.UseForeColor = true;
             this.btnLibraryAction.ButtonStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
             this.btnLibraryAction.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnLibraryAction.Location = new System.Drawing.Point(992, 70);
+            this.btnLibraryAction.Location = new System.Drawing.Point(975, 70);
             this.btnLibraryAction.Name = "btnLibraryAction";
             this.btnLibraryAction.Size = new System.Drawing.Size(220, 50);
             this.btnLibraryAction.TabIndex = 20;
@@ -1380,7 +1428,7 @@
             this.lblDetailTitle.AutoSizeMode = DevExpress.XtraEditors.LabelAutoSizeMode.Vertical;
             this.lblDetailTitle.Location = new System.Drawing.Point(530, 65);
             this.lblDetailTitle.Name = "lblDetailTitle";
-            this.lblDetailTitle.Size = new System.Drawing.Size(1529, 50);
+            this.lblDetailTitle.Size = new System.Drawing.Size(1512, 50);
             this.lblDetailTitle.TabIndex = 2;
             this.lblDetailTitle.Text = "Game Title";
             // 
@@ -1449,6 +1497,73 @@
             this.lblDetailPlaytime.TabIndex = 8;
             this.lblDetailPlaytime.Text = "⏱ 25 Hours";
             // 
+            // pageAI
+            // 
+            this.pageAI.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(46)))));
+            this.pageAI.Appearance.Options.UseBackColor = true;
+            this.pageAI.Controls.Add(this.flowAI);
+            this.pageAI.Controls.Add(this.panelSuggest);
+            this.pageAI.Name = "pageAI";
+            this.pageAI.Size = new System.Drawing.Size(1278, 718);
+            // 
+            // flowAI
+            // 
+            this.flowAI.AutoScroll = true;
+            this.flowAI.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(26)))), ((int)(((byte)(29)))), ((int)(((byte)(41)))));
+            this.flowAI.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.flowAI.Location = new System.Drawing.Point(0, 80);
+            this.flowAI.Name = "flowAI";
+            this.flowAI.Padding = new System.Windows.Forms.Padding(25);
+            this.flowAI.Size = new System.Drawing.Size(1278, 638);
+            this.flowAI.TabIndex = 1;
+            // 
+            // panelSuggest
+            // 
+            this.panelSuggest.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(39)))), ((int)(((byte)(41)))), ((int)(((byte)(61)))));
+            this.panelSuggest.Appearance.Options.UseBackColor = true;
+            this.panelSuggest.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
+            this.panelSuggest.Controls.Add(this.btnGenerateAI);
+            this.panelSuggest.Controls.Add(this.lblAI);
+            this.panelSuggest.Dock = System.Windows.Forms.DockStyle.Top;
+            this.panelSuggest.Location = new System.Drawing.Point(0, 0);
+            this.panelSuggest.Name = "panelSuggest";
+            this.panelSuggest.Padding = new System.Windows.Forms.Padding(20, 0, 20, 0);
+            this.panelSuggest.Size = new System.Drawing.Size(1278, 80);
+            this.panelSuggest.TabIndex = 0;
+            // 
+            // btnGenerateAI
+            // 
+            this.btnGenerateAI.AllowFocus = false;
+            this.btnGenerateAI.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnGenerateAI.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(80)))), ((int)(((byte)(90)))), ((int)(((byte)(240)))));
+            this.btnGenerateAI.Appearance.Font = new System.Drawing.Font("Segoe UI Semibold", 10F, System.Drawing.FontStyle.Bold);
+            this.btnGenerateAI.Appearance.ForeColor = System.Drawing.Color.White;
+            this.btnGenerateAI.Appearance.Options.UseBackColor = true;
+            this.btnGenerateAI.Appearance.Options.UseFont = true;
+            this.btnGenerateAI.Appearance.Options.UseForeColor = true;
+            this.btnGenerateAI.AppearanceHovered.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(110)))), ((int)(((byte)(255)))));
+            this.btnGenerateAI.AppearanceHovered.Options.UseBackColor = true;
+            this.btnGenerateAI.ButtonStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
+            this.btnGenerateAI.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnGenerateAI.Location = new System.Drawing.Point(1080, 20);
+            this.btnGenerateAI.Name = "btnGenerateAI";
+            this.btnGenerateAI.Size = new System.Drawing.Size(180, 40);
+            this.btnGenerateAI.TabIndex = 14;
+            this.btnGenerateAI.Text = "Generate Suggestions";
+            this.btnGenerateAI.Click += new System.EventHandler(this.btnGenerateAI_Click);
+            // 
+            // lblAI
+            // 
+            this.lblAI.Appearance.Font = new System.Drawing.Font("Segoe UI", 20F, System.Drawing.FontStyle.Bold);
+            this.lblAI.Appearance.ForeColor = System.Drawing.Color.White;
+            this.lblAI.Appearance.Options.UseFont = true;
+            this.lblAI.Appearance.Options.UseForeColor = true;
+            this.lblAI.Location = new System.Drawing.Point(25, 20);
+            this.lblAI.Name = "lblAI";
+            this.lblAI.Size = new System.Drawing.Size(275, 37);
+            this.lblAI.TabIndex = 13;
+            this.lblAI.Text = "AI Recommendations";
+            // 
             // MainForm
             // 
             this.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(26)))), ((int)(((byte)(29)))), ((int)(((byte)(41)))));
@@ -1511,6 +1626,10 @@
             this.panelTopSection.ResumeLayout(false);
             this.panelTopSection.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.peDetailImage.Properties)).EndInit();
+            this.pageAI.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.panelSuggest)).EndInit();
+            this.panelSuggest.ResumeLayout(false);
+            this.panelSuggest.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -1610,5 +1729,11 @@
         private DevExpress.XtraEditors.TextEdit txtNewPassAgain;
         private DevExpress.XtraEditors.LabelControl lblUsernameWarning;
         private DevExpress.XtraEditors.LabelControl lblPassWarning;
+        private DevExpress.XtraEditors.SimpleButton btnMenuAI;
+        private DevExpress.XtraBars.Navigation.NavigationPage pageAI;
+        private DevExpress.XtraEditors.PanelControl panelSuggest;
+        private System.Windows.Forms.FlowLayoutPanel flowAI;
+        private DevExpress.XtraEditors.SimpleButton btnGenerateAI;
+        private DevExpress.XtraEditors.LabelControl lblAI;
     }
 }

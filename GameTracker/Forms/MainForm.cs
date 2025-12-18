@@ -3,6 +3,7 @@ using GameTracker.Factories;
 using GameTracker.Helpers;
 using GameTracker.Managers;
 using GameTracker.Models;
+using GameTracker.Services;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -25,6 +26,7 @@ namespace GameTracker
         private RawgApiService rawgapi;
         private readonly ImageManager imageManager;
         private readonly LayoutCalculator layoutCalculator;
+        private GeminiService geminiService;
 
         // Sayfa Yöneticileri
         private PageManager homeManager;
@@ -60,6 +62,7 @@ namespace GameTracker
             rawgapi = new RawgApiService();
             imageManager = new ImageManager();
             layoutCalculator = new LayoutCalculator();
+            geminiService = new GeminiService();
 
             // Sayfa yöneticilerini başlat
             homeManager = new PageManager(24);
@@ -324,7 +327,7 @@ namespace GameTracker
         private void HighlightActiveSidebarButton(SimpleButton activeButton)
         {
             // Sidebar'daki tüm butonları buraya yazıyoruz
-            var sideButtons = new[] { btnHomeMenu, btnLibrary, btnSearch, btnSettings };
+            var sideButtons = new[] { btnHomeMenu, btnLibrary, btnSearch, btnSettings, btnMenuAI };
 
             foreach (var btn in sideButtons)
             {
@@ -966,5 +969,75 @@ namespace GameTracker
             btn.Cursor = Cursors.Hand;
         }
         #endregion
+
+        private async void btnGenerateAI_Click(object sender, EventArgs e)
+        {
+            flowAI.Controls.Clear();
+            this.Cursor = Cursors.WaitCursor;
+
+            try
+            {
+                // Kullanıcı girişi kontrolü
+                if (Session.UserId <= 0)
+                {
+                    MyMessageBox.Show("Please login to get recommendations!", "Warning");
+                    return;
+                }
+
+                var myGames = LibraryManager.GetUserLibrary(Session.UserId, null);
+
+                // En az 3 oyun kontrolü
+                if (myGames.Count < 3)
+                {
+                    MyMessageBox.Show("Add at least 3 games to your library so AI can understand your taste!", "Not Enough Data");
+                    return;
+                }
+
+                // Sadece isimleri listeye çevir
+                List<string> gameNames = myGames.Select(g => g.Name).ToList();
+
+                // Gemini'a sor
+                var recommendedNames = await geminiService.GetRecommendationsAsync(gameNames);
+
+                // Öneri yoksa uyar
+                if (recommendedNames.Count == 0)
+                {
+                    MyMessageBox.Show("AI couldn't find suggestions right now. Try again later.", "AI Error");
+                    return;
+                }
+
+                flowAI.Controls.Clear(); // Loading yazısını sil
+
+                // Gelen isimleri RAWG'da aratıp kartlarını oluştur
+                foreach (var gameName in recommendedNames)
+                {
+                    // RAWG'da arama yap, en alakalı ilk sonucu al
+                    var searchResults = await rawgapi.GetGamesBySearchAsync(gameName, 1);
+
+                    if (searchResults != null && searchResults.Any())
+                    {
+                        var game = searchResults.First();
+
+                        // Kartı oluştur
+                        var card = GameCardFactory.CreateCard(game, currentLayoutMetrics, imageManager, (g) => ShowGameDetails(g));
+                        flowAI.Controls.Add(card);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MyMessageBox.Show($"Error: {ex.Message}", "Error");
+            }
+            finally
+            {
+                this.Cursor = Cursors.Default;
+            }
+        }
+
+        private void btnMenuAI_Click(object sender, EventArgs e)
+        {
+            HighlightActiveSidebarButton(btnMenuAI);
+            navigationFrame1.SelectedPage = pageAI;
+        }
     }
 }

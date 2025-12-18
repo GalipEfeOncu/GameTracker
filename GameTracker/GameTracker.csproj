@@ -108,6 +108,7 @@
     <Compile Include="Factories\GameCardFactory.cs" />
     <Compile Include="Helpers\UIHelper.cs" />
     <Compile Include="Managers\PageManager.cs" />
+    <Compile Include="Services\GeminiService.cs" />
     <Compile Include="UserControls\GameCardControl.cs">
       <SubType>Component</SubType>
     </Compile>

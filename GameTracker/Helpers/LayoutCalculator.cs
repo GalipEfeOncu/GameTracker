@@ -24,7 +24,7 @@ namespace GameTracker
         // Kart boyut limitleri
         private const int minCardWidth = 280;
         private const int maxCardWidth = 350;
-        private const int cardMargin = 20;
+        private const int cardMargin = 30;
         private const int labelHeight = 30;
 
         /// <summary>

@@ -37,7 +37,7 @@ namespace GameTracker.Factories
             card.lblGameTitle.Click += (s, e) => onCardClick?.Invoke(game);
 
             // Resmi asenkron olarak yükle
-            imageManager.LoadImageAsync(game.BackgroundImage, card.peGameImage, 420);
+            _ = imageManager.LoadImageAsync(game.BackgroundImage, card.peGameImage, 420);
 
             return card;
         }
@@ -52,7 +52,7 @@ namespace GameTracker.Factories
 
             card.Width = metrics.CardWidth;
             card.Height = metrics.ImageHeight + LABEL_HEIGHT;
-            card.Margin = new Padding(10, 10, 10, 10 + metrics.ExtraSpacingPerRow);
+            card.Margin = new Padding(20, 20, 10, 10 + metrics.ExtraSpacingPerRow);
 
             // UserControl içindeki panel boyutlandırması
             card.borderPanel.Height = metrics.ImageHeight;

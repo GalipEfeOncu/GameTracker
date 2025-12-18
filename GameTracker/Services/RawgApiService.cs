@@ -34,8 +34,8 @@ namespace GameTracker
             if (Properties.Settings.Default.ShowNSFW)
                 return "";
 
-            string genres = "adult,hentai";
-            string tags = "nudity,sexual-content,hentai,erotic,nsfw,romance-sex";
+            string genres = "adult,hentai,erotic";
+            string tags = "nudity,sexual-content,nsfw,romance-sex,hentai";
 
             return $"&exclude_genres={genres}&exclude_tags={tags}";
         }
@@ -56,20 +56,31 @@ namespace GameTracker
             // Listeyi temizle
             games.RemoveAll(g =>
             {
-                // Adults Only ise sil.
+                if (g == null) return true;
+
+                // Adults Only kontrolü
                 if (g.EsrbRating != null && (g.EsrbRating.Slug == "adults-only" || g.EsrbRating.Id == 5))
                     return true;
 
-                // İsminde sakıncalı kelime geçenleri sil 
-                string nameLower = g.Name.ToLower();
-                if (nameLower.Contains("hentai") || nameLower.Contains("sex ") || nameLower.Contains("porno"))
-                    return true;
+                // İsim Kontrolü
+                if (!string.IsNullOrEmpty(g.Name))
+                {
+                    string nameLower = g.Name.ToLowerInvariant();
+                    string[] badWords = { "hentai", "sex ", "porno", "nude", "erotic", "waifu hunter", "strip" };
 
-                // Genre Kontrolü 
-                if (g.Genres != null && g.Genres.Any(gen => gen.Slug == "adult" || gen.Slug == "hentai"))
-                    return true;
+                    if (badWords.Any(w => nameLower.Contains(w)))
+                        return true;
+                }
 
-                return false; // Temiz
+                // Genre ve Tag kontrolleri
+                bool hasBadGenre = g.Genres != null && g.Genres.Any(gen => gen.Slug == "adult" || gen.Slug == "hentai");
+
+                // Tags bazen null gelebilir
+                bool hasBadTag = g.Tags != null && g.Tags.Any(t => t.Slug == "nudity" || t.Slug == "sexual-content");
+
+                if (hasBadGenre || hasBadTag) return true;
+
+                return false;
             });
 
             return games;
@@ -129,8 +140,13 @@ namespace GameTracker
         /// </summary>
         public async Task<List<Game>> GetPopularGamesAsync(int pageNumber, int pageSize = 20)
         {
-            string url = $"{_baseUrl}/games?key={_apiKey}&ordering=-added,-rating&dates=2024-01-01,2025-12-31&page_size={pageSize}&exclude_additions=true&page={pageNumber}";
+            var endDate = DateTime.Now.ToString("yyyy-MM-dd"); // Bugünün tarihi
+            var startDate = DateTime.Now.AddMonths(-18).ToString("yyyy-MM-dd"); // Son 1.5 yıla bakar
+            string url = $"{_baseUrl}/games?key={_apiKey}&ordering=-added&dates={startDate},{endDate}&page_size={pageSize}&page={pageNumber}";
+
+            // NSFW filtresini de ekle
             url += GetNsfwFilterParam();
+
             return await GetGamesAsync(url);
         }
 
