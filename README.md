@@ -3,7 +3,7 @@
 > **Oyun dünyasını avucunun içine al!**
 > Oyun kütüphaneni yönetmek, yeni oyunlar keşfetmek ve ne oynadığını takip etmek hiç bu kadar **şekil** olmamıştı.
 
-<img width="1919" height="1009" alt="image" src="https://github.com/user-attachments/assets/dd7d28ab-ed7a-4028-98a4-5b2ab627eb58" />
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/19471807-5380-4fd6-b81a-91de8cb21183" />
 
 ## 🚀 Proje Hakkında
 
@@ -44,15 +44,20 @@ Bu proje aşağıdaki teknolojilerle **inşa edildi**:
 
 | Giriş Ekranı | Kayıt Ekranı |
 | :---: | :---: |
-| <img width="361" height="500" alt="image" src="https://github.com/user-attachments/assets/5646bf14-1c75-4330-857d-f5a027385984" /> | <img width="364" height="500" alt="image" src="https://github.com/user-attachments/assets/7e83ac40-b0df-4c9d-b437-505ac8efa3f2" /> |
+| <img width="400" height="540" alt="image" src="https://github.com/user-attachments/assets/076deeba-b4d7-4c77-abaf-628c102014d3" /> | <img width="387" height="540" alt="image" src="https://github.com/user-attachments/assets/d07e1925-a9ae-4fe7-976c-6f0032648c73" /> |
 
-| Oyun Arama |
-| :---: |
-| <img width="1000" height="525" alt="image" src="https://github.com/user-attachments/assets/b9d3dc8f-7d31-4af4-a992-fbd813af46f0" /> |
+| Kütüphane | AI Öneri Sistemi |
+| :---: | :---: |
+| <img width="1000" height="525" alt="image" src="https://github.com/user-attachments/assets/84f92c88-92f8-449f-9201-c3bc6b2be749" /> | <img width="1000" height="525" alt="image" src="https://github.com/user-attachments/assets/0b30c609-e406-4a14-8c24-010946b8a462" /> |
 
-| Kütüphane |
+| Oyun Sayfası | Oyun Arama |
+| :---: | :---: |
+| <img width="1000" height="525" alt="image" src="https://github.com/user-attachments/assets/8cd544a7-4d93-4911-aa64-37ed8d57dfdb" /> | <img width="1000" height="525" alt="image" src="https://github.com/user-attachments/assets/957c5f1c-0e1d-40d6-8903-4c2e4df78f30" /> |
+
+| Settings |
 | :---: |
-| <img width="1000" height="525" alt="image" src="https://github.com/user-attachments/assets/9ce803c2-b60f-4735-bd59-cd65fec8c19c" /> |
+| <img width="1919" height="1011" alt="image" src="https://github.com/user-attachments/assets/71d29560-656a-4f05-a8ac-adcc32905d49" /> |
+
 
 ## 🤝 Katkıda Bulunma
 
