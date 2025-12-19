@@ -621,28 +621,56 @@ namespace GameTracker
         #region Game Detail & ScreenShots
 
         /// <summary>
+        /// Detay sayfası kontrollerini varsayılan hale getirir.
+        /// </summary>
+        private void ResetControls()
+        {
+            // Sayfayı en yukarı kaydır
+            scrollableDetailContainer.VerticalScroll.Value = 0;
+
+            // Resimleri boşalt
+            peDetailImage.Image = null;
+            flowLayoutScreenshots.Controls.Clear(); // Screenshotları temizle
+            flowLayoutScreenshots.Visible = false;  // Paneli gizle
+
+            // Yazıları "Yükleniyor..." moduna veya boşluğa çek
+            lblDetailTitle.Text = "Loading...";
+            lblDetailDescription.Text = "Fetching details from RAWG...";
+            lblDetailDeveloper.Text = "Loading info...";
+            lblDetailGenres.Text = "Loading genres...";
+            lblDetailRating.Text = "";
+            lblDetailMetacritic.Text = "-";
+            lblDetailPlaytime.Text = "-";
+            lblDetailRequirements.Text = "Checking system requirements...";
+            lblDetailPlatforms.Text = "";
+            lblDetailStores.Text = "";
+            lblDetailModes.Text = "";
+
+            // Butonu varsayılan hale getir
+            btnLibraryAction.Text = "Loading...";
+            btnLibraryAction.Enabled = false;
+            btnLibraryAction.Appearance.BackColor = Color.FromArgb(64, 64, 64);
+            btnLibraryAction.Cursor = Cursors.Default; // El işaretini kaldır
+        }
+
+        /// <summary>
         /// Oyunun detay sayfasını açar. Önce eldeki veriyi basar, sonra API'den detayları çeker.
         /// </summary>
         private async void ShowGameDetails(Game simpleGame)
         {
+            ResetControls();
+
             // Navigation
             previousPage = navigationFrame1.SelectedPage;
             navigationFrame1.SelectedPage = pageGameDetail;
-            scrollableDetailContainer.VerticalScroll.Value = 0;
 
             // Basit Verileri Göster
             lblDetailTitle.Text = simpleGame.Name;
             peDetailImage.Image = null;
             await imageManager.LoadImageAsync(simpleGame.BackgroundImage, peDetailImage, 600);
 
-            // Loading Mesajları
-            lblDetailDeveloper.Text = "Loading info...";
-            lblDetailGenres.Text = "Loading genres...";
+            // Loading Mesajı
             lblDetailRating.Text = $"★ {simpleGame.Rating}";
-            lblDetailMetacritic.Text = "-";
-            lblDetailPlaytime.Text = "-";
-            lblDetailDescription.Text = "Fetching details from RAWG...";
-            lblDetailRequirements.Text = "Checking system requirements...";
 
             // API Detay Sorgusu
             try
@@ -707,6 +735,8 @@ namespace GameTracker
                     lblDetailModes.Text = modes.Any() ? string.Join(" • ", modes) : "Mode info N/A";
 
                     // Actions
+                    btnLibraryAction.Enabled = true;
+                    btnLibraryAction.Cursor = Cursors.Hand;
                     UpdateLibraryButtonState(fullGame);
                     LoadScreenshots(fullGame.Id);
                 }
@@ -715,6 +745,10 @@ namespace GameTracker
             {
                 System.Diagnostics.Debug.WriteLine($"Detay Hatası: {ex.Message}");
                 // Hata olsa bile eldeki basit veriyle devam, kullanıcıya hata basma
+
+                btnLibraryAction.Enabled = true;
+                btnLibraryAction.Cursor = Cursors.Hand;
+                UpdateLibraryButtonState(simpleGame);
             }
         }
 
@@ -760,6 +794,13 @@ namespace GameTracker
                 navigationFrame1.SelectedPage = previousPage;
             else
                 navigationFrame1.SelectedPage = pageHome;
+
+
+            var activePanel = navigationFrame1.SelectedPage?.Controls[0] as FlowLayoutPanel;
+            if (activePanel == null)
+                return;
+            RecalculateLayoutMetrics(activePanel);
+            RefreshActivePage();
         }
 
         #endregion
