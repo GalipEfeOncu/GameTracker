@@ -1,44 +1,49 @@
 # 🎮 GameTracker
 
 > **Oyun dünyasını avucunun içine al!**
-> Oyun kütüphaneni yönetmek, yeni oyunlar keşfetmek ve ne oynadığını takip etmek hiç bu kadar **şekil** olmamıştı.
+> "Ne oynasam?" derdine son. Oyun kütüphaneni yönet, yapay zekadan tavsiye al ve arşivini **şekil** bir arayüzle takip et.
 
-<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/19471807-5380-4fd6-b81a-91de8cb21183" />
+![GameTracker Dashboard](https://github.com/user-attachments/assets/19471807-5380-4fd6-b81a-91de8cb21183)
 
 ## 🚀 Proje Hakkında
 
 **GameTracker**, oyun tutkunları için geliştirilmiş modern bir **Windows Forms (WinForms)** uygulamasıdır. Klasik, sıkıcı form tasarımlarını unutun. Bu proje, **DevExpress** gücüyle oluşturulmuş **Cyberpunk/Dark** temalı arayüzü ve **akıcı (responsive)** kullanıcı deneyimi ile öne çıkar.
 
-Arka planda **RAWG.io API**'sini kullanarak dünyadaki tüm oyun verilerine anlık erişim sağlar.
+**GameTracker**, sıradan ve sıkıcı Windows formlarından sıkılanlar için geliştirilmiş, **DevExpress** destekli modern bir oyun kütüphanesi yöneticisidir. Klasik WinForms projelerinin aksine Cyberpunk/Dark teması, akıcı animasyonları ve responsive (duyarlı) yapısıyla premium bir his verir.
 
-## ✨ Özellikler
+Arka planda **AWG.io API** ile devasa bir veri havuzuna erişirken, **Google Gemini AI** entegrasyonu sayesinde oyun zevkinize göre nokta atışı öneriler sunar.
 
-* **🔒 Güvenli Giriş Sistemi:**
-    * SHA-256 ile şifrelenmiş parolalar.
-    * DPAPI (Windows Data Protection) ile güvenli "Beni Hatırla" (Remember Me) özelliği.
-    * SQL Injection korumalı parametrik sorgular.
-* **🌍 Keşfet (Discover):**
-    * RAWG API entegrasyonu ile en popüler oyunları anında listeleme.
-    * Sonsuz kaydırma hissi veren sayfalama (Pagination) sistemi.
-* **📚 Kişisel Kütüphane:**
-    * Oyunları **Plan to Play**, **Playing**, **Played** ve **Favorites** kategorilerine ayırma.
-    * Tek tıkla statü değiştirme veya kütüphaneden kaldırma.
-* **🔎 Gelişmiş Arama:**
-    * Canlı arama (Live Search) ile istediğin oyunu saniyeler içinde bulma.
-* **🎨 Modern UI/UX:**
-    * DevExpress bileşenleri ile profesyonel görünüm.
-    * Tamamen Responsive (Ekran boyutuna göre yeniden hesaplanan kart dizilimi).
-    * Asenkron resim yükleme ve Cache mekanizması (Donma yok, yağ gibi akar).
+## 🔥 Öne Çıkan Özellikler
+
+### 🤖 Yapay Zeka Destekli Öneriler
+* **Gemini AI Entegrasyonu:** Kütüphanene eklediğin oyunları analiz eder ve sana özel, oynamaktan keyif alacağın 20 yeni oyun önerir.
+* **Akıllı Analiz:** Sadece rastgele oyunlar değil, senin tarzına uygun "hidden gem"leri bulur.
+  
+### 🔒 Üst Düzey Güvenlik & Doğrulama
+* **E-Posta Doğrulaması:** Kayıt olurken SMTP üzerinden doğrulama kodu (OTP) gönderilir. Fake hesaplara yer yok!
+* **SHA-256 Şifreleme:** Parolalarınız veritabanında asla açık metin olarak saklanmaz.
+* **Beni Hatırla (Secure):** Windows DPAPI ile şifrelenmiş güvenli oturum açma özelliği.
+
+### 📚 Gelişmiş Kütüphane Yönetimi
+* **Detaylı Statü Takibi:** Oyunlarını **Plan to Play**, **Playing**, **Played** ve **Dropped** olarak kategorize et.
+* **Sağ Tık Menüsü:** Kütüphanedeki oyunlara sağ tıklayarak hızlıca durum güncelle veya kaldır.
+* **NSFW Filtresi:** Ayarlar menüsünden +18 içerikleri tek tıkla gizle veya göster. (Varsayılan: Kapalı)
+
+### 🎨 Modern UI & UX Performansı
+* **Responsive Kartlar:** Pencere boyutuna göre otomatik yeniden hesaplanan (LayoutCalculator) dinamik ızgara yapısı.
+* **Smart Caching:** İndirilen görseller RAM'de önbelleklenir, internetin yavaşlasa bile arayüz **yağ gibi akar**.
+* **Live Search:** Aradığın oyunu yazarken anlık olarak API'den sonuçları getirir.
 
 ## 🛠️ Teknolojiler
 
 Bu proje aşağıdaki teknolojilerle **inşa edildi**:
 
-* **Dil:** C# (.NET Framework)
-* **Arayüz:** Windows Forms & **DevExpress** UI Suite
-* **Veritabanı:** Microsoft SQL Server (ADO.NET)
-* **API:** [RAWG Video Games Database API](https://rawg.io/apidocs)
-* **Diğer:** Newtonsoft.Json, System.Security.Cryptography
+* **Dil:** C# (.NET Framework 4.8)
+* **Arayüz:** Windows Forms & **DevExpress v24.1**
+* **Veritabanı:** Microsoft SQL Server (ADO.NET & Parameterized Queries)
+* **Oyun Verisi API:** [RAWG Video Games Database](https://rawg.io/apidocs)
+* **Yapay Zeka API:** [Google Gemini 2.5 Flash](https://ai.google.dev/)
+* **Diğer:** Newtonsoft.Json, System.Net.Mail (SMTP)
 
 ## 📸 Ekran Görüntüleri
 
@@ -58,11 +63,16 @@ Bu proje aşağıdaki teknolojilerle **inşa edildi**:
 | :---: |
 | <img width="1919" height="1011" alt="image" src="https://github.com/user-attachments/assets/71d29560-656a-4f05-a8ac-adcc32905d49" /> |
 
+## 📥 İndir
+
+Kurulumla, ayarlarla uğraşmana gerek yok. Setup dosyasını indir, kur ve hemen kullanmaya başla!
+
+[🔗 GameTracker İndir](BURAYA_LINK_GELECEK)
 
 ## 🤝 Katkıda Bulunma
 
-Hata mı buldun? Veya "Şunu eklesek efsane olur" mu diyorsun?
-Çekinme, hemen bir **Issue** aç veya **Pull Request** gönder. Kodumuz her zaman daha iyiye açık!
+Hata mı buldun? Veya "Şunu eklesek proje uçar" mı diyorsun?
+Çekinme, hemen bir **Issue** aç veya **Pull Request** gönder. Kodumuz her zaman geliştirmeye açık!
 
 ## 👨‍💻 Geliştirici
 
