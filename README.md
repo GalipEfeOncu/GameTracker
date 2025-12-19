@@ -67,7 +67,7 @@ Bu proje aşağıdaki teknolojilerle **inşa edildi**:
 
 Kurulumla, ayarlarla uğraşmana gerek yok. Setup dosyasını indir, kur ve hemen kullanmaya başla!
 
-[🔗 GameTracker İndir](BURAYA_LINK_GELECEK)
+[🔗 GameTracker İndir](https://github.com/GalipEfeOncu/GameTracker/releases/tag/v1.0)
 
 ## 🤝 Katkıda Bulunma
 
