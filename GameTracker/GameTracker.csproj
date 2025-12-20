@@ -201,6 +201,7 @@
     <None Include="Secrets.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="SecretString.config" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="icon-removebg-preview.ico" />

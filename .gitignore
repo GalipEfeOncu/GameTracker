@@ -420,3 +420,4 @@ FodyWeavers.xsd
 # User specific secrets
 Secrets.config
 GameTracker/Secrets.config
+GameTracker/SecretString.config
