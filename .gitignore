@@ -421,3 +421,6 @@ FodyWeavers.xsd
 Secrets.config
 GameTracker/Secrets.config
 GameTracker/SecretString.config
+
+# Backend: local override with real secrets (copy appsettings.Example.json to appsettings.Development.json)
+backend/appsettings.Development.json

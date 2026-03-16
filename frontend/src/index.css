@@ -1,0 +1,55 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary-dark: #0f111a;
+  --color-secondary-dark: #191c28;
+  --color-accent-blue: #3b82f6;
+  --color-accent-hover: #2563eb;
+  --color-text-main: #f3f4f6;
+  --color-text-muted: #9ca3af;
+  --color-card-bg: #1f2334;
+  --color-border-dark: #2a2f45;
+}
+
+@layer base {
+  body {
+    @apply bg-[var(--color-primary-dark)] text-[var(--color-text-main)] antialiased min-h-screen selection:bg-accent-blue selection:text-white;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  }
+}
+
+@layer components {
+  /* Modern Button - köşeli */
+  .btn-primary {
+    @apply px-4 py-2 font-medium rounded-none bg-[var(--color-accent-blue)] text-white hover:bg-[var(--color-accent-hover)] transition-all flex items-center justify-center gap-2;
+  }
+  
+  .btn-secondary {
+    @apply px-4 py-2 font-medium rounded-none bg-[var(--color-secondary-dark)] border border-[var(--color-border-dark)] text-[var(--color-text-main)] hover:bg-[var(--color-card-bg)] transition-all flex items-center justify-center gap-2;
+  }
+
+  /* Input fields - köşeli */
+  .input-field {
+    @apply w-full px-4 py-3 rounded-none bg-[var(--color-secondary-dark)] border border-[var(--color-border-dark)] text-white outline-none focus:border-[var(--color-accent-blue)] transition-all;
+  }
+
+  /* Card - köşeli, gölge yok */
+  .card-container {
+    @apply bg-[var(--color-secondary-dark)] border border-[var(--color-border-dark)] rounded-none overflow-hidden;
+  }
+}
+
+/* Custom Scrollbar for sleek look */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-primary-dark);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-border-dark);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-muted);
+}
