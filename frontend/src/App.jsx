@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { UserProvider } from './context/UserContext';
 import { PreferencesProvider, usePreferences } from './context/PreferencesContext';
+import { ToastProvider } from './context/ToastContext';
 import Layout from './components/Layout';
 import PopularPage from './pages/PopularPage';
 import DiscoverPage from './pages/DiscoverPage';
@@ -32,29 +33,31 @@ function DefaultRedirect() {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <UserProvider>
-        <PreferencesProvider>
-          <BrowserRouter>
-            <Routes>
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="/register" element={<RegisterPage />} />
-              <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+      <ToastProvider>
+        <UserProvider>
+          <PreferencesProvider>
+            <BrowserRouter>
+              <Routes>
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/register" element={<RegisterPage />} />
+                <Route path="/forgot-password" element={<ForgotPasswordPage />} />
 
-              <Route element={<Layout />}>
-                <Route path="/" element={<DefaultRedirect />} />
-              <Route path="/popular" element={<PopularPage />} />
-              <Route path="/discover" element={<DiscoverPage />} />
-              <Route path="/library" element={<LibraryPage />} />
-              <Route path="/ai" element={<AiSuggestionPage />} />
-              <Route path="/settings" element={<SettingsPage />} />
-              <Route path="/game/:id" element={<GameDetailsPage />} />
-            </Route>
+                <Route element={<Layout />}>
+                  <Route path="/" element={<DefaultRedirect />} />
+                  <Route path="/popular" element={<PopularPage />} />
+                  <Route path="/discover" element={<DiscoverPage />} />
+                  <Route path="/library" element={<LibraryPage />} />
+                  <Route path="/ai" element={<AiSuggestionPage />} />
+                  <Route path="/settings" element={<SettingsPage />} />
+                  <Route path="/game/:id" element={<GameDetailsPage />} />
+                </Route>
 
-            <Route path="*" element={<DefaultRedirect />} />
-          </Routes>
-        </BrowserRouter>
-        </PreferencesProvider>
-      </UserProvider>
+                <Route path="*" element={<DefaultRedirect />} />
+              </Routes>
+            </BrowserRouter>
+          </PreferencesProvider>
+        </UserProvider>
+      </ToastProvider>
     </QueryClientProvider>
   );
 }

@@ -1,6 +1,10 @@
 using System;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using GameTracker;
+using GameTracker.Api;
+using GameTracker.Api.Auth;
 using GameTracker.Helpers;
 
 namespace GameTracker.Api.Controllers
@@ -9,6 +13,13 @@ namespace GameTracker.Api.Controllers
     [Route("api/[controller]")]
     public class UserController : ControllerBase
     {
+        private readonly JwtTokenService _jwt;
+
+        public UserController(JwtTokenService jwt)
+        {
+            _jwt = jwt;
+        }
+
         [HttpPost("register")]
         public IActionResult Register([FromBody] RegisterRequest req)
         {
@@ -48,6 +59,7 @@ namespace GameTracker.Api.Controllers
         /// <summary>
         /// Kayıt sonrası e-posta doğrulama kodu ile hesabı aktifleştirir.
         /// </summary>
+        [EnableRateLimiting(RateLimitPolicies.AuthForms)]
         [HttpPost("verify-email")]
         public IActionResult VerifyEmail([FromBody] VerifyEmailRequest req)
         {
@@ -65,6 +77,7 @@ namespace GameTracker.Api.Controllers
             return Ok(new { message = "Email verified. You can now log in." });
         }
 
+        [EnableRateLimiting(RateLimitPolicies.AuthForms)]
         [HttpPost("login")]
         public IActionResult Login([FromBody] LoginRequest req)
         {
@@ -79,20 +92,31 @@ namespace GameTracker.Api.Controllers
             if (!verified)
                 return BadRequest(new { message = "Please verify your email first. Check your inbox for the verification code.", code = "EmailNotVerified" });
 
+            var uid = Convert.ToInt32(user["user_id"]);
+            var username = user["username"].ToString();
+            var email = user["email"].ToString();
+            var accessToken = _jwt.CreateAccessToken(uid, username, email, req.RememberMe, out var expiresAtUtc);
+
             return Ok(new
             {
-                UserId = Convert.ToInt32(user["user_id"]),
-                Username = user["username"].ToString(),
-                Email = user["email"].ToString()
+                UserId = uid,
+                Username = username,
+                Email = email,
+                AccessToken = accessToken,
+                ExpiresAt = expiresAtUtc
             });
         }
 
         /// <summary>
         /// Kullanıcı adını günceller. İstek gövdesinde yeni kullanıcı adı gönderilir.
         /// </summary>
+        [Authorize]
         [HttpPut("{userId}/profile/username")]
         public IActionResult UpdateUsername(int userId, [FromBody] UpdateUsernameRequest req)
         {
+            if (!User.TryGetUserId(out var authedId) || authedId != userId)
+                return Forbid();
+
             if (req == null || string.IsNullOrWhiteSpace(req.NewUsername))
                 return BadRequest("New username is required.");
 
@@ -116,9 +140,13 @@ namespace GameTracker.Api.Controllers
         /// <summary>
         /// Şifreyi günceller. Mevcut şifre doğrulanır; yeni şifre en az 8 karakter olmalıdır.
         /// </summary>
+        [Authorize]
         [HttpPut("{userId}/profile/password")]
         public IActionResult UpdatePassword(int userId, [FromBody] UpdatePasswordRequest req)
         {
+            if (!User.TryGetUserId(out var authedId) || authedId != userId)
+                return Forbid();
+
             if (req == null)
                 return BadRequest("Invalid request body.");
 
@@ -148,6 +176,7 @@ namespace GameTracker.Api.Controllers
         /// <summary>
         /// Şifre sıfırlama kodu ister. E-posta kayıtlıysa kodu e-posta ile gönderir.
         /// </summary>
+        [EnableRateLimiting(RateLimitPolicies.AuthForms)]
         [HttpPost("forgot-password")]
         public IActionResult ForgotPassword([FromBody] ForgotPasswordRequest req)
         {
@@ -172,6 +201,7 @@ namespace GameTracker.Api.Controllers
         /// <summary>
         /// E-posta ve kod ile şifreyi sıfırlar.
         /// </summary>
+        [EnableRateLimiting(RateLimitPolicies.AuthForms)]
         [HttpPost("reset-password")]
         public IActionResult ResetPassword([FromBody] ResetPasswordRequest req)
         {
@@ -206,9 +236,14 @@ namespace GameTracker.Api.Controllers
         /// <summary>
         /// Hesap silmek için e-posta ile onay kodu gönderir.
         /// </summary>
+        [EnableRateLimiting(RateLimitPolicies.AuthDestructive)]
+        [Authorize]
         [HttpPost("{userId}/request-delete-account")]
         public IActionResult RequestDeleteAccount(int userId)
         {
+            if (!User.TryGetUserId(out var authedId) || authedId != userId)
+                return Forbid();
+
             string email = UserManager.GetUserEmail(userId);
             if (string.IsNullOrEmpty(email))
                 return NotFound(new { message = "User not found." });
@@ -225,9 +260,14 @@ namespace GameTracker.Api.Controllers
         /// <summary>
         /// Gönderilen kod ile hesabı kalıcı olarak siler.
         /// </summary>
+        [EnableRateLimiting(RateLimitPolicies.AuthDestructive)]
+        [Authorize]
         [HttpPost("{userId}/confirm-delete-account")]
         public IActionResult ConfirmDeleteAccount(int userId, [FromBody] ConfirmDeleteAccountRequest req)
         {
+            if (!User.TryGetUserId(out var authedId) || authedId != userId)
+                return Forbid();
+
             if (req == null || string.IsNullOrWhiteSpace(req.Code))
                 return BadRequest(new { message = "Verification code is required." });
 
@@ -252,6 +292,8 @@ namespace GameTracker.Api.Controllers
     {
         public string EmailOrUsername { get; set; }
         public string Password { get; set; }
+        /// <summary>Daha uzun ömürlü access token (refresh token yok; Faz C hafif “oturumu açık tut”).</summary>
+        public bool RememberMe { get; set; }
     }
 
     public class UpdateUsernameRequest

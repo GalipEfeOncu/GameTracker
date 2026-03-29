@@ -58,8 +58,16 @@ Limitleri ilgili sitelerden kontrol edin; düşük kullanıcıda genelde yeterli
 - Production’da bu değerleri **environment variable** olarak ayarlayın (Render, Railway, Fly.io hepsi destekler).
 - Örnek: `ConnectionStrings__GameTrackerDB`, `ApiKeys__RawgApiKey`, `ApiKeys__GeminiApiKey`, `EmailSettings__MailAddress`, `EmailSettings__MailPassword`.
 
-Backend’de `Program.cs` veya `AppConfig` zaten `IConfiguration` ile bu değişkenleri okuyorsa ekstra kod gerekmez.  
-**Önemli:** `appsettings.json` içinde şifre veya API anahtarı commit etmeyin. Production’da sadece env variable kullanın; lokal geliştirme için `appsettings.Development.json` kullanıp bu dosyayı `.gitignore`’a ekleyabilirsiniz.
+Backend `IConfiguration` ile ortam değişkenlerini ve (Development’ta) **dotnet user-secrets** değerlerini okur. Lokal sırlar için `backend/README.md` içindeki user-secrets adımlarını kullanın.
+
+### SPA + ayrı API (Faz B — üretim)
+
+| Ne | Nasıl |
+|----|--------|
+| **Frontend build** | Hosting panelinde (Vercel/Netlify) build komutu `npm run build`, çıktı `frontend/dist`. |
+| **API adresi** | Ortam değişkeni `VITE_API_BASE_URL` = tam kök, **sonunda `/api` olmalı** (örn. `https://gametracker-api.onrender.com/api`). Boş bırakılırsa yalnızca Vite dev + proxy ile `/api` çalışır. Şablon: `frontend/.env.example`. |
+| **Backend CORS** | Barındırmada `Cors__AllowedOrigins` = SPA’nın public URL’si (veya `Cors__AllowedOrigins__0`, `__1` ile birden fazla). Development’ta liste boşsa API varsayılan olarak `localhost:5173` kabul eder. |
+| **Geçici e-posta / şifre / silme kodları** | Şu an **bellek içi** (15 dk TTL); API yeniden başlayınca kodlar gider. Üretimde çok önemliyse Redis veya DB tablosu düşünün; ayrıntı: `docs/SECURITY.md`. |
 
 ---
 

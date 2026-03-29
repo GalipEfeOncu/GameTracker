@@ -8,10 +8,29 @@ Aşağıdaki değerler **asla** depoya commit edilmemelidir:
 - RAWG API anahtarı
 - Gemini API anahtarı
 - E-posta adresi ve uygulama şifresi (EmailSettings)
+- JWT imzalama anahtarı (`Jwt:SigningKey` / `Jwt__SigningKey`)
 
 ## Yapılandırma Yöntemleri
 
-### 1. Ortam değişkenleri (Production önerilir)
+### 1. Lokal geliştirme — .NET User Secrets (önerilen)
+
+Sırlar repoda ve proje klasöründeki dosyalarda tutulmaz; Windows’ta kullanıcı gizli deposuna yazılır.
+
+```bash
+cd backend
+dotnet user-secrets set "ConnectionStrings:GameTrackerDB" "your_connection_string"
+dotnet user-secrets set "ApiKeys:RawgApiKey" "your_rawg_key"
+dotnet user-secrets set "ApiKeys:GeminiApiKey" "your_gemini_key"
+dotnet user-secrets set "EmailSettings:MailAddress" "your@email"
+dotnet user-secrets set "EmailSettings:MailPassword" "your_app_password"
+dotnet user-secrets set "Jwt:SigningKey" "your_random_key_at_least_32_chars"
+```
+
+HS256 için `Jwt:SigningKey` en az 32 karakter olmalıdır. Development’ta boş bırakılırsa API geçici bir anahtar kullanır; üretimde zorunludur.
+
+`Development` ortamında `dotnet run` bu değerleri otomatik okur (`backend/README.md`).
+
+### 2. Ortam değişkenleri (üretim / CI önerilir)
 
 Backend, .NET `IConfiguration` ile ortam değişkenlerini okur. Örnek (Render, Railway, Fly.io vb.):
 
@@ -22,24 +41,17 @@ Backend, .NET `IConfiguration` ile ortam değişkenlerini okur. Örnek (Render, 
 | `ApiKeys__GeminiApiKey` | Google Gemini API key |
 | `EmailSettings__MailAddress` | SMTP e-posta adresi |
 | `EmailSettings__MailPassword` | SMTP uygulama şifresi |
+| `Jwt__SigningKey` | JWT HS256 imza anahtarı (≥32 karakter) |
 
 Alt çizgi `__` bölüm (ConnectionStrings, ApiKeys) ile anahtarı (GameTrackerDB, RawgApiKey) ayırır.
 
-### 2. Lokal geliştirme
+**CORS:** Üretimde SPA kökenlerini `Cors:AllowedOrigins` veya `Cors__AllowedOrigins` ile verin (`backend/README.md`).
 
-- `backend/appsettings.Example.json` dosyasını `appsettings.Development.json` olarak kopyalayın.
-- Gerçek değerleri `appsettings.Development.json` içine yazın.
-- Bu dosya `.gitignore` ile takip dışındadır; commit edilmez.
+**Geçici doğrulama kodları:** E-posta doğrulama, şifre sıfırlama ve hesap silme kodları şu an **uygulama belleğinde** tutulur; süre **15 dakika**, **yeniden başlatmada sıfırlanır**. Küçük dağıtımlarda kabul edilebilir; kullanıcı artan bir hizmette **Redis**, **SQL tablosu** veya e-posta sağlayıcısının kendi akışı tercih edilir.
 
-### 3. .NET User Secrets (isteğe bağlı)
+### 3. `appsettings.Development.json` (tercih edilmez)
 
-Lokal için alternatif:
-
-```bash
-cd backend
-dotnet user-secrets set "ConnectionStrings:GameTrackerDB" "your_connection_string"
-dotnet user-secrets set "ApiKeys:RawgApiKey" "your_key"
-```
+Git’e commit edilmez ancak disk üzerinde düz metindir. **Sırları buraya yazmak yerine User Secrets kullanın.** Yalnızca `Logging` gibi hassas olmayan yerel ayarlar için kullanılabilir. Şema için `appsettings.Example.json` referans alın; gerçek değer yazmayın.
 
 ## Depodaki Dosyalar
 

@@ -1,7 +1,8 @@
 import { createContext, useContext, useState, useCallback, useEffect } from 'react';
 
 const STORAGE_KEY = 'gt_preferences';
-const DEFAULTS = { startPage: 'Home', showNsfw: false };
+/** popularListMode: 'scroll' = sonsuz kaydırma; 'paged' = sayfa sayfa (Popüler) */
+const DEFAULTS = { startPage: 'Home', showNsfw: false, popularListMode: 'scroll' };
 
 function loadPreferences() {
     try {
@@ -17,7 +18,9 @@ function loadPreferences() {
 function savePreferences(prefs) {
     try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(prefs));
-    } catch (_) {}
+    } catch {
+        /* localStorage dolu veya devre dışı */
+    }
 }
 
 const PreferencesContext = createContext(null);
@@ -37,11 +40,20 @@ export function PreferencesProvider({ children }) {
         setPreferencesState((p) => ({ ...p, showNsfw: !!showNsfw }));
     }, []);
 
+    const setPopularListMode = useCallback((mode) => {
+        setPreferencesState((p) => ({
+            ...p,
+            popularListMode: mode === 'paged' ? 'paged' : 'scroll',
+        }));
+    }, []);
+
     const value = {
         startPage: preferences.startPage,
         showNsfw: preferences.showNsfw,
+        popularListMode: preferences.popularListMode === 'paged' ? 'paged' : 'scroll',
         setStartPage,
         setShowNsfw,
+        setPopularListMode,
     };
 
     return (

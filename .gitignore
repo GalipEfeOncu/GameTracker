@@ -419,8 +419,9 @@ FodyWeavers.xsd
 
 # User specific secrets
 Secrets.config
-GameTracker/Secrets.config
-GameTracker/SecretString.config
 
-# Backend: local override with real secrets (copy appsettings.Example.json to appsettings.Development.json)
+# Legacy WinForms (DevExpress) — repoda yok; yalnızca kendi makinenizde tutun
+/GameTracker/
+
+# Backend: optional local file (avoid putting API keys here; prefer dotnet user-secrets)
 backend/appsettings.Development.json

@@ -1,21 +1,18 @@
-/**
- * Kütüphane oyun durumları — backend ile aynı değerler (PlanToPlay, Playing, Played, Dropped).
- * Tek kaynak; tab'lar ve etiketler buradan türetilir.
- */
 export const LIBRARY_STATUS = {
-    PlanToPlay: { id: 'PlanToPlay', label: 'Planlanan', labelEn: 'Plan to Play' },
-    Playing: { id: 'Playing', label: 'Oynanıyor', labelEn: 'Playing' },
-    Played: { id: 'Played', label: 'Tamamlandı', labelEn: 'Played' },
-    Dropped: { id: 'Dropped', label: 'Bırakılan', labelEn: 'Dropped' },
+    Playing:    { id: 'Playing',    label: 'Oynanıyor',      labelEn: 'Playing' },
+    Completed:  { id: 'Completed',  label: 'Bitirildi',      labelEn: 'Completed' },
+    Dropped:    { id: 'Dropped',    label: 'Bırakıldı',      labelEn: 'Dropped' },
+    Wishlist:   { id: 'Wishlist',   label: 'İstek Listesi',  labelEn: 'Wishlist' },
+    PlanToPlay: { id: 'PlanToPlay', label: 'Oynanacak',      labelEn: 'Plan To Play' },
 };
 
-/** Tab listesi: Hepsi + her status (backend ile uyumlu). */
 export const LIBRARY_TABS = [
     { id: null, label: 'Hepsi', statusId: null },
     { id: 'Playing', label: LIBRARY_STATUS.Playing.label, statusId: 'Playing' },
-    { id: 'Played', label: LIBRARY_STATUS.Played.label, statusId: 'Played' },
-    { id: 'PlanToPlay', label: LIBRARY_STATUS.PlanToPlay.label, statusId: 'PlanToPlay' },
+    { id: 'Completed', label: LIBRARY_STATUS.Completed.label, statusId: 'Completed' },
     { id: 'Dropped', label: LIBRARY_STATUS.Dropped.label, statusId: 'Dropped' },
+    { id: 'Wishlist', label: LIBRARY_STATUS.Wishlist.label, statusId: 'Wishlist' },
+    { id: 'PlanToPlay', label: LIBRARY_STATUS.PlanToPlay.label, statusId: 'PlanToPlay' },
 ];
 
 export const getStatusLabel = (statusId) => LIBRARY_STATUS[statusId]?.label ?? statusId ?? '';

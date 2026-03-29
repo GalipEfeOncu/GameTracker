@@ -1,13 +1,41 @@
-import { useRef, useMemo, useEffect, useCallback } from 'react';
+import { useRef, useMemo, useEffect, useCallback, useState } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
-import { Loader2 } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { Loader2, AlertCircle, Flame, ChevronLeft, ChevronRight } from 'lucide-react';
 import { usePopularGames } from '../hooks/useGames';
+import { getPopularGames } from '../api/apiClient';
 import { usePreferences } from '../context/PreferencesContext';
 import GameCard from '../components/GameCard';
+import { GameCardSkeletonGrid } from '../components/GameCardSkeleton';
 
 const COLUMNS = 5;
 
-export default function PopularPage() {
+function PopularEmptyState({ rawgConfigured, onRetry }) {
+    return (
+        <div className="flex flex-col items-center justify-center py-24 px-4 text-gray-400 max-w-lg mx-auto">
+            <Flame size={56} className="mb-4 opacity-30" />
+            <h2 className="text-xl font-bold text-gray-300 text-center">Henüz oyun listelenmiyor</h2>
+            {rawgConfigured === false ? (
+                <p className="mt-3 text-center text-sm text-gray-500 max-w-md leading-relaxed">
+                    Oyun listesi şu an kullanılamıyor. Bir süre sonra tekrar deneyin veya destek ile iletişime geçin.
+                </p>
+            ) : (
+                <p className="mt-2 text-center max-w-sm text-sm text-gray-500">
+                    Liste yüklenemedi veya geçici bir ağ sorunu oluştu. Tekrar deneyebilirsiniz.
+                </p>
+            )}
+            <button
+                type="button"
+                onClick={onRetry}
+                className="mt-5 px-5 py-2 text-sm font-semibold border border-[#1f2334] text-gray-300 hover:bg-[#1a1e2d] hover:text-white transition-colors"
+            >
+                Yenile
+            </button>
+        </div>
+    );
+}
+
+function PopularPageInfinite() {
     const mainRef = useRef(null);
     const fetchingRef = useRef(false);
     const { showNsfw } = usePreferences();
@@ -15,12 +43,14 @@ export default function PopularPage() {
     const {
         data: popularData,
         isLoading,
+        isError,
+        error,
+        refetch,
         isFetchingNextPage,
         fetchNextPage,
         hasNextPage,
     } = usePopularGames(showNsfw);
 
-    // fetchingRef'i güncel tut — stale closure sorununu engeller
     useEffect(() => {
         fetchingRef.current = isFetchingNextPage;
     }, [isFetchingNextPage]);
@@ -29,6 +59,8 @@ export default function PopularPage() {
         () => popularData?.pages?.flatMap(p => p.items) ?? [],
         [popularData]
     );
+
+    const rawgConfigured = popularData?.pages?.[0]?.rawgConfigured;
 
     const rows = useMemo(() => {
         const result = [];
@@ -54,7 +86,6 @@ export default function PopularPage() {
         }
     }, [hasNextPage, fetchNextPage]);
 
-    // Scroll event listener'ı direkt DOM'a bağla (synthetic event yerine)
     useEffect(() => {
         const el = mainRef.current;
         if (!el) return;
@@ -62,14 +93,37 @@ export default function PopularPage() {
         return () => el.removeEventListener('scroll', handleScroll);
     }, [handleScroll]);
 
+    const errorMessage =
+        error?.response?.data?.message ??
+        error?.message ??
+        (typeof error?.response?.data === 'string' ? error.response.data : null);
+
     return (
         <div ref={mainRef} className="h-full overflow-y-auto px-8 pt-8 pb-20">
-
             {isLoading ? (
-                <div className="flex flex-col items-center justify-center py-20 text-gray-500">
-                    <Loader2 size={32} className="animate-spin mb-4 text-blue-500" />
-                    <p>Oyunlar yükleniyor...</p>
+                <GameCardSkeletonGrid
+                    count={15}
+                    className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-x-5 gap-y-10 pb-10"
+                />
+            ) : isError ? (
+                <div className="flex flex-col items-center justify-center py-24 px-4 text-center max-w-md mx-auto">
+                    <AlertCircle size={48} className="mb-4 text-red-400 opacity-90" />
+                    <h2 className="text-lg font-bold text-gray-200">Oyunlar yüklenemedi</h2>
+                    <p className="mt-2 text-sm text-gray-500">
+                        {typeof errorMessage === 'string' && errorMessage.trim()
+                            ? errorMessage
+                            : 'Bağlantı veya sunucu hatası. İnternetinizi kontrol edip tekrar deneyin.'}
+                    </p>
+                    <button
+                        type="button"
+                        onClick={() => refetch()}
+                        className="mt-6 px-5 py-2.5 text-sm font-semibold bg-blue-600 hover:bg-blue-500 text-white rounded-none border border-blue-500 transition-colors"
+                    >
+                        Tekrar dene
+                    </button>
                 </div>
+            ) : games.length === 0 ? (
+                <PopularEmptyState rawgConfigured={rawgConfigured} onRetry={() => refetch()} />
             ) : (
                 <div style={{ height: `${rowVirtualizer.getTotalSize()}px`, position: 'relative' }}>
                     {rowVirtualizer.getVirtualItems().map((virtualRow) => {
@@ -106,4 +160,113 @@ export default function PopularPage() {
             </div>
         </div>
     );
+}
+
+function PopularPagePaged() {
+    const { showNsfw } = usePreferences();
+    const [offset, setOffset] = useState(0);
+    const [backStack, setBackStack] = useState([]);
+
+    useEffect(() => {
+        setOffset(0);
+        setBackStack([]);
+    }, [showNsfw]);
+
+    const { data, isLoading, isError, error, refetch, isFetching } = useQuery({
+        queryKey: ['popularGamesPaged', offset, showNsfw],
+        queryFn: () => getPopularGames(offset, showNsfw),
+        staleTime: 1000 * 60 * 10,
+    });
+
+    const goNext = useCallback(() => {
+        if (!data?.hasMore) return;
+        setBackStack((s) => [...s, offset]);
+        setOffset(data.nextOffset);
+    }, [data, offset]);
+
+    const goPrev = useCallback(() => {
+        if (backStack.length === 0) return;
+        const prevOffset = backStack[backStack.length - 1];
+        setBackStack((s) => s.slice(0, -1));
+        setOffset(prevOffset);
+    }, [backStack]);
+
+    const games = data?.items ?? [];
+    const pageNum = backStack.length + 1;
+    const rawgConfigured = data?.rawgConfigured;
+
+    const errorMessage =
+        error?.response?.data?.message ??
+        error?.message ??
+        (typeof error?.response?.data === 'string' ? error.response.data : null);
+
+    return (
+        <div className="h-full overflow-y-auto px-8 pt-8 pb-20">
+            {isLoading && !data ? (
+                <GameCardSkeletonGrid count={15} />
+            ) : isError ? (
+                <div className="flex flex-col items-center justify-center py-24 px-4 text-center max-w-md mx-auto">
+                    <AlertCircle size={48} className="mb-4 text-red-400 opacity-90" />
+                    <h2 className="text-lg font-bold text-gray-200">Oyunlar yüklenemedi</h2>
+                    <p className="mt-2 text-sm text-gray-500">
+                        {typeof errorMessage === 'string' && errorMessage.trim()
+                            ? errorMessage
+                            : 'Bağlantı veya sunucu hatası. İnternetinizi kontrol edip tekrar deneyin.'}
+                    </p>
+                    <button
+                        type="button"
+                        onClick={() => refetch()}
+                        className="mt-6 px-5 py-2.5 text-sm font-semibold bg-blue-600 hover:bg-blue-500 text-white rounded-none border border-blue-500 transition-colors"
+                    >
+                        Tekrar dene
+                    </button>
+                </div>
+            ) : games.length === 0 ? (
+                <PopularEmptyState rawgConfigured={rawgConfigured} onRetry={() => refetch()} />
+            ) : (
+                <>
+                    <div className={`grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-x-5 gap-y-10 pb-6 ${isFetching ? 'opacity-70' : ''}`}>
+                        {games.map((game) => (
+                            <GameCard key={`${offset}-${game.id}`} game={game} />
+                        ))}
+                    </div>
+                    <div className="flex flex-wrap items-center justify-center gap-4 py-8 border-t border-[#1f2334]">
+                        <button
+                            type="button"
+                            onClick={goPrev}
+                            disabled={backStack.length === 0 || isFetching}
+                            className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium border border-[#1f2334] text-gray-300 hover:bg-[#1a1e2d] disabled:opacity-40 disabled:pointer-events-none rounded-none"
+                        >
+                            <ChevronLeft size={18} /> Önceki
+                        </button>
+                        <span className="text-sm text-gray-500 tabular-nums min-w-[5rem] text-center">
+                            Sayfa {pageNum}
+                        </span>
+                        <button
+                            type="button"
+                            onClick={goNext}
+                            disabled={!data?.hasMore || isFetching}
+                            className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium border border-[#1f2334] text-gray-300 hover:bg-[#1a1e2d] disabled:opacity-40 disabled:pointer-events-none rounded-none"
+                        >
+                            Sonraki <ChevronRight size={18} />
+                        </button>
+                    </div>
+                    {isFetching && (
+                        <div className="flex justify-center pb-4 text-gray-500 text-sm gap-2 items-center">
+                            <Loader2 size={18} className="animate-spin text-blue-500" />
+                            Yükleniyor...
+                        </div>
+                    )}
+                </>
+            )}
+        </div>
+    );
+}
+
+export default function PopularPage() {
+    const { popularListMode } = usePreferences();
+    if (popularListMode === 'paged') {
+        return <PopularPagePaged />;
+    }
+    return <PopularPageInfinite />;
 }

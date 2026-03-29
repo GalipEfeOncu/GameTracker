@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
@@ -18,14 +18,16 @@ namespace GameTracker.Services
 
         public GeminiService()
         {
-            _apiKey = GameTracker.Api.AppConfig.GeminiApiKey;
-            if (string.IsNullOrEmpty(_apiKey))
-                throw new Exception("Gemini API Key bulunamadı! Secrets.config dosyasını kontrol et.");
+            // Anahtar yoksa ctor hata fırlatmaz; Popüler/Keşfet gibi uçlar Gemini gerektirmediği halde
+            // LibraryController ile aynı scope'ta oluşturulduğu için eksik Gemini tüm API'yi 500 yapıyordu.
+            _apiKey = GameTracker.Api.AppConfig.GeminiApiKey ?? string.Empty;
         }
 
         public async Task<List<string>> GetRecommendationsAsync(List<string> userGames)
         {
             if (userGames == null || userGames.Count == 0) return new List<string>();
+            if (string.IsNullOrEmpty(_apiKey))
+                return new List<string>();
 
             // URL'yi oluşturuyoruz
             string requestUrl = $"{BaseUrl}{ModelId}:generateContent?key={_apiKey}";

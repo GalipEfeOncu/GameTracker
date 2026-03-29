@@ -1,8 +1,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using GameTracker;
+using GameTracker.Api;
+using GameTracker.Api.Auth;
 using GameTracker.Models;
 using GameTracker.Services;
 
@@ -21,32 +24,63 @@ namespace GameTracker.Api.Controllers
             _geminiService = geminiService;
         }
 
+        [Authorize]
         [HttpGet("user/{userId}")]
         public IActionResult GetUserLibrary(int userId, [FromQuery] string status = null)
         {
+            if (!User.TryGetUserId(out var authedId) || authedId != userId)
+                return Forbid();
+
             var library = LibraryManager.GetUserLibrary(userId, status);
             return Ok(library);
         }
 
+        [Authorize]
         [HttpPost("user/{userId}/add")]
-        public IActionResult AddGameToLibrary(int userId, [FromBody] Game game, [FromQuery] string status = "PlanToPlay")
+        public IActionResult AddGameToLibrary(int userId, [FromBody] AddToLibraryGameDto body, [FromQuery] string status = "PlanToPlay")
         {
+            if (!User.TryGetUserId(out var authedId) || authedId != userId)
+                return Forbid();
+            if (body == null || body.Id <= 0)
+                return BadRequest(new { message = "Geçerli oyun bilgisi gerekli (id)." });
+            if (!LibraryStatuses.IsAllowed(status))
+                return BadRequest(new { message = "Invalid library status." });
+
+            var game = new Game
+            {
+                Id = body.Id,
+                Name = body.Name ?? "Unknown",
+                BackgroundImage = body.BackgroundImage ?? "",
+            };
+
             bool added = LibraryManager.AddGameToLibrary(userId, game, status);
             if (added) return Ok(new { message = "Game added to library." });
             return BadRequest("Game could not be added or already exists in library.");
         }
 
+        [Authorize]
         [HttpDelete("user/{userId}/remove/{gameId}")]
         public IActionResult RemoveGameFromLibrary(int userId, int gameId)
         {
+            if (!User.TryGetUserId(out var authedId) || authedId != userId)
+                return Forbid();
+
             bool removed = LibraryManager.RemoveGame(userId, gameId);
             if (removed) return Ok(new { message = "Game removed." });
             return BadRequest("Could not remove game.");
         }
 
+        [Authorize]
         [HttpPut("user/{userId}/status/{gameId}")]
         public IActionResult UpdateGameStatus(int userId, int gameId, [FromBody] UpdateStatusRequest req)
         {
+            if (!User.TryGetUserId(out var authedId) || authedId != userId)
+                return Forbid();
+            if (req == null || string.IsNullOrWhiteSpace(req.NewStatus))
+                return BadRequest(new { message = "NewStatus is required." });
+            if (!LibraryStatuses.IsAllowed(req.NewStatus))
+                return BadRequest(new { message = "Invalid library status." });
+
             bool updated = LibraryManager.UpdateGameStatus(userId, gameId, req.NewStatus);
             if (updated) return Ok(new { message = "Status updated." });
             return BadRequest("Status could not be updated.");
@@ -63,7 +97,7 @@ namespace GameTracker.Api.Controllers
         public async Task<IActionResult> GetPopularGames([FromQuery] int offset = 0, [FromQuery] bool nsfw = false)
         {
             const int rawgPageSize = 40;   // RAWG max page size
-            const int pagesToFetch = 3;    // 3 concurrent pages = 120 raw games -> ~80 after filter
+            const int pagesToFetch = 3;    // 3 paralel sayfa = 120 oyun (NSFW istemci filtresi sonrası azalabilir)
 
             // Her istekte hangi RAWG sayfalarını çekeceğimizi hesapla
             int startPage = (offset / rawgPageSize) + 1;
@@ -73,16 +107,15 @@ namespace GameTracker.Api.Controllers
                 .Select(p => _rawgApi.GetPopularGamesAsync(p, nsfw, rawgPageSize));
 
             var results = await Task.WhenAll(tasks);
-            var games = results
-                .SelectMany(r => r)
-                .Where(g => g.Added >= 3) // Sıfır ilgi gören oyunları at
-                .ToList();
+            // Eski Added >= 3 süzgeci çoğu yeni çıkan / -released sıralı oyunda listeyi boşaltıyordu; kaldırıldı.
+            var games = results.SelectMany(r => r).ToList();
 
             // Eğer 3 sayfanın hepsinden de oyun geldiyse daha fazla sayfa muhtemelen var
             bool hasMore = results.Any(r => r.Count > 0);
             int nextOffset = offset + (rawgPageSize * pagesToFetch);
 
-            return Ok(new { items = games, nextOffset, hasMore });
+            bool rawgConfigured = !string.IsNullOrWhiteSpace(AppConfig.RawgApiKey);
+            return Ok(new { items = games, nextOffset, hasMore, rawgConfigured });
         }
 
         [HttpGet("game/{gameId}")]
@@ -111,7 +144,8 @@ namespace GameTracker.Api.Controllers
             const int pageSize = 20;
             var games = await _rawgApi.GetDiscoverGamesAsync(genre, mode, page, nsfw, pageSize);
             bool hasMore = games.Count == pageSize;
-            return Ok(new { items = games, hasMore, nextPage = page + 1 });
+            bool rawgConfigured = !string.IsNullOrWhiteSpace(AppConfig.RawgApiKey);
+            return Ok(new { items = games, hasMore, nextPage = page + 1, rawgConfigured });
         }
 
 

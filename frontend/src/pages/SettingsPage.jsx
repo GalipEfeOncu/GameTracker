@@ -1,16 +1,19 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
-import { Settings as SettingsIcon, User, Lock, Home, Eye, Loader2, CheckCircle2, AlertCircle, Trash2 } from 'lucide-react';
+import { Settings as SettingsIcon, User, Lock, Home, Eye, Loader2, CheckCircle2, AlertCircle, Trash2, Gauge } from 'lucide-react';
 import { useUser } from '../context/UserContext';
 import { usePreferences } from '../context/PreferencesContext';
+import { useToast } from '../context/ToastContext';
 import { updateUsername, updatePassword, requestDeleteAccount, confirmDeleteAccount } from '../api/apiClient';
+import { getSessionUserId } from '../utils/sessionUser';
 
 export default function SettingsPage() {
     const { user, updateUser, logout } = useUser();
+    const { showToast } = useToast();
     const navigate = useNavigate();
-    const { startPage, showNsfw, setStartPage, setShowNsfw } = usePreferences();
-    const userId = user?.id ?? user?.UserId ?? user?.userId;
+    const { startPage, showNsfw, setStartPage, setShowNsfw, popularListMode, setPopularListMode } = usePreferences();
+    const userId = getSessionUserId(user);
     const displayName = user?.username ?? user?.Username ?? '';
 
     const [newUsername, setNewUsername] = useState('');
@@ -21,19 +24,18 @@ export default function SettingsPage() {
     const [passwordMessage, setPasswordMessage] = useState({ type: '', text: '' });
     const [deleteStep, setDeleteStep] = useState('idle'); // 'idle' | 'requested' | 'done'
     const [deleteCode, setDeleteCode] = useState('');
-    const [deleteMessage, setDeleteMessage] = useState({ type: '', text: '' });
     const [deleteLoading, setDeleteLoading] = useState(false);
 
     const usernameMutation = useMutation({
         mutationFn: () => updateUsername(userId, newUsername),
         onSuccess: () => {
             updateUser({ username: newUsername.trim(), Username: newUsername.trim() });
-            setUsernameMessage({ type: 'success', text: 'Kullanıcı adı güncellendi.' });
+            showToast('Kullanıcı adı güncellendi.', 'success');
             setNewUsername('');
         },
         onError: (err) => {
             const msg = err.response?.data ?? err.message ?? 'Güncellenemedi.';
-            setUsernameMessage({ type: 'error', text: typeof msg === 'string' ? msg : 'Bir hata oluştu.' });
+            showToast(typeof msg === 'string' ? msg : 'Bir hata oluştu.', 'error');
         },
     });
 
@@ -44,14 +46,14 @@ export default function SettingsPage() {
             newPasswordAgain,
         }),
         onSuccess: () => {
-            setPasswordMessage({ type: 'success', text: 'Şifre güncellendi.' });
+            showToast('Şifre güncellendi.', 'success');
             setCurrentPassword('');
             setNewPassword('');
             setNewPasswordAgain('');
         },
         onError: (err) => {
             const msg = err.response?.data ?? err.message ?? 'Güncellenemedi.';
-            setPasswordMessage({ type: 'error', text: typeof msg === 'string' ? msg : 'Bir hata oluştu.' });
+            showToast(typeof msg === 'string' ? msg : 'Bir hata oluştu.', 'error');
         },
     });
 
@@ -90,10 +92,9 @@ export default function SettingsPage() {
 
     const handleRequestDelete = async () => {
         try {
-            setDeleteMessage({ type: '', text: '' });
             const uid = userId != null && userId !== '' ? Number(userId) : NaN;
             if (Number.isNaN(uid) || uid < 1) {
-                setDeleteMessage({ type: 'error', text: 'Oturum bilgisi bulunamadı. Çıkış yapıp tekrar giriş yapın.' });
+                showToast('Oturum bilgisi bulunamadı. Çıkış yapıp tekrar giriş yapın.', 'error');
                 return;
             }
             setDeleteLoading(true);
@@ -103,10 +104,10 @@ export default function SettingsPage() {
                 new Promise((_, reject) => setTimeout(() => reject(new Error('İstek zaman aşımına uğradı. Tekrar deneyin.')), timeoutMs)),
             ]);
             setDeleteStep('requested');
-            setDeleteMessage({ type: 'success', text: 'E-postanıza gönderilen 6 haneli kodu girin.' });
+            showToast('E-postanıza 6 haneli kod gönderildi.', 'success');
         } catch (err) {
             const msg = err.response?.data?.message ?? err.response?.data ?? err.message ?? 'Kod gönderilemedi.';
-            setDeleteMessage({ type: 'error', text: typeof msg === 'string' ? msg : 'Bir hata oluştu.' });
+            showToast(typeof msg === 'string' ? msg : 'Bir hata oluştu.', 'error');
         } finally {
             setDeleteLoading(false);
         }
@@ -114,26 +115,25 @@ export default function SettingsPage() {
 
     const handleConfirmDelete = async (e) => {
         e.preventDefault();
-        setDeleteMessage({ type: '', text: '' });
         if (!deleteCode.trim() || deleteCode.length !== 6) {
-            setDeleteMessage({ type: 'error', text: '6 haneli kodu girin.' });
+            showToast('6 haneli kodu girin.', 'error');
             return;
         }
         const uid = userId != null && userId !== '' ? Number(userId) : NaN;
         if (Number.isNaN(uid) || uid < 1) {
-            setDeleteMessage({ type: 'error', text: 'Oturum bilgisi bulunamadı.' });
+            showToast('Oturum bilgisi bulunamadı.', 'error');
             return;
         }
         setDeleteLoading(true);
         try {
             await confirmDeleteAccount(uid, deleteCode);
             setDeleteStep('done');
-            setDeleteMessage({ type: 'success', text: 'Hesabınız silindi. Çıkış yapılıyor...' });
+            showToast('Hesabınız silindi. Çıkış yapılıyor...', 'success');
             logout();
             setTimeout(() => navigate('/'), 1500);
         } catch (err) {
             const msg = err.response?.data?.message ?? err.response?.data ?? err.message ?? 'Hesap silinemedi.';
-            setDeleteMessage({ type: 'error', text: typeof msg === 'string' ? msg : 'Kod geçersiz veya süresi dolmuş.' });
+            showToast(typeof msg === 'string' ? msg : 'Kod geçersiz veya süresi dolmuş.', 'error');
         } finally {
             setDeleteLoading(false);
         }
@@ -177,9 +177,9 @@ export default function SettingsPage() {
                             placeholder="Yeni kullanıcı adı"
                             className="w-full px-4 py-2.5 bg-[#1a1e2d] border border-[#1f2334] rounded-none text-white placeholder-gray-500 outline-none focus:border-blue-500/50"
                         />
-                        {usernameMessage.text && (
-                            <p className={`flex items-center gap-2 text-sm ${usernameMessage.type === 'success' ? 'text-green-400' : 'text-red-400'}`}>
-                                {usernameMessage.type === 'success' ? <CheckCircle2 size={16} /> : <AlertCircle size={16} />}
+                        {usernameMessage.text && usernameMessage.type === 'error' && (
+                            <p className="flex items-center gap-2 text-sm text-red-400">
+                                <AlertCircle size={16} />
                                 {usernameMessage.text}
                             </p>
                         )}
@@ -221,9 +221,9 @@ export default function SettingsPage() {
                             placeholder="Yeni şifre (tekrar)"
                             className="w-full px-4 py-2.5 bg-[#1a1e2d] border border-[#1f2334] rounded-none text-white placeholder-gray-500 outline-none focus:border-blue-500/50"
                         />
-                        {passwordMessage.text && (
-                            <p className={`flex items-center gap-2 text-sm ${passwordMessage.type === 'success' ? 'text-green-400' : 'text-red-400'}`}>
-                                {passwordMessage.type === 'success' ? <CheckCircle2 size={16} /> : <AlertCircle size={16} />}
+                        {passwordMessage.text && passwordMessage.type === 'error' && (
+                            <p className="flex items-center gap-2 text-sm text-red-400">
+                                <AlertCircle size={16} />
                                 {passwordMessage.text}
                             </p>
                         )}
@@ -274,7 +274,48 @@ export default function SettingsPage() {
                                 <span className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-transform ${showNsfw ? 'left-7' : 'left-1'}`} />
                             </button>
                         </div>
+                        <div>
+                            <p className="text-sm font-medium text-gray-400 mb-2">Popüler liste</p>
+                            <div className="space-y-2 max-w-md">
+                                <label className="flex cursor-pointer items-start gap-3 rounded-none border border-[#1f2334] bg-[#1a1e2d]/50 p-3 hover:border-[#2a2f45]">
+                                    <input
+                                        type="radio"
+                                        name="popularListMode"
+                                        checked={popularListMode === 'scroll'}
+                                        onChange={() => setPopularListMode('scroll')}
+                                        className="mt-1"
+                                    />
+                                    <span>
+                                        <span className="block text-sm font-medium text-white">Sonsuz kaydırma</span>
+                                        <span className="block text-xs text-gray-500 mt-0.5">Aşağı indikçe yeni oyunlar yüklenir.</span>
+                                    </span>
+                                </label>
+                                <label className="flex cursor-pointer items-start gap-3 rounded-none border border-[#1f2334] bg-[#1a1e2d]/50 p-3 hover:border-[#2a2f45]">
+                                    <input
+                                        type="radio"
+                                        name="popularListMode"
+                                        checked={popularListMode === 'paged'}
+                                        onChange={() => setPopularListMode('paged')}
+                                        className="mt-1"
+                                    />
+                                    <span>
+                                        <span className="block text-sm font-medium text-white">Sayfa sayfa</span>
+                                        <span className="block text-xs text-gray-500 mt-0.5">Önceki / sonraki ile gruplar halinde gezersiniz.</span>
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
                     </div>
+                </section>
+
+                <section className="p-6 rounded-none bg-[#141722] border border-[#1f2334]">
+                    <h3 className="flex items-center gap-2 text-lg font-bold text-white mb-4">
+                        <Gauge size={20} className="text-blue-500" /> Performans
+                    </h3>
+                    <p className="text-sm text-gray-400 leading-relaxed">
+                        Kapak görselleri tarayıcınız tarafından hızlı tekrar ziyaretler için önbelleğe alınabilir; bu normaldir ve veri kotanızı çok az etkiler.
+                        Liste veya görseller beklenmedik şekilde güncellenmiyorsa sayfayı yenilemeyi deneyin.
+                    </p>
                 </section>
 
                 {/* Hesap sil */}
@@ -283,12 +324,6 @@ export default function SettingsPage() {
                         <Trash2 size={20} className="text-red-500" /> Hesabı sil
                     </h3>
                     <p className="text-gray-400 text-sm mb-4">Hesabınızı kalıcı olarak silmek için e-postanıza gönderilen onay kodunu girmeniz gerekir.</p>
-                    {deleteStep === 'idle' && deleteMessage.text && (
-                        <p className={`flex items-center gap-2 text-sm mb-3 ${deleteMessage.type === 'success' ? 'text-green-400' : 'text-red-400'}`}>
-                            {deleteMessage.type === 'success' ? <CheckCircle2 size={16} /> : <AlertCircle size={16} />}
-                            {deleteMessage.text}
-                        </p>
-                    )}
                     {deleteStep === 'idle' && (
                         <button
                             type="button"
@@ -302,12 +337,7 @@ export default function SettingsPage() {
                     )}
                     {deleteStep === 'requested' && (
                         <form onSubmit={handleConfirmDelete} className="space-y-3">
-                            {deleteMessage.text && (
-                                <p className={`flex items-center gap-2 text-sm ${deleteMessage.type === 'success' ? 'text-green-400' : 'text-red-400'}`}>
-                                    {deleteMessage.type === 'success' ? <CheckCircle2 size={16} /> : <AlertCircle size={16} />}
-                                    {deleteMessage.text}
-                                </p>
-                            )}
+                            <p className="text-sm text-gray-400">E-postanıza gönderilen 6 haneli kodu girin.</p>
                             <input
                                 type="text"
                                 value={deleteCode}
@@ -317,7 +347,7 @@ export default function SettingsPage() {
                                 className="w-full max-w-[140px] px-4 py-2.5 bg-[#1a1e2d] border border-[#1f2334] rounded-none text-white text-center tracking-widest"
                             />
                             <div className="flex gap-2">
-                                <button type="button" onClick={() => { setDeleteStep('idle'); setDeleteCode(''); setDeleteMessage({ type: '', text: '' }); }} className="px-4 py-2 rounded-none border border-[#1f2334] text-gray-400 hover:bg-[#1a1e2d]">
+                                <button type="button" onClick={() => { setDeleteStep('idle'); setDeleteCode(''); }} className="px-4 py-2 rounded-none border border-[#1f2334] text-gray-400 hover:bg-[#1a1e2d]">
                                     İptal
                                 </button>
                                 <button type="submit" disabled={deleteLoading || deleteCode.length !== 6} className="px-4 py-2 bg-red-600 hover:bg-red-500 disabled:opacity-50 text-white rounded-none font-medium flex items-center gap-2">
@@ -327,8 +357,8 @@ export default function SettingsPage() {
                             </div>
                         </form>
                     )}
-                    {deleteStep === 'done' && deleteMessage.text && (
-                        <p className="flex items-center gap-2 text-green-400 text-sm"><CheckCircle2 size={16} /> {deleteMessage.text}</p>
+                    {deleteStep === 'done' && (
+                        <p className="flex items-center gap-2 text-green-400 text-sm"><CheckCircle2 size={16} /> İşlem tamamlandı.</p>
                     )}
                 </section>
             </div>

@@ -16,6 +16,12 @@
     @apply bg-[var(--color-primary-dark)] text-[var(--color-text-main)] antialiased min-h-screen selection:bg-accent-blue selection:text-white;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
   }
+
+  /* Klavye ile odaklanınca net halka (fare tıklamasında genelde gösterilmez) */
+  :focus-visible {
+    outline: 2px solid var(--color-accent-blue);
+    outline-offset: 2px;
+  }
 }
 
 @layer components {

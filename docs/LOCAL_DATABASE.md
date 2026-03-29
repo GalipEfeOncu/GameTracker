@@ -28,18 +28,16 @@ SQL Server Management Studio ile `(localdb)\MSSQLLocalDB` sunucusuna bağlanın,
 
 ## 3. Backend connection string’i
 
-`appsettings.Development.json` içinde `ConnectionStrings:GameTrackerDB` değerini LocalDB için şöyle yapın:
+`backend` klasöründe User Secrets:
 
-```json
-"GameTrackerDB": "Server=(localdb)\\MSSQLLocalDB;Database=GameTrackerDB;Integrated Security=True;TrustServerCertificate=True"
+```bash
+dotnet user-secrets set "ConnectionStrings:GameTrackerDB" "Server=(localdb)\MSSQLLocalDB;Database=GameTrackerDB;Integrated Security=True;TrustServerCertificate=True"
 ```
-
-(JSON’da tek `\` için `\\` yazılır.)
 
 ## 4. Backend’i yeniden başlatın
 
-Backend’i kapatıp (`Ctrl+C`) tekrar `dotnet run` ile başlatın. Kayıt/giriş artık yerel veritabanına gidecektir.
+Backend’i kapatıp (`Ctrl+C`) tekrar `dotnet run` ile başlatın. Kayıt/giriş yerel veritabanına gider.
 
 ---
 
-**Not:** Somee’ye tekrar bağlanmak istediğinizde `appsettings.Development.json` içindeki connection string’i Somee bilgilerinizle değiştirip backend’i yeniden başlatmanız yeterli.
+**Not:** Uzak SQL’e dönmek için aynı anahtara Somee connection string’inizi `user-secrets set` ile yazmanız yeterli.

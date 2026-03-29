@@ -1,25 +1,28 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Loader2, Library as LibraryIcon, PlayCircle, CheckCircle, Clock, XCircle } from 'lucide-react';
+import { Library as LibraryIcon, PlayCircle, CheckCircle, Clock, XCircle } from 'lucide-react';
 import { fetchUserLibrary, removeGameFromLibrary, updateGameStatus } from '../api/apiClient';
 import { useUser } from '../context/UserContext';
 import GameCard from '../components/GameCard';
+import { GameCardSkeletonGrid } from '../components/GameCardSkeleton';
 import { LIBRARY_TABS } from '../constants/libraryStatus';
+import { getSessionUserId } from '../utils/sessionUser';
 
 const TAB_ICONS = {
     null: LibraryIcon,
     Playing: PlayCircle,
-    Played: CheckCircle,
-    PlanToPlay: Clock,
+    Completed: CheckCircle,
     Dropped: XCircle,
+    Wishlist: Clock,
+    PlanToPlay: Clock,
 };
 
 export default function LibraryPage() {
     const { user } = useUser();
     const navigate = useNavigate();
     const queryClient = useQueryClient();
-    const userId = user?.id ?? user?.UserId;
+    const userId = getSessionUserId(user);
     const [activeTab, setActiveTab] = useState(null);
 
     const { data: library, isLoading } = useQuery({

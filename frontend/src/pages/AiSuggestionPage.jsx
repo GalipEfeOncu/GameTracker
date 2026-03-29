@@ -3,14 +3,16 @@ import { Loader2, Sparkles, BrainCircuit, History } from 'lucide-react';
 import { getRecommendations, fetchUserLibrary } from '../api/apiClient';
 import { useUser } from '../context/UserContext';
 import GameCard from '../components/GameCard';
+import { getSessionUserId } from '../utils/sessionUser';
 
 export default function AiSuggestionPage() {
     const { user } = useUser();
+    const userId = getSessionUserId(user);
 
     const { data: library } = useQuery({
-        queryKey: ['library', user?.id],
-        queryFn: () => fetchUserLibrary(user?.id),
-        enabled: !!user?.id,
+        queryKey: ['library', userId],
+        queryFn: () => fetchUserLibrary(userId),
+        enabled: userId != null,
     });
 
     const likedGames = library?.map(g => g.name) || [];

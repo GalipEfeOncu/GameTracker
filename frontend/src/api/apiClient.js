@@ -1,9 +1,78 @@
 import axios from 'axios';
+import { emitToast } from '../utils/toastEvents';
+
+// Üretim: .env içinde tam API kökü (örn. https://api.siteniz.com/api). Boşsa geliştirmede /api + Vite proxy kullanılır.
+const rawBase = import.meta.env.VITE_API_BASE_URL;
+const baseURL =
+    typeof rawBase === 'string' && rawBase.trim() !== ''
+        ? rawBase.trim().replace(/\/+$/, '')
+        : '/api';
 
 const apiClient = axios.create({
-    baseURL: '/api',
+    baseURL,
     timeout: 15000,
 });
+
+function readStoredAccessToken() {
+    try {
+        const raw = localStorage.getItem('gt_user');
+        if (!raw) return null;
+        const u = JSON.parse(raw);
+        return u?.accessToken ?? u?.AccessToken ?? null;
+    } catch {
+        return null;
+    }
+}
+
+apiClient.interceptors.request.use((config) => {
+    const t = readStoredAccessToken();
+    if (t) {
+        const headers = config.headers ?? {};
+        headers.Authorization = `Bearer ${t}`;
+        config.headers = headers;
+    }
+    return config;
+});
+
+function urlLikelyRequiresSession(url) {
+    const u = String(url ?? '');
+    return (
+        u.includes('/Library/user/') ||
+        (u.includes('/User/') &&
+            (u.includes('/profile/') ||
+                u.includes('/request-delete-account') ||
+                u.includes('/confirm-delete-account')))
+    );
+}
+
+apiClient.interceptors.response.use(
+    (r) => r,
+    (err) => {
+        if (err.response?.status === 429) {
+            emitToast('Çok fazla istek. Lütfen kısa süre sonra tekrar deneyin.', 'error');
+        }
+        if (err.response?.status === 401) {
+            const url = String(err.config?.url ?? '');
+            if (url.includes('/User/login')) return Promise.reject(err);
+
+            const hadAuth = !!err.config?.headers?.Authorization;
+            let hasStoredUser = false;
+            try {
+                hasStoredUser = !!localStorage.getItem('gt_user');
+            } catch { /* ignore */ }
+
+            if (hadAuth || (hasStoredUser && urlLikelyRequiresSession(url))) {
+                try {
+                    localStorage.removeItem('gt_user');
+                } catch { /* ignore */ }
+                if (typeof window !== 'undefined' && !window.location.pathname.includes('/login')) {
+                    window.location.assign('/login');
+                }
+            }
+        }
+        return Promise.reject(err);
+    }
+);
 
 // ---- User ----
 export const registerUser = async ({ username, email, password }) => {
@@ -15,8 +84,13 @@ export const registerUser = async ({ username, email, password }) => {
     return data;
 };
 
-export const loginUser = async (username, password) => {
-    const { data } = await apiClient.post('/User/login', { EmailOrUsername: username, password });
+/** RememberMe: sunucu daha uzun süreli access token döner; ayrı refresh token akışı yoktur. */
+export const loginUser = async (username, password, rememberMe = false) => {
+    const { data } = await apiClient.post('/User/login', {
+        EmailOrUsername: username,
+        password,
+        RememberMe: !!rememberMe,
+    });
     return data;
 };
 
@@ -80,7 +154,15 @@ export const fetchUserLibrary = async (userId, status = null) => {
 
 export const addGameToLibrary = async (userId, game, status = 'PlanToPlay') => {
     if (!userId || !game) throw new Error('userId and game required');
-    const { data } = await apiClient.post(`/Library/user/${userId}/add`, game, {
+    const id = Number(game.id);
+    if (!Number.isFinite(id) || id <= 0) throw new Error('game.id required');
+    // Tam RAWG gövdesi yerine sadece DB sütunları — büyük JSON / serileştirme sorunlarını önler
+    const payload = {
+        id,
+        name: game.name ?? 'Unknown',
+        background_image: game.background_image ?? '',
+    };
+    const { data } = await apiClient.post(`/Library/user/${userId}/add`, payload, {
         params: { status },
     });
     return data;

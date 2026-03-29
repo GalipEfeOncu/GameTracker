@@ -1,4 +1,4 @@
-﻿using GameTracker.Models;
+using GameTracker.Models;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -17,12 +17,7 @@ namespace GameTracker
 
         public RawgApiService()
         {
-            // Anahtarı config'den çekiyoruz
-            _apiKey = GameTracker.Api.AppConfig.RawgApiKey;
-
-            // Anahtar yoksa hata fırlat
-            if (string.IsNullOrEmpty(_apiKey))
-                throw new Exception("API Key bulunamadı! Lütfen Secrets.config dosyasını kontrol et.");
+            _apiKey = GameTracker.Api.AppConfig.RawgApiKey ?? string.Empty;
         }
 
         /// <summary>
@@ -99,6 +94,12 @@ namespace GameTracker
 
         private async Task<List<Game>> GetGamesAsync(string url, bool showNsfw)
         {
+            if (string.IsNullOrEmpty(_apiKey))
+            {
+                System.Diagnostics.Debug.WriteLine("RAWG API anahtarı tanımlı değil; oyun listesi boş dönecek.");
+                return new List<Game>();
+            }
+
             try
             {
                 HttpResponseMessage response = await _httpClient.GetAsync(url).ConfigureAwait(false);
@@ -148,17 +149,16 @@ namespace GameTracker
         }
 
         /// <summary>
-        /// Popüler oyunları getirir
+        /// Popüler oyunları getirir (RAWG: koleksiyona eklenme sayısına göre, yakın tarih aralığında).
+        /// Keşfet "Trend" ile aynı ordering; -released kullanıldığında added alanı düşük kalabiliyordu.
         /// </summary>
         public async Task<List<Game>> GetPopularGamesAsync(int pageNumber, bool showNsfw = false, int pageSize = 20)
         {
-            var endDate = DateTime.Now.AddMonths(3).ToString("yyyy-MM-dd"); // Gelecek 3 aya kadar
-            var startDate = new DateTime(2024, 1, 1).ToString("yyyy-MM-dd"); // 2024 başından itibaren
+            var startDate = new DateTime(2023, 1, 1).ToString("yyyy-MM-dd");
+            var endDate = DateTime.Now.AddMonths(4).ToString("yyyy-MM-dd");
 
-            // Limit size of results to shrink json payload and download cropped images primarily
-            string url = $"{_baseUrl}/games?key={_apiKey}&ordering=-released&dates={startDate},{endDate}&page_size={pageSize}&page={pageNumber}";
+            string url = $"{_baseUrl}/games?key={_apiKey}&ordering=-added&dates={startDate},{endDate}&page_size={pageSize}&page={pageNumber}";
 
-            // NSFW filtresini de ekle
             url += GetNsfwFilterParam(showNsfw);
 
             return await GetGamesAsync(url, showNsfw);
@@ -209,6 +209,9 @@ namespace GameTracker
         /// <returns></returns>
         public async Task<Game> GetGameDetailsAsync(int gameId)
         {
+            if (string.IsNullOrEmpty(_apiKey))
+                return null;
+
             string url = $"{_baseUrl}/games/{gameId}?key={_apiKey}";
 
             try
@@ -261,6 +264,9 @@ namespace GameTracker
         /// </summary>
         public async Task<List<Screenshot>> GetGameScreenshotsAsync(int gameId)
         {
+            if (string.IsNullOrEmpty(_apiKey))
+                return new List<Screenshot>();
+
             string url = $"{_baseUrl}/games/{gameId}/screenshots?key={_apiKey}";
             try
             {

@@ -1,17 +1,40 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Loader2, ArrowLeft, Star, Calendar, Globe, Plus, Check, ChevronDown, ChevronUp, Trash2 } from 'lucide-react';
+import { ArrowLeft, Star, Calendar, Globe, Plus, Check, ChevronDown, ChevronUp, Trash2 } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import { getGameDetails, fetchUserLibrary, addGameToLibrary, updateGameStatus, removeGameFromLibrary, getGameScreenshots } from '../api/apiClient';
 import { useUser } from '../context/UserContext';
+import { useToast } from '../context/ToastContext';
+import GameDetailSkeleton from '../components/GameDetailSkeleton';
 import { LIBRARY_STATUS, getStatusLabel } from '../constants/libraryStatus';
+import { getSessionUserId } from '../utils/sessionUser';
+
+function formatLibraryMutationError(err, fallback) {
+    const status = err.response?.status;
+    const d = err.response?.data;
+    if (status === 403)
+        return 'Bu işlem için yetkin yok. Oturumun süresi dolmuş olabilir — tekrar giriş yapın.';
+    if (typeof d === 'string') {
+        if (d.includes('already exists in library')) return 'Bu oyun zaten kütüphanende. Durumunu menüden güncelleyebilirsin.';
+        return d;
+    }
+    if (d && typeof d.message === 'string') return d.message;
+    if (d && typeof d.title === 'string') return d.title;
+    // ASP.NET model doğrulama: { errors: { "Alan": ["mesaj"] } }
+    if (d && d.errors && typeof d.errors === 'object') {
+        const msgs = Object.values(d.errors).flat().filter((x) => typeof x === 'string');
+        if (msgs.length) return msgs.join(' ');
+    }
+    return fallback;
+}
 
 export default function GameDetailsPage() {
     const { id } = useParams();
     const navigate = useNavigate();
     const queryClient = useQueryClient();
     const { user } = useUser();
-    const userId = user?.id ?? user?.UserId;
+    const { showToast } = useToast();
+    const userId = getSessionUserId(user);
     const [isExpanded, setIsExpanded] = useState(false);
     const [libraryMenuOpen, setLibraryMenuOpen] = useState(false);
     const libraryMenuRef = useRef(null);
@@ -37,15 +60,33 @@ export default function GameDetailsPage() {
 
     const addMutation = useMutation({
         mutationFn: ({ status }) => addGameToLibrary(userId, game, status),
-        onSuccess: invalidateLibrary,
+        onSuccess: () => {
+            invalidateLibrary();
+            showToast('Oyun kütüphanene eklendi.', 'success');
+        },
+        onError: (error) => {
+            showToast(formatLibraryMutationError(error, 'Oyun kütüphaneye eklenirken bir hata oluştu.'), 'error');
+        },
     });
     const updateMutation = useMutation({
         mutationFn: ({ newStatus }) => updateGameStatus(userId, id, newStatus),
-        onSuccess: invalidateLibrary,
+        onSuccess: () => {
+            invalidateLibrary();
+            showToast('Oyun durumu güncellendi.', 'success');
+        },
+        onError: (error) => {
+            showToast(formatLibraryMutationError(error, 'Oyun durumu güncellenirken bir hata oluştu.'), 'error');
+        },
     });
     const removeMutation = useMutation({
         mutationFn: () => removeGameFromLibrary(userId, id),
-        onSuccess: invalidateLibrary,
+        onSuccess: () => {
+            invalidateLibrary();
+            showToast('Oyun kütüphanenden kaldırıldı.', 'success');
+        },
+        onError: (error) => {
+            showToast(formatLibraryMutationError(error, 'Oyun kütüphaneden kaldırılırken bir hata oluştu.'), 'error');
+        },
     });
 
     const handleAddOrUpdate = (status) => {
@@ -73,12 +114,7 @@ export default function GameDetailsPage() {
     });
 
     if (isLoading) {
-        return (
-            <div className="flex flex-col items-center justify-center h-full text-gray-500">
-                <Loader2 size={40} className="animate-spin mb-4 text-blue-500" />
-                <p className="font-bold">Yükleniyor...</p>
-            </div>
-        );
+        return <GameDetailSkeleton />;
     }
 
     if (!game) return <div className="p-8">Oyun bulunamadı.</div>;

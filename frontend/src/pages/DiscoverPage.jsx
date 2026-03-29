@@ -4,6 +4,7 @@ import { useSearchGames, useDiscoverGames } from '../hooks/useGames';
 import { usePreferences } from '../context/PreferencesContext';
 import { Loader2, SearchX, Flame, Star, Sparkles, Gamepad2 } from 'lucide-react';
 import GameCard from '../components/GameCard';
+import { GameCardSkeletonGrid } from '../components/GameCardSkeleton';
 
 // RAWG Genre ID'leri
 const GENRES = [
@@ -80,10 +81,10 @@ export default function DiscoverPage() {
         return (
             <div className="h-full overflow-y-auto px-8 pt-8 pb-20">
                 {isSearching ? (
-                    <div className="flex flex-col items-center justify-center py-32 text-gray-500">
-                        <Loader2 size={40} className="animate-spin mb-6 text-blue-500" />
-                        <p className="font-semibold text-lg animate-pulse">Sonuçlar aranıyor...</p>
-                    </div>
+                    <GameCardSkeletonGrid
+                        count={15}
+                        className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-6 gap-y-12"
+                    />
                 ) : searchResults && searchResults.length > 0 ? (
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-6 gap-y-12">
                         {searchResults.map((game) => (
@@ -159,10 +160,10 @@ export default function DiscoverPage() {
             {/* Oyun Grid'i */}
             <div className="px-8 pt-6">
                 {isDiscovering ? (
-                    <div className="flex flex-col items-center justify-center py-32 text-gray-500">
-                        <Loader2 size={40} className="animate-spin mb-6 text-blue-500" />
-                        <p className="font-semibold text-lg animate-pulse">Oyunlar yükleniyor...</p>
-                    </div>
+                    <GameCardSkeletonGrid
+                        count={15}
+                        className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-6 gap-y-12"
+                    />
                 ) : games.length > 0 ? (
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-6 gap-y-12">
                         {games.map((game) => (

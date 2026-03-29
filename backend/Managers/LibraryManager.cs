@@ -11,6 +11,9 @@ namespace GameTracker
         // Oyunu kütüphaneye ekler
         public static bool AddGameToLibrary(int userId, Game game, string status = "PlanToPlay")
         {
+            if (!LibraryStatuses.IsAllowed(status))
+                return false;
+
             try
             {
                 string query = @"INSERT INTO UserLibrary (user_id, game_id, game_name, image_url, status) 
@@ -43,6 +46,9 @@ namespace GameTracker
         public static List<Game> GetUserLibrary(int userId, string statusFilter = null)
         {
             List<Game> libraryGames = new List<Game>();
+
+            if (!string.IsNullOrEmpty(statusFilter) && !LibraryStatuses.IsAllowed(statusFilter))
+                return libraryGames;
 
             string query = "SELECT game_id, game_name, image_url, status FROM UserLibrary WHERE user_id = @userId";
 
@@ -86,6 +92,9 @@ namespace GameTracker
         // Oyunun durumunu günceller (örn: Playing -> Played)
         public static bool UpdateGameStatus(int userId, int gameId, string newStatus)
         {
+            if (!LibraryStatuses.IsAllowed(newStatus))
+                return false;
+
             string query = "UPDATE UserLibrary SET status = @status WHERE user_id = @userId AND game_id = @gameId";
 
             SqlParameter[] parameters = new SqlParameter[]

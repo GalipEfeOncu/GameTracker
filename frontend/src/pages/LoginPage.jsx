@@ -8,6 +8,7 @@ import { usePreferences } from '../context/PreferencesContext';
 export default function LoginPage() {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    const [rememberMe, setRememberMe] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
 
@@ -21,12 +22,15 @@ export default function LoginPage() {
         setIsLoading(true);
 
         try {
-            const user = await loginUser(username, password);
+            // rememberMe → API’de daha uzun ömürlü access JWT (refresh token yok; bkz. backend JwtTokenService)
+            const user = await loginUser(username, password, rememberMe);
             const uid = user?.UserId ?? user?.id ?? user?.userId;
-            if (user && typeof user === 'object' && uid != null)
-                login({ ...user, id: uid });
-            else
+            const accessToken = user?.AccessToken ?? user?.accessToken;
+            if (user && typeof user === 'object' && uid != null) {
+                login({ ...user, id: uid, accessToken });
+            } else {
                 login(user);
+            }
             const to = startPage === 'Library' ? '/library' : '/popular';
             navigate(to);
         } catch (err) {
@@ -68,9 +72,12 @@ export default function LoginPage() {
                     )}
 
                     <div className="space-y-1">
-                        <label className="text-xs font-medium uppercase tracking-wider text-gray-500">Kullanıcı Adı</label>
+                        <label htmlFor="login-username" className="text-xs font-medium uppercase tracking-wider text-gray-500">Kullanıcı Adı</label>
                         <input
+                            id="login-username"
                             type="text"
+                            name="username"
+                            autoComplete="username"
                             value={username}
                             onChange={(e) => setUsername(e.target.value)}
                             className="w-full border border-[#1f2334] bg-[#1a1e2d] px-3 py-2.5 text-sm text-white outline-none transition-colors focus:border-blue-500 placeholder:text-gray-500"
@@ -81,13 +88,16 @@ export default function LoginPage() {
 
                     <div className="space-y-1">
                         <div className="flex items-center justify-between">
-                            <label className="text-xs font-medium uppercase tracking-wider text-gray-500">Şifre</label>
+                            <label htmlFor="login-password" className="text-xs font-medium uppercase tracking-wider text-gray-500">Şifre</label>
                             <Link to="/forgot-password" className="text-xs text-blue-400 hover:text-blue-300">
                                 Şifremi unuttum
                             </Link>
                         </div>
                         <input
+                            id="login-password"
                             type="password"
+                            name="password"
+                            autoComplete="current-password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             className="w-full border border-[#1f2334] bg-[#1a1e2d] px-3 py-2.5 text-sm text-white outline-none transition-colors focus:border-blue-500 placeholder:text-gray-500"
@@ -95,6 +105,19 @@ export default function LoginPage() {
                             required
                         />
                     </div>
+
+                    <label className="flex cursor-pointer flex-col gap-1 sm:flex-row sm:items-center sm:gap-2">
+                        <span className="flex items-center gap-2 text-sm text-gray-300">
+                            <input
+                                type="checkbox"
+                                checked={rememberMe}
+                                onChange={(e) => setRememberMe(e.target.checked)}
+                                className="h-4 w-4 rounded-none border border-[#1f2334] bg-[#1a1e2d] text-blue-600 focus:ring-2 focus:ring-blue-500 focus:ring-offset-0"
+                            />
+                            Beni hatırla
+                        </span>
+                        <span className="text-xs text-gray-500 sm:pl-1">Bu cihazda oturum süresini uzatır.</span>
+                    </label>
 
                     <button
                         type="submit"

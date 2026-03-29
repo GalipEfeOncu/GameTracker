@@ -19,7 +19,7 @@ export default function Sidebar() {
     };
 
     return (
-        <aside className="w-64 bg-[#141722] border-r border-[#1f2334] flex flex-col pt-8 pb-4 h-full shrink-0">
+        <aside className="w-64 bg-[#141722] border-r border-[#1f2334] flex flex-col pt-8 pb-4 h-full shrink-0" aria-label="Uygulama menüsü">
             {/* Logo */}
             <div className="px-6 mb-10 flex items-center gap-3">
                 <div className="w-8 h-8 rounded-none border border-[#1f2334] bg-[#1a1e2d] flex items-center justify-center">
@@ -29,11 +29,13 @@ export default function Sidebar() {
             </div>
 
             {/* Nav */}
-            <nav className="flex-1 px-4 space-y-1">
-                {navItems.map(({ to, label, icon: Icon }) => (
+            <nav className="flex-1 px-4 space-y-1" aria-label="Sayfalar">
+                {navItems.map((item) => {
+                    const Icon = item.icon;
+                    return (
                     <NavLink
-                        key={to}
-                        to={to}
+                        key={item.to}
+                        to={item.to}
                         className={({ isActive }) =>
                             `relative w-full flex items-center gap-3 px-4 py-3 rounded-none transition-all duration-200 outline-none
                ${isActive
@@ -47,11 +49,12 @@ export default function Sidebar() {
                                     <span className="absolute left-0 w-1 h-6 bg-blue-500" />
                                 )}
                                 <Icon size={19} />
-                                {label}
+                                {item.label}
                             </>
                         )}
                     </NavLink>
-                ))}
+                    );
+                })}
             </nav>
 
             {/* Bottom */}
@@ -75,6 +78,7 @@ export default function Sidebar() {
                     Ayarlar
                 </NavLink>
                 <button
+                    type="button"
                     onClick={handleLogout}
                     className="w-full flex items-center gap-3 px-4 py-3 rounded-none text-gray-400 hover:text-red-400 hover:bg-red-500/10 transition-all text-sm"
                 >

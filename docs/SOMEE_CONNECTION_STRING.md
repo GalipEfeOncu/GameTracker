@@ -27,34 +27,29 @@ Server=tcp:SUNUCU_ADI,1433;Database=VERITABANI_ADI;User Id=KULLANICI;Password=SI
 
 | Yer       | Somee panelinde nerede?        | Örnek                          |
 |----------|--------------------------------|--------------------------------|
-| SUNUCU_ADI   | Server name / connection string içindeki sunucu | `GameTrackerDB.mssql.somee.com` |
-| VERITABANI_ADI | Database / initial catalog       | `GameTrackerDB`                |
-| KULLANICI    | Login / User id                 | `Knover_SQLLogin_1`            |
+| SUNUCU_ADI   | Server name / connection string içindeki sunucu | `YOUR_SERVER_NAME.mssql.somee.com` |
+| VERITABANI_ADI | Database / initial catalog       | `YOUR_DATABASE_NAME`           |
+| KULLANICI    | Login / User id                 | `YOUR_SQL_LOGIN`               |
 | SIFRE        | Password                        | (Somee’de gördüğünüz şifre)    |
 
-**Örnek (gerçek bilgileri kendi panelinizden alın):**
+**Tamamen örnek, gerçek bilgi içermeyen format:**
 
 ```
-Server=tcp:GameTrackerDB.mssql.somee.com,1433;Database=GameTrackerDB;User Id=Knover_SQLLogin_1;Password=BURAYA_SOMEE_SIFRENIZI_YAZIN;TrustServerCertificate=True;Encrypt=False
+Server=tcp:YOUR_SERVER_NAME.mssql.somee.com,1433;Database=YOUR_DATABASE_NAME;User Id=YOUR_SQL_LOGIN;Password=YOUR_PASSWORD;TrustServerCertificate=True;Encrypt=False
 ```
 
 ---
 
 ## 3. Backend’te nereye yazılacak?
 
-- **Dosya:** `backend/appsettings.Development.json`
-- **Anahtar:** `ConnectionStrings` → `GameTrackerDB`
-- Tüm connection string **tek satırda**, **çift tırnak** içinde olmalı. Şifrede `"` varsa `\"` ile kaçın.
+**Önerilen:** `backend` klasöründe User Secrets (repoda ve proje klasöründe düz metin olarak kalmaz):
 
-Örnek:
-
-```json
-{
-  "ConnectionStrings": {
-    "GameTrackerDB": "Server=tcp:SUNUCU,1433;Database=DB_ADI;User Id=LOGIN;Password=SIFRE;TrustServerCertificate=True;Encrypt=False"
-  }
-}
+```bash
+cd backend
+dotnet user-secrets set "ConnectionStrings:GameTrackerDB" "Server=tcp:...;Database=...;User Id=...;Password=...;TrustServerCertificate=True;Encrypt=False"
 ```
+
+Connection string’i panelden **olduğu gibi** tek parça yapıştırmanız yeterlidir (format yukarıdaki gibi olmalı).
 
 ---
 
@@ -69,7 +64,7 @@ Server=tcp:GameTrackerDB.mssql.somee.com,1433;Database=GameTrackerDB;User Id=Kno
 
 ## 5. Değişiklikten sonra
 
-`appsettings.Development.json` kaydettikten sonra **backend’i yeniden başlatın** (terminalde `Ctrl+C`, sonra `dotnet run`). Yeni connection string ancak o zaman okunur.
+`user-secrets set` sonrası veya yapılandırma değişince **backend’i yeniden başlatın** (`Ctrl+C`, sonra `dotnet run`).
 
 ---
 
