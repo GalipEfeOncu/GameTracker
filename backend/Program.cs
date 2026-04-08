@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.OpenApi.Models;
 using GameTracker.Api;
 using GameTracker.Api.Auth;
+using GameTracker.Api.ExceptionHandlers;
 using GameTracker.Services;
 using GameTracker; // for RawgApiService
 
@@ -19,13 +20,15 @@ var corsOrigins = CorsSettings.ResolveAllowedOrigins(builder.Configuration, buil
 if (corsOrigins.Length == 0 && !builder.Environment.IsDevelopment())
 {
     throw new InvalidOperationException(
-        "Üretim ortamında CORS kökenleri tanımlanmalıdır. Cors:AllowedOrigins (dizi veya noktalı virgülle ayrılmış liste) veya ortamda Cors__AllowedOrigins kullanın. Ayrıntı: backend/README.md.");
+        "Üretim ortamında CORS kökenleri tanımlanmalıdır. Cors:AllowedOrigins (dizi veya noktalı virgülle ayrılmış liste) veya ortamda Cors__AllowedOrigins kullanın. Ayrıntı: docs/DEPLOY.md.");
 }
 
 // Centralized config
 AppConfig.Configuration = builder.Configuration;
 
 // --- Services ---
+builder.Services.AddProblemDetails();
+builder.Services.AddExceptionHandler<DatabaseNotConfiguredExceptionHandler>();
 builder.Services.AddControllers().AddNewtonsoftJson();
 
 builder.Services.AddSingleton<JwtTokenService>();
@@ -89,6 +92,8 @@ builder.Services.AddSwaggerGen(c =>
 
 var app = builder.Build();
 
+app.UseExceptionHandler();
+
 if (app.Environment.IsDevelopment())
 {
     var rawgOk = !string.IsNullOrWhiteSpace(AppConfig.RawgApiKey);
@@ -96,7 +101,7 @@ if (app.Environment.IsDevelopment())
     if (!rawgOk)
         app.Logger.LogWarning("Popüler/Keşfet için ApiKeys:RawgApiKey tanımlayın (önerilen: dotnet user-secrets; üretim: ortam değişkeni ApiKeys__RawgApiKey).");
 
-    var dbOk = !string.IsNullOrWhiteSpace(AppConfig.ConnectionString);
+    var dbOk = AppConfig.IsDatabaseConfigured;
     app.Logger.LogInformation("Veritabanı connection string tanımlı: {Configured}", dbOk);
     if (!dbOk)
         app.Logger.LogWarning("ConnectionStrings:GameTrackerDB boş. Kayıt, giriş ve kütüphane uçları veritabanına erişemez; user-secrets veya ConnectionStrings__GameTrackerDB env kullanın.");

@@ -1,20 +1,29 @@
-﻿using System;
+using System;
 using Microsoft.Data.SqlClient;
 using System.Data;
+using GameTracker.Api;
+using GameTracker.Api.Exceptions;
 
 namespace GameTracker
 {
     public class DatabaseHelper
     {
-        private static string connectionString =>
-            GameTracker.Api.AppConfig.ConnectionString;
+        private static string ConnectionStringValue =>
+            AppConfig.ConnectionString ?? string.Empty;
+
+        private static void EnsureDatabaseConfigured()
+        {
+            if (!AppConfig.IsDatabaseConfigured)
+                throw new DatabaseNotConfiguredException();
+        }
 
         // SELECT sorgusu çalıştır (DataTable döner)
-        public static DataTable ExecuteQuery(string query, SqlParameter[] parameters = null)
+        public static DataTable ExecuteQuery(string query, SqlParameter[]? parameters = null)
         {
+            EnsureDatabaseConfigured();
             DataTable dt = new DataTable();
 
-            using (SqlConnection conn = new SqlConnection(connectionString))
+            using (SqlConnection conn = new SqlConnection(ConnectionStringValue))
             {
                 using (SqlCommand cmd = new SqlCommand(query, conn))
                 {
@@ -32,11 +41,12 @@ namespace GameTracker
         }
 
         // INSERT, UPDATE, DELETE sorguları için
-        public static int ExecuteNonQuery(string query, SqlParameter[] parameters = null)
+        public static int ExecuteNonQuery(string query, SqlParameter[]? parameters = null)
         {
+            EnsureDatabaseConfigured();
             int rowsAffected = 0;
 
-            using (SqlConnection conn = new SqlConnection(connectionString))
+            using (SqlConnection conn = new SqlConnection(ConnectionStringValue))
             {
                 using (SqlCommand cmd = new SqlCommand(query, conn))
                 {
@@ -54,11 +64,12 @@ namespace GameTracker
         }
 
         // Tek değer döndüren sorgular (COUNT, MAX vs.)
-        public static object ExecuteScalar(string query, SqlParameter[] parameters = null)
+        public static object ExecuteScalar(string query, SqlParameter[]? parameters = null)
         {
-            object result = null;
+            EnsureDatabaseConfigured();
+            object? result = null;
 
-            using (SqlConnection conn = new SqlConnection(connectionString))
+            using (SqlConnection conn = new SqlConnection(ConnectionStringValue))
             {
                 using (SqlCommand cmd = new SqlCommand(query, conn))
                 {

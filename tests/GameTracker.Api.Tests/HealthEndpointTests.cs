@@ -19,5 +19,6 @@ public class HealthEndpointTests : IClassFixture<ApiWebApplicationFactory>
         Assert.Equal(HttpStatusCode.OK, res.StatusCode);
         var body = await res.Content.ReadAsStringAsync();
         Assert.Contains("ok", body, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("configured", body, StringComparison.OrdinalIgnoreCase);
     }
 }

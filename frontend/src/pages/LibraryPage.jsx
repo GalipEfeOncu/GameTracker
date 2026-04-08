@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Library as LibraryIcon, PlayCircle, CheckCircle, Clock, XCircle } from 'lucide-react';
+import { Library as LibraryIcon, PlayCircle, CheckCircle, Clock, XCircle, Loader2 } from 'lucide-react';
 import { fetchUserLibrary, removeGameFromLibrary, updateGameStatus } from '../api/apiClient';
 import { useUser } from '../context/UserContext';
 import GameCard from '../components/GameCard';

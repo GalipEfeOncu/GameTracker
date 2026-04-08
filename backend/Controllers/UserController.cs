@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.RateLimiting;
 using GameTracker;
 using GameTracker.Api;
 using GameTracker.Api.Auth;
+using GameTracker.Api.Exceptions;
 using GameTracker.Helpers;
 
 namespace GameTracker.Api.Controllers
@@ -52,6 +53,8 @@ namespace GameTracker.Api.Controllers
             }
             catch (System.Exception ex)
             {
+                if (ex is DatabaseNotConfiguredException)
+                    throw;
                 return BadRequest(new { message = ex.Message });
             }
         }
@@ -133,6 +136,8 @@ namespace GameTracker.Api.Controllers
             }
             catch (System.Exception ex)
             {
+                if (ex is DatabaseNotConfiguredException)
+                    throw;
                 return BadRequest(ex.Message);
             }
         }

@@ -4,24 +4,24 @@ Oyun kütüphanesi, RAWG verisi ve (isteğe bağlı) Gemini önerileri.
 
 ![GameTracker](https://github.com/user-attachments/assets/19471807-5380-4fd6-b81a-91de8cb21183)
 
-## Web uygulaması (React + .NET API)
+## Web (React + .NET)
 
 | | |
 |--|--|
-| **Frontend** | `frontend/` — `npm install` → `npm run dev` |
-| **Backend** | `backend/` — `dotnet run` (varsayılan `http://localhost:5118`) |
-| **Sırlar** | `backend/README.md` — `dotnet user-secrets` (connection string, RAWG, Gemini, e-posta, JWT) |
-| **Üretim SPA/API** | `VITE_API_BASE_URL` (`frontend/.env.example`), backend `Cors:AllowedOrigins` — `docs/FREE_STACK.md` |
-| **Test** | Kökten `dotnet test` — `tests/GameTracker.Api.Tests` (`/api/health` smoke) |
-| **Yol haritası** | `docs/PROJECT_ROADMAP_TR.md` (legacy karşılaştırma, riskler, faz planı) |
+| **Ön yüz** | `frontend/` → `npm install` → `npm run dev` |
+| **API** | `backend/` → `dotnet run` (`http://localhost:5118`) |
+| **Deploy / sırlar / CORS** | [docs/DEPLOY.md](docs/DEPLOY.md) |
+| **Veritabanı (Somee, geçiş, LocalDB)** | [docs/DATABASE.md](docs/DATABASE.md) |
+| **Test** | Kökten `dotnet test` — `tests/GameTracker.Api.Tests` |
+| **Özellikler / yol haritası** | [docs/FEATURES.md](docs/FEATURES.md), [docs/ROAD_MAP.md](docs/ROAD_MAP.md) |
 
-## Masaüstü (WinForms, legacy — yalnızca lokal)
+## Legacy WinForms
 
-Klasik **DevExpress** projesi repoda yok; `.gitignore` ile `GameTracker/` hariç tutulur. İsterseniz eski kaynağı kendi makinenizde aynı yola koyup Visual Studio ile açabilirsiniz. Çözüm dosyası `GameTracker.sln` yalnızca **web API** (`backend/GameTracker.Api.csproj`) içerir.
+Repoda yok; `.gitignore` ile `GameTracker/` dışarıda. Çözüm `GameTracker.sln` yalnızca web API projesini içerir.
 
 ## Teknolojiler (web)
 
-- .NET 9 Web API, Microsoft SQL Server, RAWG API, Gemini (isteğe bağlı), React 19, Vite
+.NET 9 Web API, Microsoft SQL Server, RAWG API, Gemini (isteğe bağlı), React 19, Vite
 
 ## Ekran görüntüleri (WinForms sürümü)
 
