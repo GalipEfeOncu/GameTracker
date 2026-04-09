@@ -13,7 +13,9 @@ namespace GameTracker.Api.Controllers
             Ok(new
             {
                 status = "ok",
-                database = new { configured = AppConfig.IsDatabaseConfigured }
+                database = new { configured = AppConfig.IsDatabaseConfigured },
+                igdb = new { configured = AppConfig.IsIgdbConfigured },
+                rawg = new { configured = !string.IsNullOrWhiteSpace(AppConfig.RawgApiKey) },
             });
     }
 }

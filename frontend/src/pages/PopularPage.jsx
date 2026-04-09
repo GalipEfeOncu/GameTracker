@@ -10,14 +10,17 @@ import { GameCardSkeletonGrid } from '../components/GameCardSkeleton';
 
 const COLUMNS = 5;
 
-function PopularEmptyState({ rawgConfigured, onRetry }) {
+function PopularEmptyState({ igdbConfigured, onRetry }) {
     return (
         <div className="flex flex-col items-center justify-center py-24 px-4 text-gray-400 max-w-lg mx-auto">
             <Flame size={56} className="mb-4 opacity-30" />
             <h2 className="text-xl font-bold text-gray-300 text-center">Henüz oyun listelenmiyor</h2>
-            {rawgConfigured === false ? (
+            {igdbConfigured === false ? (
                 <p className="mt-3 text-center text-sm text-gray-500 max-w-md leading-relaxed">
-                    Oyun listesi şu an kullanılamıyor. Bir süre sonra tekrar deneyin veya destek ile iletişime geçin.
+                    IGDB (Twitch) API yapılandırılmamış. <code className="text-gray-400">backend</code> için{' '}
+                    <code className="text-gray-400">Igdb:ClientId</code> ve{' '}
+                    <code className="text-gray-400">Igdb:ClientSecret</code> user-secrets veya env ile tanımlayın; ayrıntı{' '}
+                    <span className="text-gray-400">docs/DEPLOY.md</span>.
                 </p>
             ) : (
                 <p className="mt-2 text-center max-w-sm text-sm text-gray-500">
@@ -60,7 +63,7 @@ function PopularPageInfinite() {
         [popularData]
     );
 
-    const rawgConfigured = popularData?.pages?.[0]?.rawgConfigured;
+    const igdbConfigured = popularData?.pages?.[0]?.igdbConfigured;
 
     const rows = useMemo(() => {
         const result = [];
@@ -123,7 +126,7 @@ function PopularPageInfinite() {
                     </button>
                 </div>
             ) : games.length === 0 ? (
-                <PopularEmptyState rawgConfigured={rawgConfigured} onRetry={() => refetch()} />
+                <PopularEmptyState igdbConfigured={igdbConfigured} onRetry={() => refetch()} />
             ) : (
                 <div style={{ height: `${rowVirtualizer.getTotalSize()}px`, position: 'relative' }}>
                     {rowVirtualizer.getVirtualItems().map((virtualRow) => {
@@ -193,7 +196,7 @@ function PopularPagePaged() {
 
     const games = data?.items ?? [];
     const pageNum = backStack.length + 1;
-    const rawgConfigured = data?.rawgConfigured;
+    const igdbConfigured = data?.igdbConfigured;
 
     const errorMessage =
         error?.response?.data?.message ??
@@ -222,7 +225,7 @@ function PopularPagePaged() {
                     </button>
                 </div>
             ) : games.length === 0 ? (
-                <PopularEmptyState rawgConfigured={rawgConfigured} onRetry={() => refetch()} />
+                <PopularEmptyState igdbConfigured={igdbConfigured} onRetry={() => refetch()} />
             ) : (
                 <>
                     <div className={`grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-x-5 gap-y-10 pb-6 ${isFetching ? 'opacity-70' : ''}`}>

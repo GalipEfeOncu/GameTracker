@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Star, Calendar, Globe, Plus, Check, ChevronDown, ChevronUp, Trash2 } from 'lucide-react';
+import { ArrowLeft, Calendar, Globe, Plus, Check, ChevronDown, ChevronUp, Trash2, Shield } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import { getGameDetails, fetchUserLibrary, addGameToLibrary, updateGameStatus, removeGameFromLibrary, getGameScreenshots } from '../api/apiClient';
 import { useUser } from '../context/UserContext';
@@ -26,6 +26,25 @@ function formatLibraryMutationError(err, fallback) {
         if (msgs.length) return msgs.join(' ');
     }
     return fallback;
+}
+
+/** Detay hero: tek satır, kaynak + puan aynı hizada */
+function HeroScoreChip({ label, value, detail, accentClass = 'text-gray-400' }) {
+    const title = detail ? `${label} — ${detail}` : label;
+    return (
+        <div
+            className="flex h-10 shrink-0 items-center gap-2.5 rounded-md border border-white/10 bg-black/40 px-3.5 backdrop-blur-md"
+            title={title}
+        >
+            <span className={`text-[11px] font-bold uppercase tracking-wider ${accentClass}`}>{label}</span>
+            <span className="text-lg font-bold tabular-nums leading-none text-white">{value}</span>
+            {detail ? (
+                <span className="hidden max-w-[7.5rem] truncate text-[11px] text-gray-500 sm:inline" aria-hidden>
+                    {detail}
+                </span>
+            ) : null}
+        </div>
+    );
 }
 
 export default function GameDetailsPage() {
@@ -129,18 +148,40 @@ export default function GameDetailsPage() {
     const textLength = descriptionHtml.replace(/<[^>]+>/g, '').length;
     const shouldTruncate = textLength > maxDescriptionLength;
 
+    const heroImageSrc = game.background_image_additional || game.background_image;
+    const hasMetacritic = game.metacritic != null && Number(game.metacritic) > 0;
+    const hasIgdbCritic =
+        game.igdb_aggregated_rating != null &&
+        game.igdb_aggregated_rating_count != null &&
+        Number(game.igdb_aggregated_rating_count) > 0;
+    const hasIgdbTotal = game.igdb_total_rating != null && Number(game.igdb_total_rating) > 0;
+    const showIgdbTotalOnly = hasIgdbTotal && !hasIgdbCritic;
+    const hasAnyScore = hasMetacritic || hasIgdbCritic || showIgdbTotalOnly;
+    const ageRatings = Array.isArray(game.age_ratings_display) ? game.age_ratings_display : [];
+    const primaryAgeRating = ageRatings[0] ?? null;
+
     return (
         <div className="h-full overflow-y-auto bg-[#0f111a] scroll-smooth">
             {/* Hero Header */}
             <div className="relative h-[55vh] min-h-[450px] w-full">
-                <div className="absolute inset-0 z-0">
-                    <img
-                        src={game.background_image}
-                        alt={game.name}
-                        className="w-full h-full object-cover"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#0f111a] via-[#0f111a]/50 to-black/30" />
-                    <div className="absolute inset-0 bg-gradient-to-r from-[#0f111a] via-[#0f111a]/50 to-transparent" />
+                <div className="absolute inset-0 z-0 overflow-hidden bg-[#0f111a]">
+                    {heroImageSrc ? (
+                        <>
+                            <img
+                                src={heroImageSrc}
+                                alt=""
+                                className="absolute inset-0 h-full w-full scale-110 object-cover opacity-45 blur-3xl"
+                                aria-hidden
+                            />
+                            <img
+                                src={heroImageSrc}
+                                alt={game.name}
+                                className="absolute inset-0 z-[1] h-full w-full object-cover object-center"
+                            />
+                        </>
+                    ) : null}
+                    <div className="absolute inset-0 z-[2] bg-gradient-to-t from-[#0f111a] via-[#0f111a]/50 to-black/30" />
+                    <div className="absolute inset-0 z-[2] bg-gradient-to-r from-[#0f111a] via-[#0f111a]/50 to-transparent" />
                 </div>
 
                 <button
@@ -162,18 +203,71 @@ export default function GameDetailsPage() {
                         </div>
                         <h1 className="text-6xl lg:text-7xl font-bold text-white tracking-tight mb-4 drop-shadow-lg">{game.name}</h1>
 
-                        <div className="flex flex-wrap items-center gap-8 mt-4 text-gray-300 font-semibold">
-                            <div className="flex items-center gap-2">
-                                <Star className="text-yellow-500" fill="currentColor" size={20} />
-                                <span className="text-xl text-white font-bold">{game.metacritic || 'N/A'}</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <Calendar className="text-blue-500" size={20} />
-                                <span>{game.released}</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <Globe className="text-indigo-400" size={20} />
-                                <a href={game.website} target="_blank" rel="noreferrer" className="hover:text-white transition-colors">Resmi Site</a>
+                        {/* Sabit yükseklik: puanlar (çipler) + meta şerit ayrı; hizalı tek satır hissi */}
+                        <div className="mt-4 space-y-3">
+                            {hasAnyScore ? (
+                                <div className="flex min-h-10 flex-wrap items-center gap-2.5">
+                                    {hasMetacritic ? (
+                                        <HeroScoreChip label="Metacritic" value={game.metacritic} accentClass="text-yellow-500/90" />
+                                    ) : null}
+                                    {hasIgdbCritic ? (
+                                        <HeroScoreChip
+                                            label="IGDB"
+                                            value={game.igdb_aggregated_rating}
+                                            detail={`Eleştiri · ${game.igdb_aggregated_rating_count} kaynak`}
+                                            accentClass="text-amber-400/90"
+                                        />
+                                    ) : null}
+                                    {showIgdbTotalOnly ? (
+                                        <HeroScoreChip
+                                            label="IGDB"
+                                            value={game.igdb_total_rating}
+                                            detail="Toplam puan"
+                                            accentClass="text-amber-400/90"
+                                        />
+                                    ) : null}
+                                </div>
+                            ) : (
+                                <div className="min-h-10" aria-hidden />
+                            )}
+
+                            <div className="flex min-h-10 flex-wrap items-center gap-x-8 gap-y-2 text-sm font-medium text-gray-300">
+                                {primaryAgeRating ? (
+                                    <div className="flex h-10 items-center gap-2">
+                                        <Shield className="shrink-0 text-orange-400" size={18} strokeWidth={2} aria-hidden />
+                                        <span
+                                            className="inline-flex h-9 max-w-[min(100%,18rem)] items-center truncate border border-orange-500/35 bg-orange-500/10 px-3 text-xs font-bold uppercase tracking-wide text-orange-100"
+                                            title={
+                                                primaryAgeRating.organization
+                                                    ? `${primaryAgeRating.organization}: ${primaryAgeRating.label}`
+                                                    : primaryAgeRating.label
+                                            }
+                                        >
+                                            {primaryAgeRating.organization
+                                                ? `${primaryAgeRating.organization}: ${primaryAgeRating.label}`
+                                                : primaryAgeRating.label}
+                                        </span>
+                                    </div>
+                                ) : null}
+                                {game.released ? (
+                                    <div className="flex h-10 items-center gap-2">
+                                        <Calendar className="shrink-0 text-blue-400" size={18} aria-hidden />
+                                        <span className="tabular-nums text-gray-200">{game.released}</span>
+                                    </div>
+                                ) : null}
+                                {game.website ? (
+                                    <div className="flex h-10 items-center gap-2">
+                                        <Globe className="shrink-0 text-indigo-400" size={18} aria-hidden />
+                                        <a
+                                            href={game.website}
+                                            target="_blank"
+                                            rel="noreferrer"
+                                            className="text-gray-200 transition-colors hover:text-white"
+                                        >
+                                            Resmi site
+                                        </a>
+                                    </div>
+                                ) : null}
                             </div>
                         </div>
 
@@ -334,7 +428,7 @@ export default function GameDetailsPage() {
                                 )}
                             </div>
                         ) : (
-                            <p className="text-sm text-gray-500 leading-relaxed italic">Minimum gereksinimler RAWG üzerinde belirtilmediyse burada görünmez.</p>
+                            <p className="text-sm text-gray-500 leading-relaxed italic">Veri sağlayıcılarda belirtilmediyse sistem gereksinimleri burada görünmez.</p>
                         )}
                     </div>
 
@@ -352,12 +446,12 @@ export default function GameDetailsPage() {
                                 href={shot.imageUrl ?? shot.image}
                                 target="_blank"
                                 rel="noreferrer"
-                                className="flex-shrink-0 w-72 sm:w-80 rounded-none overflow-hidden border border-[#1f2334] snap-center hover:border-blue-500/50 transition-colors"
+                                className="flex h-48 w-72 shrink-0 snap-center items-center justify-center rounded-none border border-[#1f2334] bg-[#0a0c12] transition-colors hover:border-blue-500/50 sm:w-80"
                             >
                                 <img
                                     src={shot.imageUrl ?? shot.image}
                                     alt=""
-                                    className="w-full h-40 object-cover"
+                                    className="max-h-full max-w-full object-contain"
                                     loading="lazy"
                                 />
                             </a>

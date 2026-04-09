@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -15,13 +16,23 @@ namespace GameTracker.Api.Controllers
     [Route("api/[controller]")]
     public class LibraryController : ControllerBase
     {
-        private readonly RawgApiService _rawgApi;
-        private readonly GeminiService _geminiService;
+        private const int PopularBatchSize = 120;
 
-        public LibraryController(RawgApiService rawgApi, GeminiService geminiService)
+        private readonly IgdbApiService _igdb;
+        private readonly RawgApiService _rawg;
+        private readonly GeminiService _geminiService;
+        private readonly HybridGameDetailService _hybridDetail;
+
+        public LibraryController(
+            IgdbApiService igdb,
+            RawgApiService rawg,
+            GeminiService geminiService,
+            HybridGameDetailService hybridDetail)
         {
-            _rawgApi = rawgApi;
+            _igdb = igdb;
+            _rawg = rawg;
             _geminiService = geminiService;
+            _hybridDetail = hybridDetail;
         }
 
         [Authorize]
@@ -87,50 +98,43 @@ namespace GameTracker.Api.Controllers
         }
 
         [HttpGet("search")]
-        public async Task<IActionResult> SearchGames([FromQuery] string query, [FromQuery] bool nsfw = false, [FromQuery] int size = 20)
+        public async Task<IActionResult> SearchGames(
+            [FromQuery] string query,
+            [FromQuery] bool nsfw = false,
+            [FromQuery] int size = 40,
+            CancellationToken cancellationToken = default)
         {
-            var results = await _rawgApi.GetGamesBySearchAsync(query, nsfw, size);
+            var results = await _igdb.SearchAsync(query, size, nsfw, cancellationToken).ConfigureAwait(false);
             return Ok(results);
         }
 
         [HttpGet("popular")]
-        public async Task<IActionResult> GetPopularGames([FromQuery] int offset = 0, [FromQuery] bool nsfw = false)
+        public async Task<IActionResult> GetPopularGames(
+            [FromQuery] int offset = 0,
+            [FromQuery] bool nsfw = false,
+            CancellationToken cancellationToken = default)
         {
-            const int rawgPageSize = 40;   // RAWG max page size
-            const int pagesToFetch = 3;    // 3 paralel sayfa = 120 oyun (NSFW istemci filtresi sonrası azalabilir)
+            var games = await _igdb.GetPopularAsync(offset, PopularBatchSize, nsfw, cancellationToken).ConfigureAwait(false);
+            bool hasMore = games.Count >= PopularBatchSize;
+            int nextOffset = offset + games.Count;
 
-            // Her istekte hangi RAWG sayfalarını çekeceğimizi hesapla
-            int startPage = (offset / rawgPageSize) + 1;
-
-            // 3 RAWG sayfasını paralel çek
-            var tasks = Enumerable.Range(startPage, pagesToFetch)
-                .Select(p => _rawgApi.GetPopularGamesAsync(p, nsfw, rawgPageSize));
-
-            var results = await Task.WhenAll(tasks);
-            // Eski Added >= 3 süzgeci çoğu yeni çıkan / -released sıralı oyunda listeyi boşaltıyordu; kaldırıldı.
-            var games = results.SelectMany(r => r).ToList();
-
-            // Eğer 3 sayfanın hepsinden de oyun geldiyse daha fazla sayfa muhtemelen var
-            bool hasMore = results.Any(r => r.Count > 0);
-            int nextOffset = offset + (rawgPageSize * pagesToFetch);
-
+            bool igdbConfigured = AppConfig.IsIgdbConfigured;
             bool rawgConfigured = !string.IsNullOrWhiteSpace(AppConfig.RawgApiKey);
-            return Ok(new { items = games, nextOffset, hasMore, rawgConfigured });
+            return Ok(new { items = games, nextOffset, hasMore, igdbConfigured, rawgConfigured });
         }
 
         [HttpGet("game/{gameId}")]
-        public async Task<IActionResult> GetGameDetails(int gameId)
+        public async Task<IActionResult> GetGameDetails(int gameId, CancellationToken cancellationToken = default)
         {
-            var game = await _rawgApi.GetGameDetailsAsync(gameId);
+            var game = await _hybridDetail.GetDetailAsync(gameId, cancellationToken).ConfigureAwait(false);
             if (game == null) return NotFound();
-
             return Ok(game);
         }
 
         [HttpGet("game/{gameId}/screenshots")]
-        public async Task<IActionResult> GetGameScreenshots(int gameId)
+        public async Task<IActionResult> GetGameScreenshots(int gameId, CancellationToken cancellationToken = default)
         {
-            var screenshots = await _rawgApi.GetGameScreenshotsAsync(gameId);
+            var screenshots = await _igdb.GetScreenshotsAsync(gameId, cancellationToken).ConfigureAwait(false);
             return Ok(screenshots ?? new List<Screenshot>());
         }
 
@@ -139,36 +143,35 @@ namespace GameTracker.Api.Controllers
             [FromQuery] int? genre = null,
             [FromQuery] string mode = "trending",
             [FromQuery] int page = 1,
-            [FromQuery] bool nsfw = false)
+            [FromQuery] bool nsfw = false,
+            CancellationToken cancellationToken = default)
         {
             const int pageSize = 20;
-            var games = await _rawgApi.GetDiscoverGamesAsync(genre, mode, page, nsfw, pageSize);
+            var games = await _igdb.GetDiscoverAsync(genre, mode, page, pageSize, nsfw, cancellationToken).ConfigureAwait(false);
             bool hasMore = games.Count == pageSize;
+            bool igdbConfigured = AppConfig.IsIgdbConfigured;
             bool rawgConfigured = !string.IsNullOrWhiteSpace(AppConfig.RawgApiKey);
-            return Ok(new { items = games, hasMore, nextPage = page + 1, rawgConfigured });
+            return Ok(new { items = games, hasMore, nextPage = page + 1, igdbConfigured, rawgConfigured });
         }
 
-
         [HttpPost("recommendations")]
-        public async Task<IActionResult> GetRecommendations([FromBody] List<string> userGames)
+        public async Task<IActionResult> GetRecommendations(
+            [FromBody] List<string> userGames,
+            CancellationToken cancellationToken = default)
         {
             try
             {
-                // 1. AI'dan isimleri al
-                var recommendedNames = await _geminiService.GetRecommendationsAsync(userGames);
+                var recommendedNames = await _geminiService.GetRecommendationsAsync(userGames).ConfigureAwait(false);
                 if (recommendedNames == null || recommendedNames.Count == 0) return Ok(new List<Game>());
 
-                // 2. Her isim için RAWG'dan oyun verisini paralel çek (hız için)
-                // İlk sonucu almak yeterli, genelde AI tam ismi verir.
-                var tasks = recommendedNames.Take(15).Select(async name => 
+                var tasks = recommendedNames.Take(15).Select(async name =>
                 {
-                    var searchResult = await _rawgApi.GetGamesBySearchAsync(name, false, 1);
-                    return searchResult.FirstOrDefault();
+                    var found = await _igdb.SearchAsync(name, 1, showNsfw: false, cancellationToken).ConfigureAwait(false);
+                    return found.FirstOrDefault();
                 });
 
-                var results = await Task.WhenAll(tasks);
+                var results = await Task.WhenAll(tasks).ConfigureAwait(false);
                 var games = results.Where(g => g != null).ToList();
-
                 return Ok(games);
             }
             catch (System.Exception ex)

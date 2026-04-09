@@ -71,6 +71,35 @@ namespace GameTracker.Models
         [JsonProperty("added")]
         public int Added { get; set; } // Kaç kişi bu oyunu kütüphanesine eklemiş (popülerlik göstergesi)
 
+        /// <summary>§3.4: Kullanıcıya gösterilen tek puan (Metacritic veya IGDB türevi).</summary>
+        [JsonProperty("display_score")]
+        public double? DisplayScore { get; set; }
+
+        [JsonProperty("display_score_kind")]
+        public string DisplayScoreKind { get; set; }
+
+        [JsonProperty("display_score_label")]
+        public string DisplayScoreLabel { get; set; }
+
+        /// <summary>IGDB eleştiri özeti (detayda Metacritic ile birlikte gösterilir).</summary>
+        [JsonProperty("igdb_aggregated_rating")]
+        public double? IgdbAggregatedRating { get; set; }
+
+        [JsonProperty("igdb_aggregated_rating_count")]
+        public int? IgdbAggregatedRatingCount { get; set; }
+
+        /// <summary>IGDB toplam kullanıcı+kritik birleşik puan.</summary>
+        [JsonProperty("igdb_total_rating")]
+        public double? IgdbTotalRating { get; set; }
+
+        /// <summary>IGDB yaş derecelendirmeleri (kuruluş + etiket).</summary>
+        [JsonProperty("age_ratings_display")]
+        public List<AgeRatingDisplayItem> AgeRatingsDisplay { get; set; }
+
+        /// <summary>RAWG tamamlayıcı çağrıda kullanılan id (hibrit detay).</summary>
+        [JsonProperty("rawg_id")]
+        public int? RawgId { get; set; }
+
         /// <summary>
         /// Kullanıcı kütüphanesindeki oyunun durumu (Playing, PlanToPlay, Played, Dropped).
         /// Sadece GetUserLibrary cevabında dolu; RAWG API cevaplarında null.
@@ -174,6 +203,15 @@ namespace GameTracker.Models
         public string Recommended { get; set; }
     }
 
+    public class AgeRatingDisplayItem
+    {
+        [JsonProperty("organization")]
+        public string Organization { get; set; }
+
+        [JsonProperty("label")]
+        public string Label { get; set; }
+    }
+
     public class EsrbRating
     {
         [JsonProperty("id")]
@@ -188,6 +226,9 @@ namespace GameTracker.Models
 
     public class Genre
     {
+        [JsonProperty("id")]
+        public int Id { get; set; }
+
         [JsonProperty("name")]
         public string Name { get; set; }
 

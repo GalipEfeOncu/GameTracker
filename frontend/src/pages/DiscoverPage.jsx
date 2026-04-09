@@ -6,28 +6,33 @@ import { Loader2, SearchX, Flame, Star, Sparkles, Gamepad2 } from 'lucide-react'
 import GameCard from '../components/GameCard';
 import { GameCardSkeletonGrid } from '../components/GameCardSkeleton';
 
-// RAWG Genre ID'leri
+// IGDB genre id'leri (backend IgdbGenreCatalog ile aynı)
 const GENRES = [
     { id: null, label: 'Tümü', emoji: '🎮' },
-    { id: 4, label: 'Action', emoji: '⚔️' },
-    { id: 5, label: 'RPG', emoji: '🐉' },
-    { id: 2, label: 'Shooter', emoji: '🔫' },
-    { id: 3, label: 'Adventure', emoji: '🗺️' },
-    { id: 7, label: 'Puzzle', emoji: '🧩' },
-    { id: 10, label: 'Strategy', emoji: '♟️' },
-    { id: 83, label: 'Platformer', emoji: '🕹️' },
-    { id: 14, label: 'Simulation', emoji: '🏗️' },
-    { id: 1, label: 'Racing', emoji: '🏎️' },
-    { id: 15, label: 'Sports', emoji: '⚽' },
-    { id: 6, label: 'Fighting', emoji: '🥊' },
-    { id: 51, label: 'Indie', emoji: '🎨' },
+    { id: 25, label: 'Action', emoji: '⚔️' },
+    { id: 12, label: 'RPG', emoji: '🐉' },
+    { id: 5, label: 'Shooter', emoji: '🔫' },
+    { id: 31, label: 'Adventure', emoji: '🗺️' },
+    { id: 36, label: 'Puzzle', emoji: '🧩' },
+    { id: 15, label: 'Strategy', emoji: '♟️' },
+    { id: 8, label: 'Platformer', emoji: '🕹️' },
+    { id: 13, label: 'Simulation', emoji: '🏗️' },
+    { id: 10, label: 'Racing', emoji: '🏎️' },
+    { id: 14, label: 'Sports', emoji: '⚽' },
+    { id: 4, label: 'Fighting', emoji: '🥊' },
+    { id: 32, label: 'Indie', emoji: '🎨' },
 ];
 
 const MODES = [
-    { id: 'trending', label: 'Trend', icon: Flame },
-    { id: 'top_rated', label: 'En İyi', icon: Star },
-    { id: 'new', label: 'Yeni Çıkan', icon: Sparkles },
-    { id: 'metacritic_top', label: 'Metacritic 75+', icon: Gamepad2 },
+    { id: 'trending', label: 'Trend', icon: Flame, hint: null },
+    { id: 'top_rated', label: 'En İyi', icon: Star, hint: null },
+    { id: 'new', label: 'Yeni Çıkan', icon: Sparkles, hint: null },
+    {
+        id: 'metacritic_top',
+        label: 'Eleştiri 75+',
+        icon: Gamepad2,
+        hint: 'IGDB eleştiri özeti (aggregated_rating) 75 ve üzeri',
+    },
 ];
 
 export default function DiscoverPage() {
@@ -117,6 +122,8 @@ export default function DiscoverPage() {
                         return (
                             <button
                                 key={m.id}
+                                type="button"
+                                title={m.hint ?? undefined}
                                 onClick={() => setActiveModeState(m.id)}
                                 className={`flex items-center gap-1.5 px-4 py-1.5 rounded-none text-sm font-bold transition-all border
                                     ${active

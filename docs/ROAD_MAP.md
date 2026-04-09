@@ -89,6 +89,7 @@ Henüz yapılmamış veya netleştirilmesi gereken işler. Tamamlanan özellikle
 - [ ] **Kütüphane arama / sıralama** — İsimle süzme; isteğe bağlı sıralama (eklenme, ad, Metacritic); ilk adım: istemci tarafı filtre.
 - [ ] **AI öneri eşiği (UX)** — “En az üç oyun” bilgilendirme; az örnekte Keşfet / Popüler CTA.
 - [ ] **Büyük listeler** — Sanal liste (windowing) veya sayfalı mod; çok `GameCard` DOM yükü.
+- [x] **Liste / hero yatay görsel (web + API)** — IGDB’de varsa ilk `screenshots` görseli (yatay) liste `background_image` ve detay hero `background_image_additional` için; yoksa kapak; kartlar `aspect-video` + `object-cover`, hero tam alan `object-cover`.
 - [ ] **Görsel optimizasyonu** — Seçilen API görselleri için `resize` / `srcset` / sabit genişlik; LQIP tarzı yer tutucu (veri kaynağı değişince yeniden uyum).
 - [ ] **Mikro etkileşim** — Başarı animasyonu / optimistic UI; “Tekrar dene”; klavye (global arama odağı, yardım).
 - [ ] **Şema genişlemesi** — Oyun başına not / etiket; tamamlanma tarihi vb. istatistikler.

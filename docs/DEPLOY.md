@@ -6,7 +6,9 @@ API ve SPA’yı canlıya alırken ve sırları yönetirken kullanacağın özet
 
 ## Repoda tutulmaması gerekenler
 
-Connection string, RAWG/Gemini anahtarları, SMTP ve JWT imza anahtarı commit edilmemeli. Şema için `backend/appsettings.Example.json`; gerçek değerler yalnızca user-secrets (lokal) veya barındırma panelindeki env (üretim).
+Connection string, RAWG/Gemini, **IGDB (Twitch Client ID + secret)**, SMTP ve JWT imza anahtarı commit edilmemeli. Şema için `backend/appsettings.Example.json`; gerçek değerler yalnızca user-secrets (lokal) veya barındırma panelindeki env (üretim).
+
+**IGDB:** [Twitch Developer Console](https://dev.twitch.tv/console/apps) üzerinde uygulama oluştur; **Client ID** ve **Client Secret** al. Bu kimlikler IGDB API v4 için OAuth `client_credentials` token üretiminde kullanılır (oyun listeleri / arama). Detay sayfasında platform ve mağaza için **RAWG anahtarı** ayrıca gerekir.
 
 ---
 
@@ -19,6 +21,8 @@ cd backend
 
 dotnet user-secrets set "ConnectionStrings:GameTrackerDB" "BURAYA_CONNECTION_STRING"
 dotnet user-secrets set "ApiKeys:RawgApiKey" "BURAYA_RAWG_KEY"
+dotnet user-secrets set "Igdb:ClientId" "TWITCH_CLIENT_ID"
+dotnet user-secrets set "Igdb:ClientSecret" "TWITCH_CLIENT_SECRET"
 dotnet user-secrets set "ApiKeys:GeminiApiKey" "BURAYA_GEMINI_KEY"
 dotnet user-secrets set "EmailSettings:MailAddress" "ornek@mail.com"
 dotnet user-secrets set "EmailSettings:MailPassword" "UYGULAMA_SIFRESI"
@@ -40,7 +44,9 @@ Listelemek: `dotnet user-secrets list`
 | Ortam değişkeni | Karşılığı |
 |-----------------|-----------|
 | `ConnectionStrings__GameTrackerDB` | SQL connection string |
-| `ApiKeys__RawgApiKey` | RAWG |
+| `ApiKeys__RawgApiKey` | RAWG (detay tamamlayıcı) |
+| `Igdb__ClientId` | Twitch uygulama Client ID (IGDB) |
+| `Igdb__ClientSecret` | Twitch Client Secret (IGDB) |
 | `ApiKeys__GeminiApiKey` | Gemini (isteğe bağlı) |
 | `EmailSettings__MailAddress` | SMTP |
 | `EmailSettings__MailPassword` | SMTP şifresi |

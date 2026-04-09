@@ -3,18 +3,22 @@ import { useNavigate } from 'react-router-dom';
 import { MoreVertical, Trash2 } from 'lucide-react';
 import { getStatusLabel, LIBRARY_STATUS } from '../constants/libraryStatus';
 
-const McBadge = ({ score, compactCorner = false }) => {
-    if (!score) return null;
-    const color = score >= 80
+const McBadge = ({ score, scoreLabel, compactCorner = false }) => {
+    const n = Number(score);
+    if (!Number.isFinite(n) || n <= 0) return null;
+    const color = n >= 80
         ? 'bg-green-500 text-white'
-        : score >= 60
+        : n >= 60
             ? 'bg-yellow-500 text-black'
             : 'bg-red-500 text-white';
-    // Kütüphane kartında sağ üstte menü var; rozet altta dursun
     const pos = compactCorner ? 'bottom-2 right-2' : 'top-2 right-2';
+    const title = scoreLabel ? `${scoreLabel}: ${n}` : String(n);
     return (
-        <div className={`absolute ${pos} z-10 ${color} text-xs font-bold px-1.5 py-0.5 rounded-none leading-none`}>
-            {score}
+        <div
+            className={`absolute ${pos} z-10 ${color} text-xs font-bold px-1.5 py-0.5 rounded-none leading-none`}
+            title={title}
+        >
+            {n}
         </div>
     );
 };
@@ -69,7 +73,7 @@ const GameCard = memo(({ game, showLibraryStatus = false, onRemove, onStatusChan
                         <img
                             src={game.background_image}
                             alt={game.name}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                            className="h-full w-full object-cover object-center transition-transform duration-500 group-hover:scale-105"
                             loading="lazy"
                             decoding="async"
                             onError={(e) => { e.currentTarget.style.display = 'none'; }}
@@ -139,7 +143,11 @@ const GameCard = memo(({ game, showLibraryStatus = false, onRemove, onStatusChan
                     </div>
                 )}
 
-                <McBadge score={game.metacritic} compactCorner={hasLibraryActions} />
+                <McBadge
+                    score={game.display_score ?? game.metacritic}
+                    scoreLabel={game.display_score_label}
+                    compactCorner={hasLibraryActions}
+                />
             </div>
 
             {/* Ortalı başlık ve tür */}

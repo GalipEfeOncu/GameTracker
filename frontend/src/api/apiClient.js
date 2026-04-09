@@ -182,7 +182,7 @@ export const updateGameStatus = async (userId, gameId, newStatus) => {
     return data;
 };
 
-// ---- Games (RAWG) ----
+// ---- Oyun katalogu (liste/arama: IGDB; detay: IGDB + RAWG tamamlayıcı) ----
 export const getGameDetails = async (id) => {
     if (!id) return null;
     const { data } = await apiClient.get(`/Library/game/${id}`);

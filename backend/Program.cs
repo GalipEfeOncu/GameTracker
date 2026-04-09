@@ -12,7 +12,7 @@ using GameTracker.Api;
 using GameTracker.Api.Auth;
 using GameTracker.Api.ExceptionHandlers;
 using GameTracker.Services;
-using GameTracker; // for RawgApiService
+using GameTracker;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -51,7 +51,14 @@ builder.Services.AddRateLimiter(options =>
     options.AddPolicy(RateLimitPolicies.AuthDestructive, RateLimitPolicies.AuthDestructivePartition);
 });
 
+builder.Services.AddHttpClient(nameof(TwitchIgdbTokenProvider), c => c.Timeout = TimeSpan.FromSeconds(30));
+builder.Services.AddHttpClient(nameof(IgdbApiService), c => c.Timeout = TimeSpan.FromSeconds(45));
+
 // DI: Scoped services — her HTTP isteği için yeni instance
+builder.Services.AddSingleton<IgdbRateGate>();
+builder.Services.AddSingleton<TwitchIgdbTokenProvider>();
+builder.Services.AddScoped<IgdbApiService>();
+builder.Services.AddScoped<HybridGameDetailService>();
 builder.Services.AddScoped<RawgApiService>();
 builder.Services.AddScoped<GeminiService>();
 // EmailService is static, so we don't register it in DI.
@@ -96,10 +103,15 @@ app.UseExceptionHandler();
 
 if (app.Environment.IsDevelopment())
 {
+    var igdbOk = AppConfig.IsIgdbConfigured;
+    app.Logger.LogInformation("IGDB (Twitch) yapılandırılmış: {Configured}", igdbOk);
+    if (!igdbOk)
+        app.Logger.LogWarning("Popüler/Keşfet/Arama için Igdb:ClientId ve Igdb:ClientSecret tanımlayın (docs/DEPLOY.md).");
+
     var rawgOk = !string.IsNullOrWhiteSpace(AppConfig.RawgApiKey);
     app.Logger.LogInformation("RAWG API anahtarı yapılandırılmış: {Configured}", rawgOk);
     if (!rawgOk)
-        app.Logger.LogWarning("Popüler/Keşfet için ApiKeys:RawgApiKey tanımlayın (önerilen: dotnet user-secrets; üretim: ortam değişkeni ApiKeys__RawgApiKey).");
+        app.Logger.LogWarning("Oyun detayında platform/mağaza/gereksinim için ApiKeys:RawgApiKey tanımlayın.");
 
     var dbOk = AppConfig.IsDatabaseConfigured;
     app.Logger.LogInformation("Veritabanı connection string tanımlı: {Configured}", dbOk);
