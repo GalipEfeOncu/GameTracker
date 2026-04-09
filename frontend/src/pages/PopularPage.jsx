@@ -7,8 +7,7 @@ import { getPopularGames } from '../api/apiClient';
 import { usePreferences } from '../context/PreferencesContext';
 import GameCard from '../components/GameCard';
 import { GameCardSkeletonGrid } from '../components/GameCardSkeleton';
-
-const COLUMNS = 5;
+import { useGameGridColumns } from '../hooks/useGameGridColumns';
 
 function PopularEmptyState({ igdbConfigured, onRetry }) {
     return (
@@ -42,6 +41,7 @@ function PopularPageInfinite() {
     const mainRef = useRef(null);
     const fetchingRef = useRef(false);
     const { showNsfw } = usePreferences();
+    const columns = useGameGridColumns();
 
     const {
         data: popularData,
@@ -67,17 +67,18 @@ function PopularPageInfinite() {
 
     const rows = useMemo(() => {
         const result = [];
-        for (let i = 0; i < games.length; i += COLUMNS) {
-            result.push(games.slice(i, i + COLUMNS));
+        for (let i = 0; i < games.length; i += columns) {
+            result.push(games.slice(i, i + columns));
         }
         return result;
-    }, [games]);
+    }, [games, columns]);
 
     const rowVirtualizer = useVirtualizer({
         count: rows.length,
         getScrollElement: () => mainRef.current,
-        estimateSize: () => 280,
-        overscan: 10,
+        // 2:3 görsel + başlık + satır altı boşluk (Keşfet ile aynı gap-y-16 ≈ pb-16)
+        estimateSize: () => 500,
+        overscan: 6,
     });
 
     const handleScroll = useCallback(() => {
@@ -105,8 +106,8 @@ function PopularPageInfinite() {
         <div ref={mainRef} className="h-full overflow-y-auto px-8 pt-8 pb-20">
             {isLoading ? (
                 <GameCardSkeletonGrid
-                    count={15}
-                    className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-x-5 gap-y-10 pb-10"
+                    count={18}
+                    className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 items-start gap-x-6 gap-y-16 pb-10"
                 />
             ) : isError ? (
                 <div className="flex flex-col items-center justify-center py-24 px-4 text-center max-w-md mx-auto">
@@ -134,6 +135,9 @@ function PopularPageInfinite() {
                         return (
                             <div
                                 key={virtualRow.key}
+                                data-index={virtualRow.index}
+                                ref={rowVirtualizer.measureElement}
+                                className="pb-16"
                                 style={{
                                     position: 'absolute',
                                     top: 0,
@@ -142,7 +146,10 @@ function PopularPageInfinite() {
                                     transform: `translateY(${virtualRow.start}px)`,
                                 }}
                             >
-                                <div className="grid grid-cols-5 gap-x-5 gap-y-10 pb-10">
+                                <div
+                                    className="grid items-start gap-x-6"
+                                    style={{ gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` }}
+                                >
                                     {rowGames.map((game) => (
                                         <GameCard key={game.id} game={game} />
                                     ))}
@@ -206,7 +213,7 @@ function PopularPagePaged() {
     return (
         <div className="h-full overflow-y-auto px-8 pt-8 pb-20">
             {isLoading && !data ? (
-                <GameCardSkeletonGrid count={15} />
+                <GameCardSkeletonGrid count={18} />
             ) : isError ? (
                 <div className="flex flex-col items-center justify-center py-24 px-4 text-center max-w-md mx-auto">
                     <AlertCircle size={48} className="mb-4 text-red-400 opacity-90" />
@@ -228,7 +235,7 @@ function PopularPagePaged() {
                 <PopularEmptyState igdbConfigured={igdbConfigured} onRetry={() => refetch()} />
             ) : (
                 <>
-                    <div className={`grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-x-5 gap-y-10 pb-6 ${isFetching ? 'opacity-70' : ''}`}>
+                    <div className={`grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 items-start gap-x-6 gap-y-16 pb-6 ${isFetching ? 'opacity-70' : ''}`}>
                         {games.map((game) => (
                             <GameCard key={`${offset}-${game.id}`} game={game} />
                         ))}

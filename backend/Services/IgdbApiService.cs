@@ -17,12 +17,13 @@ public sealed class IgdbApiService
     private const int Unix2019 = 1546300800; // 2019-01-01 — popüler/trend için alt tarih sınırı
 
     private static readonly string ListFields =
-        "id,name,cover.image_id,screenshots.image_id,first_release_date,genres.id,genres.name,genres.slug," +
+        "id,name,slug,cover.image_id,first_release_date,genres.id,genres.name,genres.slug," +
         "aggregated_rating,total_rating,aggregated_rating_count,hypes,themes.slug";
 
     private static readonly string DetailFields =
         ListFields + ",summary,storyline,involved_companies.developer,involved_companies.publisher," +
-        "involved_companies.company.name,websites.url,websites.trusted," +
+        "involved_companies.company.name,websites.url,websites.trusted,screenshots.image_id," +
+        "videos.name,videos.video_id," +
         "age_ratings.rating_category.rating,age_ratings.rating_category.organization.name";
 
     private readonly IHttpClientFactory _httpFactory;
@@ -120,6 +121,24 @@ public sealed class IgdbApiService
     {
         var g = await GetGameJsonAsync(igdbGameId, ct).ConfigureAwait(false);
         return g == null ? new List<Screenshot>() : IgdbGameMapper.ScreenshotsFromToken(g);
+    }
+
+    /// <summary>IGDB mağaza kimlikleri ve doğrudan URL’ler (RAWG’den daha güvenilir satın alma linkleri).</summary>
+    public async Task<JArray?> GetExternalGamesForGameAsync(int igdbGameId, CancellationToken ct = default)
+    {
+        if (igdbGameId <= 0) return null;
+        // category: Steam=1, GOG=5, Epic=26, itch.io=30, … (external_game_source genişletmesi bazen hata verebiliyor)
+        var body = $"fields uid,url,category; where game = {igdbGameId}; limit 100;";
+        return await PostArrayAsync("external_games", body, ct).ConfigureAwait(false);
+    }
+
+    /// <summary>IGDB HowLongToBeat ortalamaları (oyun başına en fazla bir kayıt).</summary>
+    public async Task<JObject?> GetGameTimeToBeatJsonAsync(int igdbGameId, CancellationToken ct = default)
+    {
+        if (igdbGameId <= 0) return null;
+        var body = $"fields hastily,normally,completely,count; where game_id = {igdbGameId}; limit 1;";
+        var arr = await PostArrayAsync("game_time_to_beats", body, ct).ConfigureAwait(false);
+        return arr?.FirstOrDefault() as JObject;
     }
 
     private async Task<List<Game>> QueryGamesAsync(string apicalypseBody, bool showNsfw, CancellationToken ct)

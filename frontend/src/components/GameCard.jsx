@@ -62,13 +62,12 @@ const GameCard = memo(({ game, showLibraryStatus = false, onRemove, onStatusChan
                     handleCardClick();
                 }
             }}
-            className="group flex cursor-pointer flex-col items-center rounded-none outline-none hover:-translate-y-1 transition-transform duration-300"
-            style={{ contentVisibility: 'auto', containIntrinsicSize: '0 220px' }}
+            className="group flex w-full min-w-0 cursor-pointer flex-col items-stretch rounded-none outline-none transition-transform duration-300 hover:-translate-y-1"
             aria-label={game?.name ? `${game.name}, detay` : 'Oyun kartı'}
         >
-            {/* Dış çerçeve overflow-visible: menü taşabilsin. Kırpma sadece içteki görsel katmanda. */}
-            <div className="w-full aspect-video relative rounded-none border border-[#1f2334] group-hover:border-blue-500 transition-colors duration-300">
-                <div className="absolute inset-0 overflow-hidden z-0">
+            {/* IGDB kapak ~2:3; yatay screenshot/kapak da aynı çerçevede object-cover ile hizalanır */}
+            <div className="relative w-full aspect-[2/3] rounded-none border border-[#1f2334] transition-colors duration-300 group-hover:border-blue-500">
+                <div className="absolute inset-0 z-0 overflow-hidden bg-[#141722]">
                     {game.background_image ? (
                         <img
                             src={game.background_image}

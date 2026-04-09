@@ -11,6 +11,10 @@ namespace GameTracker.Models
         [JsonProperty("name")]
         public string Name { get; set; }
 
+        /// <summary>IGDB veya RAWG slug (liste/detay); hibrit eşlemede kullanılır.</summary>
+        [JsonProperty("slug")]
+        public string Slug { get; set; } = "";
+
         [JsonProperty("background_image")]
         public string BackgroundImage { get; set; }
 
@@ -60,7 +64,7 @@ namespace GameTracker.Models
         public List<Publisher> Publishers { get; set; }
 
         [JsonProperty("stores")]
-        public List<StoreWrapper> Stores { get; set; }
+        public List<StoreWrapper>? Stores { get; set; }
 
         [JsonProperty("tags")]
         public List<Tag> Tags { get; set; }
@@ -95,6 +99,14 @@ namespace GameTracker.Models
         /// <summary>IGDB yaş derecelendirmeleri (kuruluş + etiket).</summary>
         [JsonProperty("age_ratings_display")]
         public List<AgeRatingDisplayItem> AgeRatingsDisplay { get; set; }
+
+        /// <summary>IGDB game_videos — YouTube video_id (embed için).</summary>
+        [JsonProperty("trailer_youtube_id")]
+        public string? TrailerYoutubeId { get; set; }
+
+        /// <summary>IGDB <c>game_time_to_beats</c> (saniye → saat).</summary>
+        [JsonProperty("time_to_beat")]
+        public GameTimeToBeatInfo? TimeToBeat { get; set; }
 
         /// <summary>RAWG tamamlayıcı çağrıda kullanılan id (hibrit detay).</summary>
         [JsonProperty("rawg_id")]
@@ -201,6 +213,24 @@ namespace GameTracker.Models
 
         [JsonProperty("recommended")]
         public string Recommended { get; set; }
+    }
+
+    public class GameTimeToBeatInfo
+    {
+        /// <summary>Hızlı / ana hikaye (IGDB <c>hastily</c>).</summary>
+        [JsonProperty("main_story_hours")]
+        public double? MainStoryHours { get; set; }
+
+        /// <summary>Normal + biraz ek (IGDB <c>normally</c>).</summary>
+        [JsonProperty("main_extra_hours")]
+        public double? MainExtraHours { get; set; }
+
+        /// <summary>%100 (IGDB <c>completely</c>).</summary>
+        [JsonProperty("completionist_hours")]
+        public double? CompletionistHours { get; set; }
+
+        [JsonProperty("submission_count")]
+        public int? SubmissionCount { get; set; }
     }
 
     public class AgeRatingDisplayItem

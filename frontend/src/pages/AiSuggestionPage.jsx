@@ -63,7 +63,7 @@ export default function AiSuggestionPage() {
                     Öneriler şu an alınamıyor, AI motorunda yoğunluk olabilir.
                 </div>
             ) : (
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-6 gap-y-12">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 items-start gap-x-6 gap-y-16">
                     {suggestions?.map((game) => (
                         <GameCard key={game.id} game={game} />
                     ))}

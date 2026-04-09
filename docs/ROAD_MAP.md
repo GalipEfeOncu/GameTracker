@@ -11,7 +11,7 @@ Henüz yapılmamış veya netleştirilmesi gereken işler. Tamamlanan özellikle
 - `[ ]` **Açık** — yapılacak veya takip edilen iş (GitHub’da tıklanınca işaretlenebilir).
 - Aşağıdaki bölümler **önerilen yapılma sırasına** göre numaralandırıldı: önce veri kaynağı ve mimari kararlar, sonra platform ve desktop özellikleri, ardından mevcut web borçları ve ince UX.
 
-**İçindekiler:** [Özet sıra](#önerilen-yapılma-sırası-özet) · [1. API](#1-oyun-veri-kaynağı-api) · [2. Platform](#2-web--desktop-dağıtım) · [3. Desktop oyun](#3-desktop-yüklü-oyun--oynama-süresi) · [4. Güvenlik](#4-güvenlik--oturum) · [5. Veri modeli](#5-veri-modeli--uyumluluk) · [6. Web UX](#6-web-ürün--ux) · [7. Kalite](#7-kalite--operasyon)
+**İçindekiler:** [Özet sıra](#önerilen-yapılma-sırası-özet) · [1. API](#1-oyun-veri-kaynağı-api) · [2. Platform](#2-web--desktop-dağıtım) · [3. Desktop oyun](#3-desktop-yüklü-oyun--oynama-süresi) · [4. Güvenlik](#4-güvenlik--oturum) · [5. Veri modeli](#5-veri-modeli--uyumluluk) · [6. Web UX](#6-web-ürün--ux) · [Dil (EN / TR)](#dil-english-and-turkish-i18n) · [7. Kalite](#7-kalite--operasyon)
 
 ---
 
@@ -25,8 +25,9 @@ Henüz yapılmamış veya netleştirilmesi gereken işler. Tamamlanan özellikle
 6. **Desktop: oynama süresi (kalıcı)** — DB şeması; oyun silinse bile sürelerin korunması (launcher tarzı kimlik/eşleme kuralları).
 7. **Güvenlik** — Refresh token / token iptali; kalıcı e-posta-kod deposu.
 8. **Veri modeli** — Played ↔ Completed; Gemini öneri adedi netliği.
-9. **Web UX** — Kütüphane arama, AI eşiği, büyük listeler, görseller, mikro etkileşim, şema genişlemesi, önbellek temizleme (düşük öncelik).
-10. **Kalite** — ESLint sıkılaştırma; deploy checklist güncelliği.
+9. **Dil / yerelleştirme (EN + TR)** — Uygulama dili seçeneği; **öncelik: Web UX paketinin içinde yüksek** (çekirdek akışlar oturduktan sonra, kütüphane arama / büyük liste optimizasyonu ile aynı dönem veya hemen önce). İstenen diller: **İngilizce**, **Türkçe**.
+10. **Web UX** — Kütüphane arama, AI eşiği, büyük listeler, görseller, mikro etkileşim, şema genişlemesi, önbellek temizleme (düşük öncelik).
+11. **Kalite** — ESLint sıkılaştırma; deploy checklist güncelliği.
 
 ---
 
@@ -86,10 +87,25 @@ Henüz yapılmamış veya netleştirilmesi gereken işler. Tamamlanan özellikle
 
 ## 6. Web ürün & UX
 
+### Dil: English and Turkish (i18n)
+
+**Öncelik (bu bölüm içinde):** **Yüksek** — Güvenlik (§4) ve veri modeli uyumu (§5) netleştikten sonra; “mikro etkileşim / önbellek temizle” gibi düşük öncelikli UX maddelerinden **önce** planlanmalı.
+
+| Dil | Rol |
+|-----|-----|
+| **Türkçe** | Varsayılan veya birincil yerel dil (ürün hedef kitlesine göre netleştirilir). |
+| **İngilizce** | İkinci dil; seçenek olarak her zaman sunulur. |
+
+- [ ] **Dil seçeneği** — Kullanıcı arayüzünde **İngilizce** ve **Türkçe** arasında geçiş (ayarlar veya üst menü); tercih kalıcılığı: `localStorage` ve/veya oturumlu kullanıcı için backend profil alanı (tercih hangisi netleştirilecek).
+- [ ] **i18n altyapısı** — Tüm kullanıcıya dönük sabit metinlerin çeviri anahtarlarına taşınması (ör. `react-i18next` veya eşdeğeri); başlangıç dili: tarayıcı dili + kullanıcı tercihi önceliği.
+- [ ] **İçerik dili (isteğe bağlı, sonraki adım)** — Oyun açıklamaları / başlıklar için IGDB `game_localizations` veya API dil parametreleri; MVP’de yalnızca **UI dili** yeterli sayılabilir.
+
+---
+
 - [ ] **Kütüphane arama / sıralama** — İsimle süzme; isteğe bağlı sıralama (eklenme, ad, Metacritic); ilk adım: istemci tarafı filtre.
 - [ ] **AI öneri eşiği (UX)** — “En az üç oyun” bilgilendirme; az örnekte Keşfet / Popüler CTA.
 - [ ] **Büyük listeler** — Sanal liste (windowing) veya sayfalı mod; çok `GameCard` DOM yükü.
-- [x] **Liste / hero yatay görsel (web + API)** — IGDB’de varsa ilk `screenshots` görseli (yatay) liste `background_image` ve detay hero `background_image_additional` için; yoksa kapak; kartlar `aspect-video` + `object-cover`, hero tam alan `object-cover`.
+- [x] **Liste / hero görsel + kart oranı (web + API)** — Liste/kartlar IGDB **kapak** (`t_cover_big`); detay hero’da varsa ilk **screenshot** (`t_1080p`), yoksa kapak. Kart **`aspect-[2/3]`** + `object-cover`; hero tam alan `object-cover`.
 - [ ] **Görsel optimizasyonu** — Seçilen API görselleri için `resize` / `srcset` / sabit genişlik; LQIP tarzı yer tutucu (veri kaynağı değişince yeniden uyum).
 - [ ] **Mikro etkileşim** — Başarı animasyonu / optimistic UI; “Tekrar dene”; klavye (global arama odağı, yardım).
 - [ ] **Şema genişlemesi** — Oyun başına not / etiket; tamamlanma tarihi vb. istatistikler.

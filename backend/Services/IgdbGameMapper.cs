@@ -19,15 +19,12 @@ internal static class IgdbGameMapper
     public static Game FromSummaryToken(JToken g)
     {
         var coverId = g["cover"]?["image_id"]?.Value<string>();
-        var shotId = FirstScreenshotImageId(g);
-        var listImage = !string.IsNullOrEmpty(shotId)
-            ? BuildScreenshotUrl(shotId, ScreenshotTransform)
-            : BuildCoverUrl(coverId, CoverCardTransform);
         var game = new Game
         {
             Id = ToIntId(g["id"]),
             Name = g.Value<string>("name") ?? "Unknown",
-            BackgroundImage = listImage,
+            Slug = g.Value<string>("slug") ?? "",
+            BackgroundImage = BuildCoverUrl(coverId, CoverCardTransform),
         };
 
         MapGenres(game, g["genres"]);
@@ -74,6 +71,7 @@ internal static class IgdbGameMapper
         game.Website = PickOfficialWebsite(g["websites"]);
         MapInvolvedCompanies(game, g["involved_companies"]);
         MapAgeRatings(game, g["age_ratings"]);
+        MapTrailer(game, g["videos"]);
         return game;
     }
 
@@ -112,6 +110,91 @@ internal static class IgdbGameMapper
     {
         if (g["screenshots"] is not JArray shots || shots.Count == 0) return null;
         return shots[0]?["image_id"]?.Value<string>();
+    }
+
+    public static void ApplyTimeToBeat(Game game, JObject? ttb)
+    {
+        game.TimeToBeat = null;
+        if (ttb == null) return;
+
+        static double? SecToHours(int? sec) =>
+            sec is > 0 ? Math.Round(sec.Value / 3600.0, 1) : null;
+
+        var h = ttb["hastily"]?.Value<int?>();
+        var n = ttb["normally"]?.Value<int?>();
+        var c = ttb["completely"]?.Value<int?>();
+        if (h is not > 0 && n is not > 0 && c is not > 0) return;
+
+        game.TimeToBeat = new GameTimeToBeatInfo
+        {
+            MainStoryHours = SecToHours(h),
+            MainExtraHours = SecToHours(n),
+            CompletionistHours = SecToHours(c),
+            SubmissionCount = ttb["count"]?.Value<int?>(),
+        };
+    }
+
+    private static void MapTrailer(Game game, JToken? videosTok)
+    {
+        game.TrailerYoutubeId = null;
+        if (videosTok is not JArray arr || arr.Count == 0) return;
+
+        JToken? chosen = null;
+        foreach (var v in arr)
+        {
+            var id = NormalizeYoutubeVideoId(v["video_id"]?.Value<string>());
+            if (string.IsNullOrEmpty(id)) continue;
+            var name = (v.Value<string>("name") ?? "").ToLowerInvariant();
+            if (name.Contains("trailer", StringComparison.Ordinal))
+            {
+                chosen = v;
+                break;
+            }
+
+            chosen ??= v;
+        }
+
+        if (chosen == null) return;
+        var finalId = NormalizeYoutubeVideoId(chosen["video_id"]?.Value<string>());
+        if (!string.IsNullOrEmpty(finalId))
+            game.TrailerYoutubeId = finalId;
+    }
+
+    /// <summary>IGDB <c>video_id</c> çoğunlukla ham YouTube id; bazen URL gelebilir.</summary>
+    private static string? NormalizeYoutubeVideoId(string? raw)
+    {
+        if (string.IsNullOrWhiteSpace(raw)) return null;
+        raw = raw.Trim();
+        const StringComparison o = StringComparison.OrdinalIgnoreCase;
+        if (raw.Contains("youtu.be/", o))
+        {
+            var i = raw.IndexOf("youtu.be/", o) + 9;
+            var end = raw.IndexOf('?', i);
+            var id = (end < 0 ? raw[i..] : raw[i..end]).Trim();
+            return id.Length >= 6 ? id : null;
+        }
+
+        if (raw.Contains("youtube.com/watch", o))
+        {
+            var vIdx = raw.IndexOf("v=", o);
+            if (vIdx >= 0)
+            {
+                var start = vIdx + 2;
+                var amp = raw.IndexOf('&', start);
+                var id = (amp < 0 ? raw[start..] : raw[start..amp]).Trim();
+                return id.Length >= 6 ? id : null;
+            }
+        }
+
+        if (raw.Contains("embed/", o))
+        {
+            var i = raw.IndexOf("embed/", o) + 6;
+            var end = raw.IndexOf('?', i);
+            var id = (end < 0 ? raw[i..] : raw[i..end]).Trim();
+            return id.Length >= 6 ? id : null;
+        }
+
+        return raw.Length >= 6 && raw.Length <= 32 && !raw.Contains('/') ? raw : null;
     }
 
     /// <summary>Önce en yaygın / karşılaştırmada güvenilen kuruluş; yoksa sıradaki.</summary>
@@ -246,5 +329,170 @@ internal static class IgdbGameMapper
         }
 
         return null;
+    }
+
+    /// <summary>
+    /// IGDB <c>external_games</c> → satın alma linkleri. Öncelik: API’nin verdiği <c>url</c>;
+    /// yoksa yalnızca Steam için sayısal <c>uid</c> ile mağaza URL’si üretilir (itch/epic vb. tahmin edilmez).
+    /// </summary>
+    public static List<StoreWrapper> StoresFromExternalGames(JArray? arr)
+    {
+        var built = new List<StoreWrapper>();
+        if (arr == null || arr.Count == 0) return built;
+
+        var rows = arr
+            .OfType<JObject>()
+            .OrderByDescending(t => !string.IsNullOrWhiteSpace(t.Value<string>("url")))
+            .ToList();
+
+        foreach (var t in rows)
+        {
+            var urlRaw = t.Value<string>("url")?.Trim();
+            var uid = t.Value<string>("uid")?.Trim();
+            var cat = t["category"]?.Value<int?>();
+            var srcName = (t["external_game_source"] as JObject)?["name"]?.Value<string>() ?? "";
+
+            string? finalUrl = null;
+            if (!string.IsNullOrEmpty(urlRaw) && TryNormalizeHttpUrl(urlRaw, out var nu))
+                finalUrl = nu;
+            else if (IsSteamExternal(cat, srcName) && !string.IsNullOrEmpty(uid) && uid.All(char.IsAsciiDigit))
+                finalUrl = $"https://store.steampowered.com/app/{uid}/";
+
+            if (string.IsNullOrEmpty(finalUrl)) continue;
+
+            var displayName = ResolveStoreDisplayName(finalUrl, cat, srcName);
+            var storeId = cat is > 0 ? cat.Value : StableStoreIdFromName(displayName);
+            built.Add(new StoreWrapper
+            {
+                Url = finalUrl,
+                Store = new StoreInfo { Id = storeId, Name = displayName },
+            });
+        }
+
+        return DedupeStoresByCanonicalKey(built);
+    }
+
+    private static List<StoreWrapper> DedupeStoresByCanonicalKey(List<StoreWrapper> stores)
+    {
+        var map = new Dictionary<string, StoreWrapper>(StringComparer.OrdinalIgnoreCase);
+        foreach (var s in stores)
+        {
+            var key = CanonicalStoreKey(s.Store?.Name, s.Url) ?? $"url:{s.Url}";
+            if (!map.ContainsKey(key))
+                map[key] = s;
+        }
+
+        return map.Values.ToList();
+    }
+
+    /// <summary>RAWG mağazaları ile birleştir: aynı mağaza anahtarında IGDB (önce eklenen) kazanır.</summary>
+    public static List<StoreWrapper> MergeStoreListsPreferIgdb(List<StoreWrapper> igdbStores, List<StoreWrapper>? rawgStores)
+    {
+        var map = new Dictionary<string, StoreWrapper>(StringComparer.OrdinalIgnoreCase);
+        foreach (var s in igdbStores)
+        {
+            var key = CanonicalStoreKey(s.Store?.Name, s.Url) ?? $"url:{s.Url}";
+            if (!map.ContainsKey(key))
+                map[key] = s;
+        }
+
+        foreach (var s in rawgStores ?? Enumerable.Empty<StoreWrapper>())
+        {
+            if (string.IsNullOrWhiteSpace(s.Url)) continue;
+            var key = CanonicalStoreKey(s.Store?.Name, s.Url) ?? $"url:{s.Url}";
+            if (!map.ContainsKey(key))
+                map[key] = s;
+        }
+
+        return map.Values.ToList();
+    }
+
+    private static string? CanonicalStoreKey(string? storeName, string? url)
+    {
+        var n = (storeName ?? "").ToLowerInvariant();
+        if (n.Contains("steam", StringComparison.Ordinal)) return "steam";
+        if (n.Contains("gog", StringComparison.Ordinal)) return "gog";
+        if (n.Contains("epic", StringComparison.Ordinal)) return "epic";
+        if (n.Contains("itch", StringComparison.Ordinal)) return "itch";
+        if (n.Contains("playstation", StringComparison.Ordinal) || n.Contains("psn", StringComparison.Ordinal))
+            return "playstation";
+        if (n.Contains("xbox", StringComparison.Ordinal) || n.Contains("microsoft", StringComparison.Ordinal))
+            return "microsoft";
+        if (n.Contains("nintendo", StringComparison.Ordinal)) return "nintendo";
+        if (n.Contains("amazon", StringComparison.Ordinal)) return "amazon";
+        if (n.Contains("ubisoft", StringComparison.Ordinal)) return "ubisoft";
+
+        if (!string.IsNullOrEmpty(url) && Uri.TryCreate(url, UriKind.Absolute, out var u))
+        {
+            var h = u.Host.ToLowerInvariant();
+            if (h.Contains("steampowered")) return "steam";
+            if (h.Contains("gog.com")) return "gog";
+            if (h.Contains("epicgames.com")) return "epic";
+            if (h.Contains("itch.io")) return "itch";
+        }
+
+        return null;
+    }
+
+    private static string ResolveStoreDisplayName(string url, int? category, string sourceName)
+    {
+        if (Uri.TryCreate(url, UriKind.Absolute, out var u))
+        {
+            var h = u.Host.ToLowerInvariant();
+            if (h.Contains("steampowered")) return "Steam";
+            if (h.Contains("gog.com")) return "GOG";
+            if (h.Contains("epicgames.com")) return "Epic Games Store";
+            if (h.Contains("itch.io")) return "itch.io";
+            if (h.Contains("playstation.com")) return "PlayStation Store";
+            if (h.Contains("xbox.com") || h.Contains("microsoft.com")) return "Microsoft Store";
+            if (h.Contains("nintendo.com")) return "Nintendo eShop";
+        }
+
+        if (category is > 0 && ExternalCategoryDisplayNames.TryGetValue(category.Value, out var byCat))
+            return byCat;
+        if (!string.IsNullOrWhiteSpace(sourceName)) return sourceName.Trim();
+        return "Store";
+    }
+
+    private static readonly Dictionary<int, string> ExternalCategoryDisplayNames = new()
+    {
+        [1] = "Steam",
+        [5] = "GOG",
+        [26] = "Epic Games Store",
+        [30] = "itch.io",
+        [36] = "PlayStation Store",
+        [11] = "Microsoft Store",
+    };
+
+    private static int StableStoreIdFromName(string name)
+    {
+        var key = name.ToLowerInvariant();
+        return key switch
+        {
+            "steam" => 1,
+            "gog" => 5,
+            "epic games store" => 26,
+            "itch.io" => 30,
+            "playstation store" => 36,
+            "microsoft store" => 11,
+            _ => Math.Abs(name.GetHashCode(StringComparison.OrdinalIgnoreCase) % 100_000) + 10_000,
+        };
+    }
+
+    private static bool IsSteamExternal(int? category, string sourceName)
+    {
+        if (category == 1) return true;
+        return sourceName.Contains("steam", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool TryNormalizeHttpUrl(string raw, out string normalized)
+    {
+        normalized = "";
+        if (string.IsNullOrWhiteSpace(raw)) return false;
+        raw = raw.Trim();
+        if (!Uri.TryCreate(raw, UriKind.Absolute, out var u)) return false;
+        if (u.Scheme != Uri.UriSchemeHttp && u.Scheme != Uri.UriSchemeHttps) return false;
+        normalized = u.ToString();
+        return true;
     }
 }
