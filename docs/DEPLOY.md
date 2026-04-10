@@ -72,6 +72,8 @@ Cors__AllowedOrigins=https://senin-spa-adresin.com
 
 Üretim build’inde API kökünü ver; **sonunda `/api` olmalı** (örn. `https://senin-api.onrender.com/api`). Boş bırakırsan yalnızca Vite dev + proxy ile `/api` çalışır. Şablon: `frontend/.env.example`.
 
+**Vercel (React Router):** `/popular` gibi yollarda sayfa yenilenince 404 almamak için `frontend/vercel.json` içinde tüm istekler `index.html`’e yönlendirilir (SPA rewrite).
+
 ---
 
 ## Barındırma
