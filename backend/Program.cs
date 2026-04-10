@@ -16,6 +16,11 @@ using GameTracker;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Render / benzeri hostlar: dinamik PORT (Docker runtime'da zorunlu)
+var portEnv = Environment.GetEnvironmentVariable("PORT");
+if (!string.IsNullOrEmpty(portEnv) && int.TryParse(portEnv, out var hostPort) && hostPort > 0)
+    builder.WebHost.UseUrls($"http://0.0.0.0:{hostPort}");
+
 var corsOrigins = CorsSettings.ResolveAllowedOrigins(builder.Configuration, builder.Environment);
 if (corsOrigins.Length == 0 && !builder.Environment.IsDevelopment())
 {

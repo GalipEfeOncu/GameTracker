@@ -78,6 +78,19 @@ Cors__AllowedOrigins=https://senin-spa-adresin.com
 
 Backend ve frontend ayrı servislerde; panelde yukarıdaki env’leri tanımla, frontend için build komutu `npm run build`, çıktı `dist`. Uyku modu olan ücretsiz planlarda ilk istek gecikebilir — beklenen.
 
+### Render.com — API (Docker)
+
+Render’da “Language” listesinde .NET yok; **Docker** seçilir. Repoda `backend/Dockerfile` kullanılır.
+
+| Alan | Değer |
+|------|--------|
+| **Runtime** | Docker |
+| **Root Directory** | `backend` |
+| **Dockerfile Path** | `Dockerfile` |
+| **Build / Start** | Boş bırakılabilir (Dockerfile `ENTRYPOINT` ile çalışır) |
+
+Ortam değişkenleri yine `ConnectionStrings__GameTrackerDB`, `Igdb__*`, `Cors__AllowedOrigins` vb. Üretimde **CORS** dolu olmalı (bkz. yukarı).
+
 ---
 
 ## E-posta doğrulama / şifre sıfırlama / hesap silme kodları
