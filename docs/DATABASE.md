@@ -61,7 +61,23 @@ Somee veya uzak SQL yanıt vermiyorsa (`No such host is known` vb.) localhost’
 
 **Kurulu mu:** PowerShell’de `SqlLocalDB info` — yoksa [SQL Server Express LocalDB](https://learn.microsoft.com/en-us/sql/database-engine/configure-windows/sql-server-express-localdb).
 
-**Veritabanını oluştur:** `backend/scripts/CreateLocalDb.sql`
+### Migration script'leri (mevcut DB üzerinde)
+
+Mevcut veritabanına ek şema güncellemeleri idempotent script'ler olarak `backend/scripts/` altındadır:
+
+| Dosya | Ne yapar |
+|-------|----------|
+| `AddEmailVerifiedColumn.sql` | `users.email_verified` sütunu ekler. |
+| `AddTempVerificationCodes.sql` | E-posta doğrulama / şifre sıfırlama / hesap silme kodları için kalıcı tablo (`TempVerificationCodes`). API restart'ında aktif kodlar kaybolmasın diye. |
+| `NormalizePlayedToCompleted.sql` | Legacy WinForms'tan kalan `UserLibrary.status = 'Played'` satırlarını kanonik `'Completed'` yapar. Backend zaten iki değeri de okuma yolunda eşlese de tek seferlik normalize DB'yi temiz bırakır. |
+| `AddRefreshTokens.sql` | Refresh token rotasyonu için `RefreshTokens` tablosu. Access JWT süresi 15 dakikaya düştü; uzun oturum buradaki rotasyonlu refresh token üzerinden yürür. Token'lar DB'de SHA-256 hash olarak saklanır, revoke edilmiş bir token tekrar kullanılırsa kullanıcının tüm oturumları iptal olur. |
+| `AddPlaytimeMinutes.sql` | `UserLibrary.playtime_minutes` sütunu (INT, default 0). Desktop istemcisi arka planda tanınan oyun process'ini izler ve 30 sn'de bir `POST /api/Library/user/{id}/playtime/{gameId}` ile dakika cinsinden delta gönderir; rozet hem desktop hem web'de görünür. |
+
+Somee panelinden (Run Scripts) veya SSMS / `sqlcmd` ile tek seferlik çalıştır; hepsi `IF NOT EXISTS` korumalıdır.
+
+---
+
+**Veritabanını oluştur (sıfırdan):** `backend/scripts/CreateLocalDb.sql`
 
 ```powershell
 cd backend\scripts

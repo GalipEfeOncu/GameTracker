@@ -7,6 +7,7 @@ using GameTracker.Api;
 using GameTracker.Api.Auth;
 using GameTracker.Api.Exceptions;
 using GameTracker.Helpers;
+using GameTracker.Services;
 
 namespace GameTracker.Api.Controllers
 {
@@ -15,10 +16,14 @@ namespace GameTracker.Api.Controllers
     public class UserController : ControllerBase
     {
         private readonly JwtTokenService _jwt;
+        private readonly IVerificationCodeStore _codes;
+        private readonly IRefreshTokenService _refresh;
 
-        public UserController(JwtTokenService jwt)
+        public UserController(JwtTokenService jwt, IVerificationCodeStore codes, IRefreshTokenService refresh)
         {
             _jwt = jwt;
+            _codes = codes;
+            _refresh = refresh;
         }
 
         [HttpPost("register")]
@@ -44,7 +49,7 @@ namespace GameTracker.Api.Controllers
                     return BadRequest(new { message = "Could not register user." });
 
                 var code = new Random().Next(100000, 999999).ToString();
-                EmailVerificationStore.Set(req.Email.Trim(), code);
+                _codes.Set(VerificationCodePurpose.EmailVerification, req.Email.Trim(), code);
                 bool sent = EmailService.SendVerificationCode(req.Email.Trim(), code);
                 if (!sent)
                     return BadRequest(new { message = "Registration saved but we could not send the verification email. Try again later or contact support." });
@@ -71,7 +76,8 @@ namespace GameTracker.Api.Controllers
             if (string.IsNullOrWhiteSpace(req.Code))
                 return BadRequest(new { message = "Verification code is required." });
 
-            if (!EmailVerificationStore.TryValidate(req.Email.Trim(), req.Code.Trim(), out var normalizedEmail))
+            var normalizedEmail = SqlVerificationCodeStore.NormalizeSubject(req.Email);
+            if (!_codes.TryConsume(VerificationCodePurpose.EmailVerification, normalizedEmail, req.Code.Trim()))
                 return BadRequest(new { message = "Invalid or expired verification code." });
 
             if (!UserManager.SetEmailVerified(normalizedEmail))
@@ -98,7 +104,8 @@ namespace GameTracker.Api.Controllers
             var uid = Convert.ToInt32(user["user_id"]);
             var username = user["username"].ToString();
             var email = user["email"].ToString();
-            var accessToken = _jwt.CreateAccessToken(uid, username, email, req.RememberMe, out var expiresAtUtc);
+            var accessToken = _jwt.CreateAccessToken(uid, username, email, out var expiresAtUtc);
+            var refreshToken = _refresh.Issue(uid, req.RememberMe);
 
             return Ok(new
             {
@@ -106,8 +113,53 @@ namespace GameTracker.Api.Controllers
                 Username = username,
                 Email = email,
                 AccessToken = accessToken,
-                ExpiresAt = expiresAtUtc
+                ExpiresAt = expiresAtUtc,
+                RefreshToken = refreshToken
             });
+        }
+
+        /// <summary>
+        /// Refresh token'ı rotasyonla yeniler. Başarıda yeni access + yeni refresh token döner.
+        /// Revoke edilmiş bir token tekrar kullanılırsa kullanıcının tüm oturumları iptal edilir.
+        /// </summary>
+        [EnableRateLimiting(RateLimitPolicies.AuthForms)]
+        [HttpPost("refresh")]
+        public IActionResult Refresh([FromBody] RefreshRequest req)
+        {
+            if (req == null || string.IsNullOrWhiteSpace(req.RefreshToken))
+                return BadRequest(new { message = "Refresh token is required." });
+
+            var result = _refresh.Rotate(req.RefreshToken.Trim());
+            if (result == null)
+                return Unauthorized(new { message = "Invalid or expired refresh token." });
+
+            var profile = UserManager.GetUserById(result.UserId);
+            if (profile == null)
+                return Unauthorized(new { message = "User not found." });
+
+            var username = profile["username"]?.ToString() ?? string.Empty;
+            var email = profile["email"]?.ToString() ?? string.Empty;
+            var accessToken = _jwt.CreateAccessToken(result.UserId, username, email, out var expiresAtUtc);
+
+            return Ok(new
+            {
+                UserId = result.UserId,
+                Username = username,
+                Email = email,
+                AccessToken = accessToken,
+                ExpiresAt = expiresAtUtc,
+                RefreshToken = result.NewRawToken
+            });
+        }
+
+        /// <summary>Geçerli refresh token'ı iptal eder (sadece bu cihazdaki oturum).</summary>
+        [HttpPost("logout")]
+        public IActionResult Logout([FromBody] RefreshRequest req)
+        {
+            // İstemci zaten access token'ını atıyor; yalnızca refresh'i iptal etmek yeterli.
+            if (req != null && !string.IsNullOrWhiteSpace(req.RefreshToken))
+                _refresh.Revoke(req.RefreshToken.Trim());
+            return Ok(new { message = "Logged out." });
         }
 
         /// <summary>
@@ -173,7 +225,11 @@ namespace GameTracker.Api.Controllers
 
             bool success = UserManager.UpdatePassword(userId, email, req.NewPassword);
             if (success)
+            {
+                // Güvenlik: şifre değişince tüm aktif oturumları sonlandır (tüm cihazlardan çıkış).
+                _refresh.RevokeAllForUser(userId);
                 return Ok(new { message = "Password updated successfully." });
+            }
 
             return BadRequest("Could not update password.");
         }
@@ -194,7 +250,7 @@ namespace GameTracker.Api.Controllers
 
             var rnd = new Random();
             var code = rnd.Next(100000, 999999).ToString();
-            PasswordResetStore.Set(email, code);
+            _codes.Set(VerificationCodePurpose.PasswordReset, email, code);
 
             bool sent = EmailService.SendPasswordResetCode(email, code);
             if (!sent)
@@ -221,7 +277,8 @@ namespace GameTracker.Api.Controllers
             if (req.NewPassword != req.NewPasswordAgain)
                 return BadRequest("New password and confirmation do not match.");
 
-            if (!PasswordResetStore.TryValidate(req.Email, req.Code, out var normalizedEmail))
+            var normalizedEmail = SqlVerificationCodeStore.NormalizeSubject(req.Email);
+            if (!_codes.TryConsume(VerificationCodePurpose.PasswordReset, normalizedEmail, req.Code))
                 return BadRequest(new { message = "Invalid or expired code." });
 
             var userId = UserManager.GetUserIdByEmail(normalizedEmail);
@@ -234,7 +291,10 @@ namespace GameTracker.Api.Controllers
 
             bool success = UserManager.UpdatePassword(userId.Value, dbEmail, req.NewPassword);
             if (success)
+            {
+                _refresh.RevokeAllForUser(userId.Value);
                 return Ok(new { message = "Password has been reset. You can log in with your new password." });
+            }
             return BadRequest(new { message = "Could not reset password." });
         }
 
@@ -254,7 +314,7 @@ namespace GameTracker.Api.Controllers
                 return NotFound(new { message = "User not found." });
 
             var code = new Random().Next(100000, 999999).ToString();
-            DeleteAccountStore.Set(userId, code);
+            _codes.Set(VerificationCodePurpose.DeleteAccount, userId.ToString(), code);
             bool sent = EmailService.SendAccountDeletionCode(email, code);
             if (!sent)
                 return BadRequest(new { message = "Could not send verification email. Try again later." });
@@ -276,7 +336,7 @@ namespace GameTracker.Api.Controllers
             if (req == null || string.IsNullOrWhiteSpace(req.Code))
                 return BadRequest(new { message = "Verification code is required." });
 
-            if (!DeleteAccountStore.TryValidate(userId, req.Code.Trim()))
+            if (!_codes.TryConsume(VerificationCodePurpose.DeleteAccount, userId.ToString(), req.Code.Trim()))
                 return BadRequest(new { message = "Invalid or expired code." });
 
             if (!UserManager.DeleteUser(userId))
@@ -297,7 +357,7 @@ namespace GameTracker.Api.Controllers
     {
         public string EmailOrUsername { get; set; }
         public string Password { get; set; }
-        /// <summary>Daha uzun ömürlü access token (refresh token yok; Faz C hafif “oturumu açık tut”).</summary>
+        /// <summary>true ise refresh token 90 gün, değilse 30 gün ömürlüdür. Access token her durumda kısa (15 dk).</summary>
         public bool RememberMe { get; set; }
     }
 
@@ -335,5 +395,10 @@ namespace GameTracker.Api.Controllers
     public class ConfirmDeleteAccountRequest
     {
         public string Code { get; set; }
+    }
+
+    public class RefreshRequest
+    {
+        public string RefreshToken { get; set; }
     }
 }

@@ -15,7 +15,6 @@ namespace GameTracker.Api.Auth
         private readonly string _issuer;
         private readonly string _audience;
         private readonly int _accessTokenMinutes;
-        private readonly int _rememberMeAccessTokenMinutes;
 
         public JwtTokenService(IConfiguration configuration, IHostEnvironment environment, ILogger<JwtTokenService> logger)
         {
@@ -37,8 +36,8 @@ namespace GameTracker.Api.Auth
             _signingKey = key;
             _issuer = configuration["Jwt:Issuer"] ?? "GameTracker.Api";
             _audience = configuration["Jwt:Audience"] ?? "GameTracker.Web";
-            _accessTokenMinutes = int.TryParse(configuration["Jwt:AccessTokenMinutes"], out var m) ? m : 10080; // varsayılan 7 gün
-            _rememberMeAccessTokenMinutes = int.TryParse(configuration["Jwt:RememberMeAccessTokenMinutes"], out var rm) ? rm : 43200; // ~30 gün
+            // Kısa ömürlü access token — uzun oturum için ayrıca refresh token rotasyonu kullanılır.
+            _accessTokenMinutes = int.TryParse(configuration["Jwt:AccessTokenMinutes"], out var m) ? m : 15;
         }
 
         public string Issuer => _issuer;
@@ -46,11 +45,10 @@ namespace GameTracker.Api.Auth
         public SymmetricSecurityKey GetSigningKey() =>
             new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_signingKey));
 
-        /// <param name="rememberMe">true ise <c>Jwt:RememberMeAccessTokenMinutes</c> süresi kullanılır (refresh token değil; yalnızca daha uzun access JWT).</param>
-        public string CreateAccessToken(int userId, string username, string email, bool rememberMe, out DateTime expiresAtUtc)
+        /// <summary>Kısa ömürlü access JWT üretir. Uzun oturum refresh token rotasyonu ile sağlanır.</summary>
+        public string CreateAccessToken(int userId, string username, string email, out DateTime expiresAtUtc)
         {
-            var minutes = rememberMe ? _rememberMeAccessTokenMinutes : _accessTokenMinutes;
-            expiresAtUtc = DateTime.UtcNow.AddMinutes(minutes);
+            expiresAtUtc = DateTime.UtcNow.AddMinutes(_accessTokenMinutes);
             var credentials = new SigningCredentials(GetSigningKey(), SecurityAlgorithms.HmacSha256);
             var claims = new[]
             {

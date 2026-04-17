@@ -425,3 +425,11 @@ Secrets.config
 
 # Backend: optional local file (avoid putting API keys here; prefer dotnet user-secrets)
 backend/appsettings.Development.json
+
+# Frontend Vite build çıktısı
+frontend/dist/
+
+# Desktop (Electron) build & bağımlılıklar
+desktop/node_modules/
+desktop/dist-desktop/
+desktop/out/

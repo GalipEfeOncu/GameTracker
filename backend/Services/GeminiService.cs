@@ -13,6 +13,12 @@ namespace GameTracker.Services
         private readonly string _apiKey;
         private const string ModelId = "gemini-2.5-flash-lite";
         private const string BaseUrl = "https://generativelanguage.googleapis.com/v1beta/models/";
+        /// <summary>
+        /// Gemini'den istenen ve LibraryController'ın IGDB ile eşleştirdiği oyun sayısı.
+        /// Tek kaynak: prompt "EXACTLY {N}" + controller Take(N). Daha yüksek değer IGDB hız limitini
+        /// (saniyede ~4 istek) zorlar; 15 önerilen yanıt süresiyle iyi dengededir.
+        /// </summary>
+        public const int RecommendationCount = 15;
 
         private static readonly HttpClient httpClient = new HttpClient();
 
@@ -34,15 +40,15 @@ namespace GameTracker.Services
 
             string gamesString = string.Join(", ", userGames);
 
-            // Prompt ayarı
+            // Prompt ayarı — sayı tek kaynaktan (RecommendationCount) gelir; controller aynı sayıyı Take() eder.
             string prompt = $@"
             I like these games: {gamesString}
 
             Task:
-            Recommend EXACTLY 20 similar games that I might like.
+            Recommend EXACTLY {RecommendationCount} similar games that I might like.
 
             STRICT RULES (DO NOT BREAK):
-            - Recommend EXACTLY 20 games, no more, no less.
+            - Recommend EXACTLY {RecommendationCount} games, no more, no less.
             - Do NOT recommend any game already in the list.
             - Return ONLY the full game names.
             - Separate game names with a comma and a single space.

@@ -48,15 +48,30 @@ Bunlar desktop’tan bağımsız; web “tamam” sayılırken CI + env netliği
 
 **Öneri (taslak):** Önce **Tauri 2** veya **Electron** ile **Windows-only PoC**; macOS/Linux talebe göre ikinci adım. Resmi mağaza (Microsoft Store) hedefleniyorsa paketleme ve imzalama gereksinimleri ayrıca ele alınır.
 
+### Karar — Electron (Faz A)
+
+Faz A için **Electron + electron-builder** seçildi. Gerekçeler:
+
+- **Toolchain maliyeti sıfır:** Repo zaten Node ekosistemini kullanıyor; ek Rust toolchain kurulumu gerekmiyor. Tauri 2'nin daha küçük paket boyutu avantajı PoC için belirleyici değil.
+- **Olgun güncelleme hikâyesi:** `electron-updater` + GitHub Releases, Faz D ("auto-update") için kısa yol sunar.
+- **Paketleme:** `electron-builder` ile Windows NSIS / MSI üretimi hazır; Authenticode imzalama adımı (Faz B) standart.
+- **Kabuk ↔ renderer sınırı:** `contextBridge` + `preload.js` ile ileride §3 "yüklü oyun algılama" için sınırlı, denetlenebilir IPC yüzeyi açılabilir.
+
+Trade-off olarak paket boyutu Tauri'ye göre büyüktür; ilk sürüm için kabul edildi. macOS / Linux talebi geldiğinde Electron aynı yapıyı sürdürür.
+
+PoC iskeleti: [`desktop/`](../desktop/) (`src/main.js`, `src/preload.js`, `package.json`, `README.md`). Renderer build'i için Vite `base: './'` `VITE_DESKTOP=1` bayrağıyla açıldı (bkz. `frontend/vite.config.js`).
+
 ---
 
 ## 5. Fazlar (uygulama sırası)
 
 ### Faz A — Karar ve PoC (1–2 hafta hedefi, ekip hızına bağlı)
 
-- [ ] Kabuk: **Tauri** veya **Electron** seçimi (gerekçe 2–3 cümle README veya bu dosyada “Karar” alt başlığı).
-- [ ] Repo kökünde veya `desktop/` altında minimal proje: `dist` yükleniyor, pencere açılıyor.
-- [ ] `VITE_API_BASE_URL` desktop build’inde üretim API’ye işaret edecek şekilde dokümante (ayrı `.env.desktop` veya build flag).
+- [x] Kabuk: **Electron** seçildi — gerekçe bu dosyada "Karar" alt başlığında.
+- [x] `desktop/` altında minimal proje: `BrowserWindow` → packaged renderer (`resources/renderer/index.html`) veya `GAMETRACKER_DEV_SERVER_URL` yüklüyor (`desktop/src/main.js`).
+- [x] `VITE_API_BASE_URL` desktop build'inde mutlak üretim API köküne işaret edecek şekilde `desktop/.env.example` ve `desktop/README.md` ile dokümante; Vite `base: './'` için `VITE_DESKTOP=1` build flag'i eklendi ve `desktop` `build:renderer` scripti bu bayrağı otomatik geçiriyor.
+
+**Açık Faz A takip işleri (gelecek agent):** `desktop/` içinde `npm install` çalıştırıldıktan sonra (1) `npm run dev` ile Vite dev server'a bağlanan pencerenin tam ekran duman testi, (2) `frontend/.env.production` ile canlı API'ye işaretli `npm run build:dir` (NSIS imzasız, unpacked), (3) React Router `file://` uyumluluğu için `HashRouter` geçişi kararı (bkz. `desktop/README.md` sınırlamalar).
 
 ### Faz B — Paketleme ve imzalama
 

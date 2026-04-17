@@ -22,12 +22,13 @@ export default function LoginPage() {
         setIsLoading(true);
 
         try {
-            // rememberMe → API’de daha uzun ömürlü access JWT (refresh token yok; bkz. backend JwtTokenService)
+            // rememberMe → refresh token ömrü 30 → 90 gün. Access token her durumda kısa (15 dk).
             const user = await loginUser(username, password, rememberMe);
             const uid = user?.UserId ?? user?.id ?? user?.userId;
             const accessToken = user?.AccessToken ?? user?.accessToken;
+            const refreshToken = user?.RefreshToken ?? user?.refreshToken;
             if (user && typeof user === 'object' && uid != null) {
-                login({ ...user, id: uid, accessToken });
+                login({ ...user, id: uid, accessToken, refreshToken });
             } else {
                 login(user);
             }

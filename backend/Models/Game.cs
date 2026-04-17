@@ -118,6 +118,13 @@ namespace GameTracker.Models
         /// </summary>
         [JsonProperty("status")]
         public string? Status { get; set; }
+
+        /// <summary>
+        /// Kullanıcının oyundaki toplam oynama süresi (dakika). Desktop istemci tarafından
+        /// 30 sn aralıklarla heartbeat ile biriktirilir. RAWG cevaplarında 0.
+        /// </summary>
+        [JsonProperty("playtimeMinutes")]
+        public int PlaytimeMinutes { get; set; }
     }
 
     // --- Alt Classlar ---

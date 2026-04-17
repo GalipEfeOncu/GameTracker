@@ -154,6 +154,18 @@ namespace GameTracker
         }
 
         /// <summary>
+        /// Kullanıcı temel profilini döndürür (refresh sonrası JWT üretimi için).
+        /// </summary>
+        public static System.Data.DataRow GetUserById(int userId)
+        {
+            string query = "SELECT user_id, username, email, email_verified FROM users WHERE user_id = @userId";
+            var parameters = new[] { new SqlParameter("@userId", userId) };
+            var dt = DatabaseHelper.ExecuteQuery(query, parameters);
+            if (dt.Rows.Count == 0) return null;
+            return dt.Rows[0];
+        }
+
+        /// <summary>
         /// E-posta ile kullanıcı ID'si döndürür (şifre sıfırlama için).
         /// </summary>
         public static int? GetUserIdByEmail(string email)

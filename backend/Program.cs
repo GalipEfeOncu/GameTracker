@@ -66,6 +66,8 @@ builder.Services.AddScoped<IgdbApiService>();
 builder.Services.AddScoped<HybridGameDetailService>();
 builder.Services.AddScoped<RawgApiService>();
 builder.Services.AddScoped<GeminiService>();
+builder.Services.AddSingleton<IVerificationCodeStore, SqlVerificationCodeStore>();
+builder.Services.AddSingleton<IRefreshTokenService, SqlRefreshTokenService>();
 // EmailService is static, so we don't register it in DI.
 
 // Gzip sıkıştırma — API yanıtları ~70% küçülür, daha hızlı gelir
@@ -134,8 +136,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseCors("GameTrackerCors");
+// CORS: UseRouting sonrası, UseAuthentication öncesi (preflight + endpoint routing uyumu)
 app.UseRouting();
+app.UseCors("GameTrackerCors");
 app.UseRateLimiter();
 app.UseAuthentication();
 app.UseAuthorization();

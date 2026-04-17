@@ -1,7 +1,16 @@
 import { memo, useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MoreVertical, Trash2 } from 'lucide-react';
+import { MoreVertical, Trash2, Clock3 } from 'lucide-react';
 import { getStatusLabel, LIBRARY_STATUS } from '../constants/libraryStatus';
+
+function formatPlaytime(minutes) {
+    const m = Number(minutes);
+    if (!Number.isFinite(m) || m <= 0) return null;
+    if (m < 60) return `${m} dk`;
+    const hours = Math.floor(m / 60);
+    const mins = m % 60;
+    return mins ? `${hours}s ${mins}d` : `${hours} saat`;
+}
 
 const McBadge = ({ score, scoreLabel, compactCorner = false }) => {
     const n = Number(score);
@@ -29,6 +38,7 @@ const GameCard = memo(({ game, showLibraryStatus = false, onRemove, onStatusChan
     const menuRef = useRef(null);
     const statusLabel = showLibraryStatus && game?.status ? getStatusLabel(game.status) : null;
     const hasLibraryActions = showLibraryStatus && (onRemove || onStatusChange);
+    const playtimeLabel = showLibraryStatus ? formatPlaytime(game?.playtimeMinutes) : null;
 
     useEffect(() => {
         if (!hasLibraryActions) return;
@@ -65,14 +75,14 @@ const GameCard = memo(({ game, showLibraryStatus = false, onRemove, onStatusChan
             className="group flex w-full min-w-0 cursor-pointer flex-col items-stretch rounded-none outline-none transition-transform duration-300 hover:-translate-y-1"
             aria-label={game?.name ? `${game.name}, detay` : 'Oyun kartı'}
         >
-            {/* IGDB kapak ~2:3; yatay screenshot/kapak da aynı çerçevede object-cover ile hizalanır */}
-            <div className="relative w-full aspect-[2/3] rounded-none border border-[#1f2334] transition-colors duration-300 group-hover:border-blue-500">
+            {/* IGDB kapak ~5:7 (2:3’ten biraz geniş); görsel %103 genişlikte ortalanır — yan kırpma hafifler */}
+            <div className="relative w-full aspect-[5/7] rounded-none border border-[#1f2334] transition-colors duration-300 group-hover:border-blue-500">
                 <div className="absolute inset-0 z-0 overflow-hidden bg-[#141722]">
                     {game.background_image ? (
                         <img
                             src={game.background_image}
                             alt={game.name}
-                            className="h-full w-full object-cover object-center transition-transform duration-500 group-hover:scale-105"
+                            className="absolute left-1/2 top-0 h-full w-[103%] max-w-none -translate-x-1/2 object-cover object-center transition-transform duration-500 group-hover:scale-[1.05]"
                             loading="lazy"
                             decoding="async"
                             onError={(e) => { e.currentTarget.style.display = 'none'; }}
@@ -157,6 +167,11 @@ const GameCard = memo(({ game, showLibraryStatus = false, onRemove, onStatusChan
                 <p className="text-xs text-gray-500 mt-0.5 truncate">
                     {game.genres?.map(g => g.name).join(', ') || ''}
                 </p>
+                {playtimeLabel && (
+                    <p className="mt-1 inline-flex items-center gap-1 text-[11px] font-medium text-blue-300">
+                        <Clock3 size={11} /> {playtimeLabel}
+                    </p>
+                )}
             </div>
         </article>
     );

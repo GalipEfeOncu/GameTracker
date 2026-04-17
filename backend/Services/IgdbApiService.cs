@@ -123,6 +123,41 @@ public sealed class IgdbApiService
         return g == null ? new List<Screenshot>() : IgdbGameMapper.ScreenshotsFromToken(g);
     }
 
+    /// <summary>Kütüphane gibi listelerde DB’deki eski image_url yerine güncel IGDB kapak URL’lerini id ile toplu çeker.</summary>
+    public async Task<IReadOnlyDictionary<int, string>> GetCoverImageUrlsByGameIdsAsync(
+        IReadOnlyList<int> gameIds,
+        bool showNsfw,
+        CancellationToken ct = default)
+    {
+        var result = new Dictionary<int, string>();
+        if (!_tokens.IsConfigured || gameIds == null || gameIds.Count == 0)
+            return result;
+
+        const int chunkSize = 80;
+        var distinct = gameIds.Where(id => id > 0).Distinct().ToList();
+        const string coverFields = "id,name,cover.image_id";
+
+        for (var i = 0; i < distinct.Count; i += chunkSize)
+        {
+            var chunk = distinct.Skip(i).Take(chunkSize).ToList();
+            var idList = string.Join(',', chunk);
+            var body = $"fields {coverFields}; where id = ({idList}); limit {chunk.Count};";
+            var arr = await PostArrayAsync("games", body, ct).ConfigureAwait(false);
+            if (arr == null) continue;
+
+            foreach (var item in arr)
+            {
+                if (item is not JObject jo) continue;
+                if (IgdbGameMapper.IsLikelyNsfw(jo, showNsfw)) continue;
+                var mapped = IgdbGameMapper.FromSummaryToken(jo);
+                if (!string.IsNullOrWhiteSpace(mapped.BackgroundImage))
+                    result[mapped.Id] = mapped.BackgroundImage;
+            }
+        }
+
+        return result;
+    }
+
     /// <summary>IGDB mağaza kimlikleri ve doğrudan URL’ler (RAWG’den daha güvenilir satın alma linkleri).</summary>
     public async Task<JArray?> GetExternalGamesForGameAsync(int igdbGameId, CancellationToken ct = default)
     {

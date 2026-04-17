@@ -1,11 +1,13 @@
 import { NavLink, useNavigate } from 'react-router-dom';
-import { Compass, Library, Flame, Sparkles, Settings, LogOut, Gamepad2 } from 'lucide-react';
+import { Compass, Library, Flame, Sparkles, Settings, LogOut, Gamepad2, HardDrive } from 'lucide-react';
 import { useUser } from '../context/UserContext';
+import { isDesktop } from '../desktop/bridge';
 
 const navItems = [
     { to: '/popular', label: 'Popüler', icon: Flame },
     { to: '/discover', label: 'Keşfet', icon: Compass },
     { to: '/library', label: 'Kütüphanem', icon: Library },
+    ...(isDesktop ? [{ to: '/installed', label: 'Yüklü Oyunlarım', icon: HardDrive }] : []),
     { to: '/ai', label: 'AI Öneri', icon: Sparkles },
 ];
 

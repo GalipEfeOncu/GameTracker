@@ -1,12 +1,13 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
-import { Settings as SettingsIcon, User, Lock, Home, Eye, Loader2, CheckCircle2, AlertCircle, Trash2, Gauge } from 'lucide-react';
+import { Settings as SettingsIcon, User, Lock, Home, Eye, Loader2, CheckCircle2, AlertCircle, Trash2, Gauge, HardDrive } from 'lucide-react';
 import { useUser } from '../context/UserContext';
 import { usePreferences } from '../context/PreferencesContext';
 import { useToast } from '../context/ToastContext';
 import { updateUsername, updatePassword, requestDeleteAccount, confirmDeleteAccount } from '../api/apiClient';
 import { getSessionUserId } from '../utils/sessionUser';
+import { isDesktop, getDesktopSettings, setDesktopSettings } from '../desktop/bridge';
 
 export default function SettingsPage() {
     const { user, updateUser, logout } = useUser();
@@ -25,6 +26,17 @@ export default function SettingsPage() {
     const [deleteStep, setDeleteStep] = useState('idle'); // 'idle' | 'requested' | 'done'
     const [deleteCode, setDeleteCode] = useState('');
     const [deleteLoading, setDeleteLoading] = useState(false);
+
+    const [desktopSettings, setDesktopSettingsState] = useState(null);
+    useEffect(() => {
+        if (!isDesktop) return;
+        getDesktopSettings().then(setDesktopSettingsState).catch(() => {});
+    }, []);
+    const toggleDesktop = async (key) => {
+        if (!desktopSettings) return;
+        const next = await setDesktopSettings({ [key]: !desktopSettings[key] });
+        if (next) setDesktopSettingsState(next);
+    };
 
     const usernameMutation = useMutation({
         mutationFn: () => updateUsername(userId, newUsername),
@@ -308,6 +320,34 @@ export default function SettingsPage() {
                     </div>
                 </section>
 
+                {isDesktop && desktopSettings && (
+                    <section className="p-6 rounded-none bg-[#141722] border border-[#1f2334]">
+                        <h3 className="flex items-center gap-2 text-lg font-bold text-white mb-4">
+                            <HardDrive size={20} className="text-blue-500" /> Masaüstü
+                        </h3>
+                        <div className="space-y-3">
+                            <DesktopToggle
+                                label="Kapatınca sistem tepsisinde çalışmaya devam et"
+                                hint="Pencereyi kapattığında uygulama arka planda çalışır; oynama saati sayılmaya devam eder."
+                                checked={desktopSettings.minimizeToTray}
+                                onChange={() => toggleDesktop('minimizeToTray')}
+                            />
+                            <DesktopToggle
+                                label="Windows açılışında otomatik başlat"
+                                hint="Bilgisayar açıldığında GameTracker sessizce tepside başlar."
+                                checked={desktopSettings.autoStart}
+                                onChange={() => toggleDesktop('autoStart')}
+                            />
+                            <DesktopToggle
+                                label="Otomatik başlangıçta pencereyi gizle"
+                                hint="İlk açılışta ana pencere açılmaz; sadece tray'de durur."
+                                checked={desktopSettings.startMinimized}
+                                onChange={() => toggleDesktop('startMinimized')}
+                            />
+                        </div>
+                    </section>
+                )}
+
                 <section className="p-6 rounded-none bg-[#141722] border border-[#1f2334]">
                     <h3 className="flex items-center gap-2 text-lg font-bold text-white mb-4">
                         <Gauge size={20} className="text-blue-500" /> Performans
@@ -363,5 +403,22 @@ export default function SettingsPage() {
                 </section>
             </div>
         </div>
+    );
+}
+
+function DesktopToggle({ label, hint, checked, onChange }) {
+    return (
+        <label className="flex items-start gap-3 cursor-pointer py-2">
+            <input
+                type="checkbox"
+                checked={!!checked}
+                onChange={onChange}
+                className="mt-0.5 h-4 w-4 border border-[#1f2334] bg-[#1a1e2d] text-blue-600"
+            />
+            <span className="flex-1">
+                <span className="block text-sm font-medium text-gray-200">{label}</span>
+                {hint && <span className="block text-xs text-gray-500 mt-0.5">{hint}</span>}
+            </span>
+        </label>
     );
 }

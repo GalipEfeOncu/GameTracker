@@ -37,12 +37,28 @@ namespace GameTracker.Api.Controllers
 
         [Authorize]
         [HttpGet("user/{userId}")]
-        public IActionResult GetUserLibrary(int userId, [FromQuery] string status = null)
+        public async Task<IActionResult> GetUserLibrary(
+            int userId,
+            [FromQuery] string status = null,
+            CancellationToken cancellationToken = default)
         {
             if (!User.TryGetUserId(out var authedId) || authedId != userId)
                 return Forbid();
 
             var library = LibraryManager.GetUserLibrary(userId, status);
+            if (library.Count > 0 && _igdb.IsConfigured)
+            {
+                var ids = library.Select(g => g.Id).ToList();
+                var covers = await _igdb
+                    .GetCoverImageUrlsByGameIdsAsync(ids, showNsfw: true, cancellationToken)
+                    .ConfigureAwait(false);
+                foreach (var game in library)
+                {
+                    if (covers.TryGetValue(game.Id, out var url) && !string.IsNullOrWhiteSpace(url))
+                        game.BackgroundImage = url;
+                }
+            }
+
             return Ok(library);
         }
 
@@ -95,6 +111,29 @@ namespace GameTracker.Api.Controllers
             bool updated = LibraryManager.UpdateGameStatus(userId, gameId, req.NewStatus);
             if (updated) return Ok(new { message = "Status updated." });
             return BadRequest("Status could not be updated.");
+        }
+
+        /// <summary>
+        /// Desktop istemci tarafından periyodik heartbeat ile gönderilen oynama süresi eklemesi.
+        /// Çok büyük delta'lar reddedilir (saldırı veya bug koruması).
+        /// </summary>
+        [Authorize]
+        [HttpPost("user/{userId}/playtime/{gameId}")]
+        public IActionResult AddPlaytime(int userId, int gameId, [FromBody] PlaytimeDeltaRequest req)
+        {
+            if (!User.TryGetUserId(out var authedId) || authedId != userId)
+                return Forbid();
+            if (req == null || req.MinutesDelta <= 0)
+                return BadRequest(new { message = "MinutesDelta must be a positive integer." });
+            // 30 sn'de heartbeat = 0-1 dk delta. 120 dk'dan büyük tek delta yanlış kayıt olasılığı yüksek.
+            if (req.MinutesDelta > 120)
+                return BadRequest(new { message = "MinutesDelta too large; send smaller increments." });
+
+            int newTotal = LibraryManager.IncrementPlaytime(userId, gameId, req.MinutesDelta);
+            if (newTotal == 0)
+                return NotFound(new { message = "Game not in user's library." });
+
+            return Ok(new { playtimeMinutes = newTotal });
         }
 
         [HttpGet("search")]
@@ -164,7 +203,7 @@ namespace GameTracker.Api.Controllers
                 var recommendedNames = await _geminiService.GetRecommendationsAsync(userGames).ConfigureAwait(false);
                 if (recommendedNames == null || recommendedNames.Count == 0) return Ok(new List<Game>());
 
-                var tasks = recommendedNames.Take(15).Select(async name =>
+                var tasks = recommendedNames.Take(GeminiService.RecommendationCount).Select(async name =>
                 {
                     var found = await _igdb.SearchAsync(name, 1, showNsfw: false, cancellationToken).ConfigureAwait(false);
                     return found.FirstOrDefault();
@@ -184,5 +223,10 @@ namespace GameTracker.Api.Controllers
     public class UpdateStatusRequest
     {
         public string NewStatus { get; set; }
+    }
+
+    public class PlaytimeDeltaRequest
+    {
+        public int MinutesDelta { get; set; }
     }
 }

@@ -2,7 +2,7 @@
 export default function GameCardSkeleton() {
     return (
         <div className="flex w-full min-w-0 animate-pulse flex-col items-stretch">
-            <div className="aspect-[2/3] w-full border border-[#1f2334] bg-[#1a1e2d]" />
+            <div className="aspect-[5/7] w-full border border-[#1f2334] bg-[#1a1e2d]" />
             <div className="mt-3 h-4 w-[80%] max-w-[200px] bg-[#1a1e2d]" />
             <div className="mt-2 h-3 w-[60%] max-w-[120px] bg-[#1a1e2d]" />
         </div>

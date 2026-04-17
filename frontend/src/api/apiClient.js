@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { emitToast } from '../utils/toastEvents';
+import { isDesktop, setDesktopSession } from '../desktop/bridge';
 
 // Üretim: .env içinde tam API kökü (örn. https://api.siteniz.com/api). Boşsa geliştirmede /api + Vite proxy kullanılır.
 const rawBase = import.meta.env.VITE_API_BASE_URL;
@@ -8,20 +9,51 @@ const baseURL =
         ? rawBase.trim().replace(/\/+$/, '')
         : '/api';
 
+// Electron/file:// modunda BrowserRouter yerine HashRouter kullanılır; path tabanlı redirect kırılır.
+const isDesktopBuild = import.meta.env.VITE_DESKTOP === '1' || import.meta.env.VITE_DESKTOP === 'true';
+
+function redirectToLogin() {
+    if (typeof window === 'undefined') return;
+    if (isDesktopBuild) {
+        if (window.location.hash !== '#/login') window.location.hash = '#/login';
+        return;
+    }
+    if (!window.location.pathname.includes('/login')) window.location.assign('/login');
+}
+
 const apiClient = axios.create({
     baseURL,
     timeout: 15000,
 });
 
-function readStoredAccessToken() {
+function readStoredUser() {
     try {
         const raw = localStorage.getItem('gt_user');
-        if (!raw) return null;
-        const u = JSON.parse(raw);
-        return u?.accessToken ?? u?.AccessToken ?? null;
+        return raw ? JSON.parse(raw) : null;
     } catch {
         return null;
     }
+}
+
+function readStoredAccessToken() {
+    const u = readStoredUser();
+    return u?.accessToken ?? u?.AccessToken ?? null;
+}
+
+function readStoredRefreshToken() {
+    const u = readStoredUser();
+    return u?.refreshToken ?? u?.RefreshToken ?? null;
+}
+
+function updateStoredTokens({ accessToken, refreshToken }) {
+    try {
+        const u = readStoredUser();
+        if (!u) return;
+        const next = { ...u };
+        if (accessToken) next.accessToken = accessToken;
+        if (refreshToken) next.refreshToken = refreshToken;
+        localStorage.setItem('gt_user', JSON.stringify(next));
+    } catch { /* ignore */ }
 }
 
 apiClient.interceptors.request.use((config) => {
@@ -33,6 +65,36 @@ apiClient.interceptors.request.use((config) => {
     }
     return config;
 });
+
+// Paralel 401'ler tek refresh çağrısına düşsün diye singleton promise.
+let refreshInFlight = null;
+
+async function refreshAccessToken() {
+    if (refreshInFlight) return refreshInFlight;
+    const refreshToken = readStoredRefreshToken();
+    if (!refreshToken) return Promise.reject(new Error('no_refresh_token'));
+
+    refreshInFlight = axios
+        .post(`${baseURL}/User/refresh`, { RefreshToken: refreshToken }, { timeout: 15000 })
+        .then((res) => {
+            const data = res?.data ?? {};
+            const newAccess = data.AccessToken ?? data.accessToken;
+            const newRefresh = data.RefreshToken ?? data.refreshToken;
+            if (!newAccess || !newRefresh) throw new Error('invalid_refresh_response');
+            updateStoredTokens({ accessToken: newAccess, refreshToken: newRefresh });
+            if (isDesktop) {
+                const u = readStoredUser();
+                const uid = u?.id ?? u?.userId ?? u?.UserId;
+                if (uid) {
+                    setDesktopSession({ userId: uid, accessToken: newAccess, apiBaseUrl: baseURL }).catch(() => {});
+                }
+            }
+            return newAccess;
+        })
+        .finally(() => { refreshInFlight = null; });
+
+    return refreshInFlight;
+}
 
 function urlLikelyRequiresSession(url) {
     const u = String(url ?? '');
@@ -47,27 +109,47 @@ function urlLikelyRequiresSession(url) {
 
 apiClient.interceptors.response.use(
     (r) => r,
-    (err) => {
+    async (err) => {
         if (err.response?.status === 429) {
             emitToast('Çok fazla istek. Lütfen kısa süre sonra tekrar deneyin.', 'error');
         }
         if (err.response?.status === 401) {
-            const url = String(err.config?.url ?? '');
-            if (url.includes('/User/login')) return Promise.reject(err);
+            const originalRequest = err.config || {};
+            const url = String(originalRequest.url ?? '');
 
-            const hadAuth = !!err.config?.headers?.Authorization;
-            let hasStoredUser = false;
-            try {
-                hasStoredUser = !!localStorage.getItem('gt_user');
-            } catch { /* ignore */ }
+            // Refresh / login uçlarını tekrar denemeyiz — sonsuz döngü olur.
+            if (url.includes('/User/login') || url.includes('/User/refresh')) {
+                if (url.includes('/User/refresh')) {
+                    try { localStorage.removeItem('gt_user'); } catch { /* ignore */ }
+                    redirectToLogin();
+                }
+                return Promise.reject(err);
+            }
+
+            const hadAuth = !!originalRequest.headers?.Authorization;
+            const hasStoredUser = !!readStoredUser();
+
+            // Sadece oturum gerektiren uçlarda refresh dene. Anonim public uçlarda 401 dönüyorsa refresh'e girmeyiz.
+            const shouldTryRefresh =
+                !originalRequest._retry && (hadAuth || (hasStoredUser && urlLikelyRequiresSession(url)));
+
+            if (shouldTryRefresh && readStoredRefreshToken()) {
+                try {
+                    const newAccess = await refreshAccessToken();
+                    originalRequest._retry = true;
+                    originalRequest.headers = originalRequest.headers ?? {};
+                    originalRequest.headers.Authorization = `Bearer ${newAccess}`;
+                    return apiClient(originalRequest);
+                } catch {
+                    try { localStorage.removeItem('gt_user'); } catch { /* ignore */ }
+                    redirectToLogin();
+                    return Promise.reject(err);
+                }
+            }
 
             if (hadAuth || (hasStoredUser && urlLikelyRequiresSession(url))) {
-                try {
-                    localStorage.removeItem('gt_user');
-                } catch { /* ignore */ }
-                if (typeof window !== 'undefined' && !window.location.pathname.includes('/login')) {
-                    window.location.assign('/login');
-                }
+                try { localStorage.removeItem('gt_user'); } catch { /* ignore */ }
+                redirectToLogin();
             }
         }
         return Promise.reject(err);
@@ -84,7 +166,7 @@ export const registerUser = async ({ username, email, password }) => {
     return data;
 };
 
-/** RememberMe: sunucu daha uzun süreli access token döner; ayrı refresh token akışı yoktur. */
+/** Login: access token (15 dk) + refresh token döner. RememberMe yalnızca refresh ömrünü uzatır (30 → 90 gün). */
 export const loginUser = async (username, password, rememberMe = false) => {
     const { data } = await apiClient.post('/User/login', {
         EmailOrUsername: username,
@@ -92,6 +174,14 @@ export const loginUser = async (username, password, rememberMe = false) => {
         RememberMe: !!rememberMe,
     });
     return data;
+};
+
+/** Sunucuda refresh token'ı iptal eder. İstek başarısız olsa bile sessizce geçer (çıkış yapan kullanıcı bloke edilmesin). */
+export const logoutUser = async (refreshToken) => {
+    if (!refreshToken) return;
+    try {
+        await apiClient.post('/User/logout', { RefreshToken: refreshToken });
+    } catch { /* ignore */ }
 };
 
 export const updateUsername = async (userId, newUsername) => {
