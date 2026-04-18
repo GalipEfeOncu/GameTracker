@@ -21,5 +21,29 @@ namespace GameTracker.Api
         public static string GeminiApiKey => Configuration?["ApiKeys:GeminiApiKey"];
         public static string MailAddress => Configuration?["EmailSettings:MailAddress"];
         public static string MailPassword => Configuration?["EmailSettings:MailPassword"];
+
+        /// <summary>SMTP sunucusu; boşsa Gmail (smtp.gmail.com).</summary>
+        public static string SmtpHost
+        {
+            get
+            {
+                var h = Configuration?["EmailSettings:SmtpHost"];
+                return string.IsNullOrWhiteSpace(h) ? "smtp.gmail.com" : h.Trim();
+            }
+        }
+
+        /// <summary>SMTP portu; varsayılan 587.</summary>
+        public static int SmtpPort
+        {
+            get
+            {
+                var raw = Configuration?["EmailSettings:SmtpPort"];
+                return int.TryParse(raw, out var p) && p > 0 ? p : 587;
+            }
+        }
+
+        /// <summary>E-posta göndermek için adres + şifre tanımlı mı (Render üretim kontrolü).</summary>
+        public static bool IsEmailConfigured =>
+            !string.IsNullOrWhiteSpace(MailAddress) && !string.IsNullOrWhiteSpace(MailPassword);
     }
 }

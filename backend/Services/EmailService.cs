@@ -7,19 +7,41 @@ namespace GameTracker.Helpers
 {
     public static class EmailService
     {
-        private static readonly string senderEmail = GameTracker.Api.AppConfig.MailAddress;
-        private static readonly string senderPassword = GameTracker.Api.AppConfig.MailPassword;
+        private static bool TryCreateClient(out SmtpClient client)
+        {
+            client = null;
+            var addr = GameTracker.Api.AppConfig.MailAddress?.Trim();
+            var pwd = GameTracker.Api.AppConfig.MailPassword;
+            if (string.IsNullOrWhiteSpace(addr) || string.IsNullOrWhiteSpace(pwd))
+            {
+                Console.WriteLine("[EmailService] EmailSettings MailAddress/MailPassword tanımlı değil (ör. Render env: EmailSettings__MailAddress, EmailSettings__MailPassword).");
+                return false;
+            }
+
+            client = new SmtpClient(GameTracker.Api.AppConfig.SmtpHost)
+            {
+                Port = GameTracker.Api.AppConfig.SmtpPort,
+                Credentials = new NetworkCredential(addr, pwd),
+                EnableSsl = true,
+            };
+            return true;
+        }
+
+        private static void LogMailError(Exception ex)
+        {
+            Console.WriteLine($"[EmailService] {ex.GetType().Name}: {ex.Message}");
+        }
 
         public static bool SendVerificationCode(string receiverEmail, string code)
         {
             try
             {
-                var smtpClient = new SmtpClient("smtp.gmail.com")
+                if (!TryCreateClient(out var smtpClient))
+                    return false;
+
+                using (smtpClient)
                 {
-                    Port = 587,
-                    Credentials = new NetworkCredential(senderEmail, senderPassword),
-                    EnableSsl = true,
-                };
+                var senderEmail = GameTracker.Api.AppConfig.MailAddress.Trim();
 
                 var mailMessage = new MailMessage
                 {
@@ -87,11 +109,12 @@ namespace GameTracker.Helpers
                 mailMessage.To.Add(receiverEmail);
 
                 smtpClient.Send(mailMessage);
+                }
                 return true;
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine("Mail Hatası: " + ex.Message);
+                LogMailError(ex);
                 return false;
             }
         }
@@ -100,12 +123,12 @@ namespace GameTracker.Helpers
         {
             try
             {
-                var smtpClient = new SmtpClient("smtp.gmail.com")
+                if (!TryCreateClient(out var smtpClient))
+                    return false;
+
+                using (smtpClient)
                 {
-                    Port = 587,
-                    Credentials = new NetworkCredential(senderEmail, senderPassword),
-                    EnableSsl = true,
-                };
+                var senderEmail = GameTracker.Api.AppConfig.MailAddress.Trim();
 
                 var mailMessage = new MailMessage
                 {
@@ -149,11 +172,12 @@ namespace GameTracker.Helpers
                 };
                 mailMessage.To.Add(receiverEmail);
                 smtpClient.Send(mailMessage);
+                }
                 return true;
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine("Mail Hatası: " + ex.Message);
+                LogMailError(ex);
                 return false;
             }
         }
@@ -162,12 +186,12 @@ namespace GameTracker.Helpers
         {
             try
             {
-                var smtpClient = new SmtpClient("smtp.gmail.com")
+                if (!TryCreateClient(out var smtpClient))
+                    return false;
+
+                using (smtpClient)
                 {
-                    Port = 587,
-                    Credentials = new NetworkCredential(senderEmail, senderPassword),
-                    EnableSsl = true,
-                };
+                var senderEmail = GameTracker.Api.AppConfig.MailAddress.Trim();
 
                 var mailMessage = new MailMessage
                 {
@@ -211,11 +235,12 @@ namespace GameTracker.Helpers
                 };
                 mailMessage.To.Add(receiverEmail);
                 smtpClient.Send(mailMessage);
+                }
                 return true;
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine("Mail Hatası: " + ex.Message);
+                LogMailError(ex);
                 return false;
             }
         }
