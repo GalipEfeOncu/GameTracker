@@ -181,6 +181,7 @@
     "gamesReadySuffix": "analiz için hazır",
     "preparing": "Hazırlanıyor…",
     "generate": "Önerileri oluştur",
+    "lockedHint": "Bu kütüphane için öneriler kayıtlı; kütüphanenize oyun ekleyip çıkarana kadar yeni AI isteği gönderilmez (token tasarrufu). Sayfadan çıksanız da sonuçlar oturum boyunca saklanır.",
     "reanalyze": "Yeniden analiz et",
     "libLoadingBlock": "Kütüphane yükleniyor…",
     "emptyLibTitle": "Kütüphaneniz boş",
@@ -194,6 +195,7 @@
     "errorHint": "Servis yoğun olabilir veya yapılandırma eksik olabilir. Bir süre sonra yeniden deneyin.",
     "noMatchTitle": "Eşleşen oyun bulunamadı",
     "noMatchHint": "Kütüphanenizi güncelleyip yeniden analiz etmeyi deneyin.",
+    "noMatchLockedHint": "Şimdilik IGDB ile eşleşen öneri yok. Kütüphanenizi değiştirdikten sonra yukarıdan yeni analiz isteyebilirsiniz.",
     "resultsTitle": "Sizin için seçilenler",
     "resultsCount": "{{n}} oyun",
     "refreshingList": "Liste yenileniyor…"

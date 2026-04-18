@@ -299,9 +299,10 @@ export const getPopularGames = async (offset = 0, nsfw = false) => {
     return data;
 };
 
+/** Gemini + çoklu IGDB araması uzun sürebilir (varsayılan axios 15sn yetmeyebilir). */
 export const getRecommendations = async (games) => {
     if (!games || games.length === 0) return [];
-    const { data } = await apiClient.post('/Library/recommendations', games);
+    const { data } = await apiClient.post('/Library/recommendations', games, { timeout: 120000 });
     return data;
 };
 

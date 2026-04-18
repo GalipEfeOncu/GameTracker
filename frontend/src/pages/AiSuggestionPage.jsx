@@ -1,12 +1,11 @@
-import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useMemo, useState } from 'react';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import {
     Loader2,
     Sparkles,
     BrainCircuit,
     History,
     Wand2,
-    RefreshCw,
     Library,
     AlertCircle,
 } from 'lucide-react';
@@ -15,12 +14,18 @@ import { useUser } from '../context/UserContext';
 import GameCard from '../components/GameCard';
 import { getSessionUserId } from '../utils/sessionUser';
 import { useI18n } from '../i18n/useI18n';
+import {
+    readAiRecommendationCache,
+    writeAiRecommendationCache,
+    readLockedLibraryFingerprint,
+} from '../utils/aiRecommendationCache';
 
 export default function AiSuggestionPage() {
     const { user } = useUser();
     const userId = getSessionUserId(user);
-    const [shouldFetch, setShouldFetch] = useState(false);
     const { t } = useI18n();
+
+    const [lockVersion, setLockVersion] = useState(0);
 
     const { data: library, isLoading: libraryLoading } = useQuery({
         queryKey: ['library', userId],
@@ -28,33 +33,86 @@ export default function AiSuggestionPage() {
         enabled: userId != null,
     });
 
+    const libraryFingerprint = useMemo(() => {
+        if (!library?.length) return '';
+        return library
+            .map((g) => g.id)
+            .sort((a, b) => a - b)
+            .join(',');
+    }, [library]);
+
     const likedGames = library?.map((g) => g.name) ?? [];
 
-    const {
-        data: suggestions,
-        isLoading,
-        isError,
-        isFetching,
-        isFetched,
-        refetch,
-    } = useQuery({
-        queryKey: ['recommendations', userId, likedGames.join('\u0001')],
-        queryFn: () => getRecommendations(likedGames),
-        enabled: shouldFetch && likedGames.length > 0,
+    const persistedSuggestions = useMemo(() => {
+        void lockVersion;
+        return readAiRecommendationCache(userId, libraryFingerprint);
+    }, [userId, libraryFingerprint, lockVersion]);
+
+    const lockedFingerprint = useMemo(() => {
+        void lockVersion;
+        return readLockedLibraryFingerprint(userId);
+    }, [userId, lockVersion]);
+
+    /** Önbellekte bu parmak izi için kayıt varsa veya storage kilidi eşleşiyorsa yeniden Gemini çağrısı yok. */
+    const hasPersistedForFingerprint = persistedSuggestions !== undefined;
+    const isSessionLocked =
+        libraryFingerprint.length > 0 &&
+        (lockedFingerprint === libraryFingerprint || hasPersistedForFingerprint);
+
+    const recommendationMutation = useMutation({
+        mutationKey: ['libraryAiRecommendations', userId, libraryFingerprint],
+        mutationFn: () => getRecommendations(likedGames),
+        gcTime: 1000 * 60 * 60 * 24,
+        retry: false,
+        onSuccess: (data) => {
+            writeAiRecommendationCache(userId, libraryFingerprint, data);
+            setLockVersion((v) => v + 1);
+        },
     });
 
+    const suggestions =
+        recommendationMutation.data !== undefined ? recommendationMutation.data : persistedSuggestions;
+
+    const recommendationErrMsg =
+        recommendationMutation.error?.response?.data?.message ??
+        recommendationMutation.error?.response?.data ??
+        recommendationMutation.error?.message;
+
+    const hasLoadedSuggestions = suggestions !== undefined;
+    const showBlockingLoad =
+        recommendationMutation.isPending && likedGames.length > 0 && !!libraryFingerprint;
+
+    const showIdle =
+        likedGames.length > 0 &&
+        !libraryLoading &&
+        !hasLoadedSuggestions &&
+        !showBlockingLoad &&
+        !recommendationMutation.isError;
+
+    const showNoMatch =
+        hasLoadedSuggestions &&
+        Array.isArray(suggestions) &&
+        suggestions.length === 0 &&
+        !recommendationMutation.isError &&
+        !showBlockingLoad;
+
+    const showGrid =
+        hasLoadedSuggestions &&
+        Array.isArray(suggestions) &&
+        suggestions.length > 0 &&
+        !recommendationMutation.isError &&
+        !showBlockingLoad;
+
+    const canRun = likedGames.length > 0 && !libraryLoading && !!libraryFingerprint;
+
     const handleStart = () => {
-        setShouldFetch(true);
+        if (!canRun) return;
+        recommendationMutation.mutate();
     };
 
-    const handleRefetch = () => {
-        void refetch();
+    const handleRetry = () => {
+        recommendationMutation.mutate();
     };
-
-    const showResults = shouldFetch && isFetched && !isError;
-    const showBlockingLoad = shouldFetch && likedGames.length > 0 && isLoading;
-    const isRefreshing = shouldFetch && isFetched && isFetching && !isLoading;
-    const canRun = likedGames.length > 0 && !libraryLoading;
 
     if (!user) {
         return (
@@ -104,35 +162,27 @@ export default function AiSuggestionPage() {
                             </div>
                         </div>
 
-                        <div className="flex flex-wrap items-center gap-3">
-                            {!shouldFetch || !isFetched ? (
+                        <div className="flex flex-wrap items-center gap-3 sm:justify-end">
+                            {isSessionLocked && hasLoadedSuggestions && !recommendationMutation.isError ? (
+                                <p className="max-w-md text-right text-sm leading-relaxed text-gray-500">{t('ai.lockedHint')}</p>
+                            ) : recommendationMutation.isError ? null : showBlockingLoad ? (
+                                <button
+                                    type="button"
+                                    disabled
+                                    className="group inline-flex cursor-wait items-center justify-center gap-2 rounded-none border border-blue-500/50 bg-blue-600 px-6 py-3.5 text-sm font-bold text-white opacity-90"
+                                >
+                                    <Loader2 className="h-5 w-5 shrink-0 animate-spin" aria-hidden />
+                                    {t('ai.preparing')}
+                                </button>
+                            ) : (
                                 <button
                                     type="button"
                                     onClick={handleStart}
                                     disabled={!canRun || showBlockingLoad}
                                     className="group inline-flex items-center justify-center gap-2 rounded-none border border-blue-500/50 bg-blue-600 px-6 py-3.5 text-sm font-bold text-white transition-colors hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-45"
                                 >
-                                    {showBlockingLoad ? (
-                                        <>
-                                            <Loader2 className="h-5 w-5 shrink-0 animate-spin" aria-hidden />
-                                            {t('ai.preparing')}
-                                        </>
-                                    ) : (
-                                        <>
-                                            <Wand2 className="h-5 w-5 shrink-0 transition group-hover:rotate-6" aria-hidden />
-                                            {t('ai.generate')}
-                                        </>
-                                    )}
-                                </button>
-                            ) : (
-                                <button
-                                    type="button"
-                                    onClick={handleRefetch}
-                                    disabled={isFetching}
-                                    className="inline-flex items-center justify-center gap-2 rounded-none border border-[#2a3148] bg-[#1a1e2d] px-5 py-3 text-sm font-semibold text-gray-200 transition hover:border-blue-500/35 hover:bg-[#1f2436] disabled:opacity-50"
-                                >
-                                    <RefreshCw className={`h-4 w-4 shrink-0 ${isFetching ? 'animate-spin' : ''}`} aria-hidden />
-                                    {t('ai.reanalyze')}
+                                    <Wand2 className="h-5 w-5 shrink-0 transition group-hover:rotate-6" aria-hidden />
+                                    {t('ai.generate')}
                                 </button>
                             )}
                         </div>
@@ -153,7 +203,7 @@ export default function AiSuggestionPage() {
                                 {t('ai.emptyLibHint')}
                             </p>
                         </div>
-                    ) : !shouldFetch ? (
+                    ) : showIdle ? (
                         <div className="rounded-none border border-[#1f2334] bg-[#161a28] px-8 py-14 text-center">
                             <Sparkles className="mx-auto mb-4 h-11 w-11 text-blue-400/80" strokeWidth={1.25} aria-hidden />
                             <p className="text-base font-semibold text-gray-200">{t('ai.idleTitle')}</p>
@@ -167,7 +217,7 @@ export default function AiSuggestionPage() {
                             <p className="text-base font-semibold text-gray-300">{t('ai.workingTitle')}</p>
                             <p className="mt-1 text-sm text-gray-500">{t('ai.workingSub')}</p>
                         </div>
-                    ) : isError ? (
+                    ) : recommendationMutation.isError ? (
                         <div
                             role="alert"
                             className="flex flex-col items-center gap-4 rounded-none border border-red-500/25 bg-red-500/5 px-8 py-12 text-center"
@@ -175,33 +225,35 @@ export default function AiSuggestionPage() {
                             <AlertCircle className="h-10 w-10 text-red-400" aria-hidden />
                             <div>
                                 <p className="font-bold text-red-300">{t('ai.errorTitle')}</p>
-                                <p className="mt-1 text-sm text-red-200/70">
-                                    {t('ai.errorHint')}
+                                <p className="mt-1 max-w-lg text-sm text-red-200/70">
+                                    {typeof recommendationErrMsg === 'string' && recommendationErrMsg.trim()
+                                        ? recommendationErrMsg
+                                        : t('ai.errorHint')}
                                 </p>
                             </div>
                             <button
                                 type="button"
-                                onClick={handleRefetch}
+                                onClick={handleRetry}
                                 className="rounded-none border border-red-500/40 bg-red-500/10 px-5 py-2.5 text-sm font-semibold text-red-200 transition hover:bg-red-500/20"
                             >
                                 {t('common.retry')}
                             </button>
                         </div>
-                    ) : showResults && (!suggestions || suggestions.length === 0) ? (
+                    ) : showNoMatch ? (
                         <div className="rounded-none border border-[#1f2334] bg-[#161a28] px-8 py-14 text-center">
                             <p className="font-semibold text-gray-300">{t('ai.noMatchTitle')}</p>
                             <p className="mt-2 text-sm text-gray-500">
-                                {t('ai.noMatchHint')}
+                                {t('ai.noMatchLockedHint')}
                             </p>
                         </div>
-                    ) : showResults ? (
+                    ) : showGrid ? (
                         <div>
                             <div className="mb-8 flex flex-wrap items-end justify-between gap-4 border-b border-[#1f2334] pb-6">
                                 <div>
                                     <h2 className="text-lg font-bold text-white">{t('ai.resultsTitle')}</h2>
                                     <p className="mt-1 text-sm text-gray-500">{t('ai.resultsCount', { n: suggestions.length })}</p>
                                 </div>
-                                {isRefreshing && (
+                                {recommendationMutation.isPending && (
                                     <span className="inline-flex items-center gap-2 text-xs font-medium text-blue-400/90">
                                         <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden />
                                         {t('ai.refreshingList')}
@@ -209,7 +261,7 @@ export default function AiSuggestionPage() {
                                 )}
                             </div>
                             <div
-                                className={`grid grid-cols-2 items-start gap-x-6 gap-y-16 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 ${isRefreshing ? 'pointer-events-none opacity-60' : ''} transition-opacity duration-200`}
+                                className={`grid grid-cols-2 items-start gap-x-6 gap-y-16 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 ${recommendationMutation.isPending ? 'pointer-events-none opacity-60' : ''} transition-opacity duration-200`}
                             >
                                 {suggestions.map((game) => (
                                     <GameCard key={game.id} game={game} />

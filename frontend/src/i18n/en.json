@@ -181,6 +181,7 @@
     "gamesReadySuffix": "ready to analyze",
     "preparing": "Preparing…",
     "generate": "Generate suggestions",
+    "lockedHint": "Suggestions for this library are saved; no new AI request is sent until you add or remove games (saves tokens). Results stay for this session even if you leave the page.",
     "reanalyze": "Analyze again",
     "libLoadingBlock": "Loading library…",
     "emptyLibTitle": "Your library is empty",
@@ -194,6 +195,7 @@
     "errorHint": "The service may be busy or configuration may be incomplete. Try again shortly.",
     "noMatchTitle": "No matching games",
     "noMatchHint": "Update your library and run the analysis again.",
+    "noMatchLockedHint": "No IGDB matches for now. After you change your library, you can request a new analysis above.",
     "resultsTitle": "Picked for you",
     "resultsCount": "{{n}} games",
     "refreshingList": "Refreshing list…"

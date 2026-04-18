@@ -19,6 +19,19 @@ namespace GameTracker.Api
             !string.IsNullOrWhiteSpace(IgdbClientId) && !string.IsNullOrWhiteSpace(IgdbClientSecret);
 
         public static string GeminiApiKey => Configuration?["ApiKeys:GeminiApiKey"];
+
+        /// <summary>Gemini model id (generateContent). Kota model bazlıdır — env: ApiKeys__GeminiModel.</summary>
+        /// <remarks>Varsayılan: gemini-2.5-flash-lite (yüksek hacim / düşük gecikme; preview modeller sık 503 verebilir).</remarks>
+        public static string GeminiModel
+        {
+            get
+            {
+                var m = Configuration?["ApiKeys:GeminiModel"];
+                return string.IsNullOrWhiteSpace(m) ? "gemini-2.5-flash-lite" : m.Trim();
+            }
+        }
+
+        public static bool IsGeminiConfigured => !string.IsNullOrWhiteSpace(GeminiApiKey);
         public static string MailAddress => Configuration?["EmailSettings:MailAddress"];
         public static string MailPassword => Configuration?["EmailSettings:MailPassword"];
 

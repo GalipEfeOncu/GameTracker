@@ -193,29 +193,50 @@ namespace GameTracker.Api.Controllers
             return Ok(new { items = games, hasMore, nextPage = page + 1, igdbConfigured, rawgConfigured });
         }
 
+        /// <summary>
+        /// Kütüphane adlarına göre Gemini önerisi + IGDB arama eşlemesi. IGDB limiti 1 iken ilk sonuç NSFW
+        /// filtresinden düşerse boş kalıyordu; birkaç aday alınıyor.
+        /// </summary>
+        [Authorize]
         [HttpPost("recommendations")]
         public async Task<IActionResult> GetRecommendations(
             [FromBody] List<string> userGames,
             CancellationToken cancellationToken = default)
         {
+            const int igdbCandidatesPerTitle = 12;
+
             try
             {
-                var recommendedNames = await _geminiService.GetRecommendationsAsync(userGames).ConfigureAwait(false);
-                if (recommendedNames == null || recommendedNames.Count == 0) return Ok(new List<Game>());
+                if (!AppConfig.IsGeminiConfigured)
+                    return BadRequest(new { message = "AI önerileri için sunucuda ApiKeys__GeminiApiKey tanımlı olmalıdır." });
+
+                if (!AppConfig.IsIgdbConfigured)
+                    return BadRequest(new { message = "IGDB (Twitch) kimlik bilgileri eksik; öneri kartları oluşturulamaz." });
+
+                var recommendedNames = await _geminiService.GetRecommendationsAsync(userGames, cancellationToken).ConfigureAwait(false);
+                if (recommendedNames == null || recommendedNames.Count == 0)
+                    return Ok(new List<Game>());
 
                 var tasks = recommendedNames.Take(GeminiService.RecommendationCount).Select(async name =>
                 {
-                    var found = await _igdb.SearchAsync(name, 1, showNsfw: false, cancellationToken).ConfigureAwait(false);
+                    var found = await _igdb.SearchAsync(name, igdbCandidatesPerTitle, showNsfw: false, cancellationToken).ConfigureAwait(false);
                     return found.FirstOrDefault();
                 });
 
                 var results = await Task.WhenAll(tasks).ConfigureAwait(false);
-                var games = results.Where(g => g != null).ToList();
+                var games = new List<Game>();
+                var seenIds = new HashSet<int>();
+                foreach (var g in results.Where(g => g != null))
+                {
+                    if (seenIds.Add(g.Id))
+                        games.Add(g);
+                }
+
                 return Ok(games);
             }
             catch (System.Exception ex)
             {
-                return BadRequest(ex.Message);
+                return BadRequest(new { message = ex.Message });
             }
         }
     }
