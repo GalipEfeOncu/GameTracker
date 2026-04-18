@@ -1,4 +1,5 @@
 import { BrowserRouter, HashRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { Analytics } from '@vercel/analytics/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { UserProvider } from './context/UserContext';
 import { PreferencesProvider, usePreferences } from './context/PreferencesContext';
@@ -66,6 +67,7 @@ function App() {
           </PreferencesProvider>
         </UserProvider>
       </ToastProvider>
+      <Analytics />
     </QueryClientProvider>
   );
 }
