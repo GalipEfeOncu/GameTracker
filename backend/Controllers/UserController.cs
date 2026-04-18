@@ -48,11 +48,16 @@ namespace GameTracker.Api.Controllers
                 if (!success)
                     return BadRequest(new { message = "Could not register user." });
 
+                var emailTrimmed = req.Email.Trim();
                 var code = new Random().Next(100000, 999999).ToString();
-                _codes.Set(VerificationCodePurpose.EmailVerification, req.Email.Trim(), code);
-                bool sent = EmailService.SendVerificationCode(req.Email.Trim(), code);
+                _codes.Set(VerificationCodePurpose.EmailVerification, emailTrimmed, code);
+                bool sent = EmailService.SendVerificationCode(emailTrimmed, code);
                 if (!sent)
-                    return BadRequest(new { message = "Registration saved but we could not send the verification email. Try again later or contact support." });
+                {
+                    _codes.RevokePending(VerificationCodePurpose.EmailVerification, emailTrimmed);
+                    UserManager.DeleteUnverifiedUserByEmail(emailTrimmed);
+                    return BadRequest(new { message = "We could not send the verification email. Nothing was saved. Fix email settings or try again later." });
+                }
 
                 return Ok(new { message = "Registration successful. Check your email for the verification code.", requireVerification = true });
             }

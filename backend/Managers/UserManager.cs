@@ -61,6 +61,20 @@ namespace GameTracker
         }
 
         /// <summary>
+        /// Doğrulanmamış kaydı e-posta gönderilemediğinde geri alır (yalnızca email_verified = 0).
+        /// </summary>
+        public static bool DeleteUnverifiedUserByEmail(string email)
+        {
+            if (string.IsNullOrWhiteSpace(email)) return false;
+            const string query = @"DELETE FROM users
+WHERE LOWER(LTRIM(RTRIM(email))) = LOWER(@email)
+  AND email_verified = 0";
+            var parameters = new[] { new SqlParameter("@email", email.Trim()) };
+            int rows = DatabaseHelper.ExecuteNonQuery(query, parameters);
+            return rows > 0;
+        }
+
+        /// <summary>
         /// Kullanıcıyı giriş yapar.
         /// </summary>
         /// <param name="usernameOrEmail">Kullanıcının kullanıcı adı veya maili</param>

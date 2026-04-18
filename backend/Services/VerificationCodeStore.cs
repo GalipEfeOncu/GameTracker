@@ -29,6 +29,11 @@ namespace GameTracker.Services
         /// Kodu doğrular ve başarılıysa tek kullanımlık şekilde tüketir (consumed_at_utc işaretlenir).
         /// </summary>
         bool TryConsume(VerificationCodePurpose purpose, string subjectKey, string code);
+
+        /// <summary>
+        /// Kayıt iptali gibi durumlarda bekleyen kodları geçersiz kılar (yeniden kayıt için temiz slate).
+        /// </summary>
+        void RevokePending(VerificationCodePurpose purpose, string subjectKey);
     }
 
     /// <summary>
@@ -102,6 +107,27 @@ UPDATE TempVerificationCodes
             });
 
             return result != null && result != DBNull.Value;
+        }
+
+        public void RevokePending(VerificationCodePurpose purpose, string subjectKey)
+        {
+            if (string.IsNullOrWhiteSpace(subjectKey)) return;
+
+            var purposeStr = purpose.ToString();
+            var subject = NormalizeSubject(subjectKey);
+
+            const string sql = @"
+UPDATE TempVerificationCodes
+   SET consumed_at_utc = SYSUTCDATETIME()
+ WHERE purpose = @purpose
+   AND subject_key = @subject
+   AND consumed_at_utc IS NULL;";
+
+            DatabaseHelper.ExecuteNonQuery(sql, new[]
+            {
+                new SqlParameter("@purpose", SqlDbType.NVarChar, 32) { Value = purposeStr },
+                new SqlParameter("@subject", SqlDbType.NVarChar, 320) { Value = subject },
+            });
         }
 
         /// <summary>
