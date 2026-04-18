@@ -34,6 +34,8 @@
   },
   "layout": {
     "skipToContent": "Ana içeriğe geç",
+    "openNav": "Menüyü aç",
+    "closeNav": "Menüyü kapat",
     "searchPlaceholder": "Oyun ara…",
     "searchAria": "Oyun ara",
     "accountMenu": "Hesap menüsü",

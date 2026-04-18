@@ -34,6 +34,8 @@
   },
   "layout": {
     "skipToContent": "Skip to main content",
+    "openNav": "Open menu",
+    "closeNav": "Close menu",
     "searchPlaceholder": "Search games…",
     "searchAria": "Search games",
     "accountMenu": "Account menu",

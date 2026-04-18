@@ -1,5 +1,5 @@
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
-import { Search, Settings, LogOut, ChevronDown } from 'lucide-react';
+import { Search, Settings, LogOut, ChevronDown, Menu } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import Sidebar from './Sidebar';
@@ -10,6 +10,7 @@ import { useI18n } from '../i18n/useI18n';
 
 export default function Layout() {
     const [searchQuery, setSearchQuery] = useState('');
+    const [mobileNavOpen, setMobileNavOpen] = useState(false);
     const [profileOpen, setProfileOpen] = useState(false);
     const profileRef = useRef(null);
     const navigate = useNavigate();
@@ -37,6 +38,33 @@ export default function Layout() {
             setSearchQuery('');
         }
     }, [location.pathname, location.search]);
+
+    useEffect(() => {
+        const mq = window.matchMedia('(min-width: 1024px)');
+        const closeOnWide = () => {
+            if (mq.matches) setMobileNavOpen(false);
+        };
+        mq.addEventListener('change', closeOnWide);
+        return () => mq.removeEventListener('change', closeOnWide);
+    }, []);
+
+    useEffect(() => {
+        if (!mobileNavOpen) return;
+        const prev = document.body.style.overflow;
+        document.body.style.overflow = 'hidden';
+        return () => {
+            document.body.style.overflow = prev;
+        };
+    }, [mobileNavOpen]);
+
+    useEffect(() => {
+        if (!mobileNavOpen) return;
+        const onKey = (e) => {
+            if (e.key === 'Escape') setMobileNavOpen(false);
+        };
+        window.addEventListener('keydown', onKey);
+        return () => window.removeEventListener('keydown', onKey);
+    }, [mobileNavOpen]);
 
     useEffect(() => {
         if (!isDesktop || !userId) return undefined;
@@ -82,25 +110,51 @@ export default function Layout() {
             >
                 {t('layout.skipToContent')}
             </a>
-            <Sidebar />
+            {mobileNavOpen && (
+                <div
+                    className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm lg:hidden"
+                    aria-hidden
+                    onClick={() => setMobileNavOpen(false)}
+                />
+            )}
 
-            <div className="flex-1 flex flex-col overflow-hidden">
+            <Sidebar mobileOpen={mobileNavOpen} onCloseMobile={() => setMobileNavOpen(false)} />
+
+            <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
                 {/* Header */}
-                <header className="shrink-0 z-10 bg-[#0f111a]/80 backdrop-blur-md border-b border-[#1f2334] px-8 h-16 flex items-center justify-between gap-4" role="banner">
-                    {/* Dynamic Header Info */}
-                    <div className="flex-1">
-                        {headerInfo ? (
-                            <div className="flex flex-col justify-center">
-                                <h1 className="text-xl font-bold text-white tracking-tight">{headerInfo.title}</h1>
-                            </div>
-                        ) : (
-                            <div />
-                        )}
+                <header
+                    className="flex h-14 shrink-0 items-center justify-between gap-2 border-b border-[#1f2334] bg-[#0f111a]/80 px-3 backdrop-blur-md sm:h-16 sm:gap-4 sm:px-6 lg:px-8 z-20"
+                    role="banner"
+                >
+                    <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3">
+                        <button
+                            type="button"
+                            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-none border border-[#1f2334] bg-[#1a1e2d] text-gray-200 hover:bg-[#252a3d] lg:hidden"
+                            onClick={() => setMobileNavOpen(true)}
+                            aria-expanded={mobileNavOpen}
+                            aria-controls="app-sidebar"
+                            aria-label={t('layout.openNav')}
+                        >
+                            <Menu size={20} aria-hidden />
+                        </button>
+                        <div className="min-w-0 flex-1">
+                            {headerInfo ? (
+                                <div className="flex flex-col justify-center">
+                                    <h1 className="truncate text-base font-bold tracking-tight text-white sm:text-xl">{headerInfo.title}</h1>
+                                </div>
+                            ) : (
+                                <div />
+                            )}
+                        </div>
                     </div>
 
-                    <div className="flex items-center gap-4 shrink-0">
-                        <div className="relative group">
-                            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-blue-500 transition-colors" />
+                    <div className="flex shrink-0 items-center gap-2 sm:gap-4">
+                        <div className="group relative max-[399px]:min-w-0">
+                            <Search
+                                size={16}
+                                className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-500 transition-colors group-focus-within:text-blue-500 min-[400px]:left-3"
+                                aria-hidden
+                            />
                             <input
                                 id="header-game-search"
                                 type="search"
@@ -108,11 +162,11 @@ export default function Layout() {
                                 onChange={handleSearch}
                                 placeholder={t('layout.searchPlaceholder')}
                                 aria-label={t('layout.searchAria')}
-                                className="pl-9 pr-4 py-2 w-56 bg-[#1a1e2d] border border-[#1f2334] rounded-none text-sm outline-none focus:border-blue-500 transition-colors placeholder:text-gray-500 text-gray-200"
+                                className="w-[8.25rem] rounded-none border border-[#1f2334] bg-[#1a1e2d] py-2 pl-8 pr-2 text-xs text-gray-200 outline-none transition-colors placeholder:text-gray-500 focus:border-blue-500 min-[400px]:w-[10rem] min-[400px]:py-2 min-[400px]:pl-9 min-[400px]:pr-3 min-[400px]:text-sm sm:w-56"
                             />
                         </div>
 
-                        <div className="relative" ref={profileRef}>
+                        <div className="relative z-[60]" ref={profileRef}>
                             <button
                                 type="button"
                                 onClick={() => setProfileOpen((v) => !v)}
@@ -129,7 +183,7 @@ export default function Layout() {
                             {profileOpen && (
                                 <div
                                     role="menu"
-                                    className="absolute right-0 top-full mt-2 w-48 py-1 rounded-none bg-[#141722] border border-[#1f2334] z-50"
+                                    className="absolute right-0 top-full z-[70] mt-2 w-48 rounded-none border border-[#1f2334] bg-[#141722] py-1"
                                 >
                                     {user ? (
                                         <>
