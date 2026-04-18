@@ -1,35 +1,50 @@
 'use strict';
 
 /**
- * Yer tutucu tray + uygulama ikonları üretir (mavi düz renk).
- * Kurumsal ikon için çıktıları tasarımla değiştir; komutu tekrar çalıştırmana gerek yok.
+ * Kök dizindeki GameTracker_Icon.png → desktop/assets/tray.png + icon.ico
+ * Web favicon için: aynı kaynak frontend/public/favicon.png olarak tutulur (manuel veya deploy öncesi kopyala).
  */
 
 const fs = require('fs');
 const path = require('path');
 const { Jimp, JimpMime } = require('jimp');
 
-const ACCENT = '#2563eb';
+async function squarePngFromBase(base, size) {
+    const img = base.clone();
+    await img.resize({ w: size, h: size });
+    return img.getBuffer(JimpMime.png);
+}
 
 async function main() {
+    const repoRoot = path.join(__dirname, '..', '..');
+    const sourcePath = path.join(repoRoot, 'GameTracker_Icon.png');
+    if (!fs.existsSync(sourcePath)) {
+        console.error('Kök dizinde GameTracker_Icon.png bulunamadı:', sourcePath);
+        process.exit(1);
+    }
+
+    const base = await Jimp.read(sourcePath);
     const assets = path.join(__dirname, '..', 'assets');
     fs.mkdirSync(assets, { recursive: true });
 
-    const tray = new Jimp({ width: 32, height: 32, color: ACCENT });
-    await tray.write(path.join(assets, 'tray.png'));
+    const trayBuf = await squarePngFromBase(base, 32);
+    fs.writeFileSync(path.join(assets, 'tray.png'), trayBuf);
 
-    const sizes = [256, 48, 32];
     const buffers = [];
-    for (const size of sizes) {
-        const img = new Jimp({ width: size, height: size, color: ACCENT });
-        buffers.push(await img.getBuffer(JimpMime.png));
+    for (const size of [256, 48, 32]) {
+        buffers.push(await squarePngFromBase(base, size));
     }
 
     const { default: pngToIco } = await import('png-to-ico');
     const icoPath = path.join(assets, 'icon.ico');
     fs.writeFileSync(icoPath, Buffer.from(await pngToIco(buffers)));
 
-    console.log('OK:', path.join(assets, 'tray.png'), icoPath);
+    const publicDir = path.join(repoRoot, 'frontend', 'public');
+    fs.mkdirSync(publicDir, { recursive: true });
+    const favBuf = await squarePngFromBase(base, 512);
+    fs.writeFileSync(path.join(publicDir, 'favicon.png'), favBuf);
+
+    console.log('OK:', path.join(assets, 'tray.png'), icoPath, path.join(publicDir, 'favicon.png'));
 }
 
 main().catch((e) => {

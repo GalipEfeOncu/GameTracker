@@ -31,14 +31,14 @@ npm run build:dir
 
 ### İkonlar
 
-Kurulum ve tepsi ikonları `assets/` altında (`tray.png`, `icon.ico`). Yer tutucuları yeniden üretmek için:
+Kaynak: repoda kök dizin `GameTracker_Icon.png`. Aşağıdaki komut onu okuyup `desktop/assets/tray.png`, `desktop/assets/icon.ico` ve web için `frontend/public/favicon.png` üretir:
 
 ```powershell
 cd desktop
 npm run generate:icons
 ```
 
-Kendi `.png` / `.ico` dosyalarınla değiştirip `npm run build` çalıştırabilirsin.
+İkon tasarımını güncellediğinde kök PNG’yi değiştir → komutu tekrar çalıştır → `npm run build`.
 
 Yayın öncesi `frontend/.env.production` içinde **tam** `VITE_API_BASE_URL` olmalı (örn. `https://senin-api.com/api`); `file://` ile göreli `/api` çalışmaz.
 

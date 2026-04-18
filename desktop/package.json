@@ -54,7 +54,10 @@
       "allowToChangeInstallationDirectory": true,
       "installerIcon": "assets/icon.ico",
       "uninstallerIcon": "assets/icon.ico",
-      "installerHeaderIcon": "assets/icon.ico"
+      "installerHeaderIcon": "assets/icon.ico",
+      "shortcutName": "GameTracker",
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
     }
   }
 }
