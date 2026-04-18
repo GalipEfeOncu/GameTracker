@@ -20,15 +20,27 @@ cd desktop; npm run dev           # GAMETRACKER_DEV_SERVER_URL=http://localhost:
 ## Üretim benzeri paket çalıştırma (Windows)
 
 ```powershell
-# frontend build + Electron paketi (NSIS installer -> desktop/dist-desktop/)
+# Önce frontend'de üretim API kökü (repoda: .env.production.example -> .env.production)
 cd frontend
-# PoC: uzak API köküne işaret eden env (frontend/.env.production veya shell export)
-"VITE_API_BASE_URL=https://gametracker-api.example.com/api" | Out-File -Encoding ascii .env.production
+Copy-Item .env.production.example .env.production   # bir kez; dosyayı düzenle: VITE_API_BASE_URL=https://.../api
 cd ..\desktop
-npm run build              # .exe installer üretir
+npm run build              # NSIS: GameTracker Setup x.y.z.exe -> dist-desktop/
 # veya sadece unpacked klasör:
 npm run build:dir
 ```
+
+### İkonlar
+
+Kurulum ve tepsi ikonları `assets/` altında (`tray.png`, `icon.ico`). Yer tutucuları yeniden üretmek için:
+
+```powershell
+cd desktop
+npm run generate:icons
+```
+
+Kendi `.png` / `.ico` dosyalarınla değiştirip `npm run build` çalıştırabilirsin.
+
+Yayın öncesi `frontend/.env.production` içinde **tam** `VITE_API_BASE_URL` olmalı (örn. `https://senin-api.com/api`); `file://` ile göreli `/api` çalışmaz.
 
 > Renderer (Vite) build'i `file://` protokolünde yükleneceği için Vite `base` `./` olarak ayarlandı (bkz. `frontend/vite.config.js`). SPA içinde **mutlaka** mutlak `VITE_API_BASE_URL` kullanılmalı; aksi halde apiClient `/api`'ye düşer ve `file:///api/...` çağrıları başarısız olur.
 
@@ -45,8 +57,11 @@ npm run build:dir
 ```
 desktop/
   package.json          # electron + electron-builder + scripts
-  .env.example          # VITE_API_BASE_URL ve GAMETRACKER_DEV_SERVER_URL notu
+  assets/               # tray.png, icon.ico (kurulum / görev çubuğu)
+  scripts/generate-icons.cjs
+  .env.example
   src/
-    main.js             # BrowserWindow + file:// / dev URL yükleyici
-    preload.js          # contextBridge (şimdilik boş)
+    main.js             # pencere, tray, IPC, tracker
+    preload.js          # contextBridge
+    detectors/          # Steam / Epic / GOG
 ```

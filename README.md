@@ -62,7 +62,29 @@ npm install
 npm run dev
 ```
 
-For production builds, set `VITE_API_BASE_URL` (must end with `/api`). See `frontend/.env.example`.
+For production SPA builds, set `VITE_API_BASE_URL` (must end with `/api`). Copy `frontend/.env.production.example` → `frontend/.env.production` and edit the URL — that file is **gitignored** so secrets are not committed.
+
+## Ship checklist (same day release)
+
+1. **API live** — Backend deployed; SQL reachable; env vars set (`docs/DEPLOY.md`). **`Cors__AllowedOrigins`** includes your web app origin if you ship the SPA.
+2. **Web build** — In `frontend/`: copy `.env.production.example` → `.env.production`, set real `VITE_API_BASE_URL`, then `npm run build`. Upload `frontend/dist/` to static host (or use your platform’s env-injected build).
+3. **Desktop installer** — Same `.env.production` as step 2 (desktop bundles the SPA build). Then `cd desktop && npm install && npm run build`. Artifact: `desktop/dist-desktop/GameTracker Setup x.y.z.exe`.
+4. **Smoke test** — Login, library, one installed-game link + playtime path if you use desktop.
+5. **GitHub Release** — Tag + attach the `.exe`; replace `YOUR_ACCOUNT` in the Download link below.
+
+## Download (Windows desktop)
+
+Distribution is **manual**: build the NSIS installer locally or attach the artifact from [GitHub Releases](https://github.com/YOUR_ACCOUNT/GameTracker/releases) when you publish a tag (replace `YOUR_ACCOUNT` with your fork/org).
+
+```powershell
+cd frontend
+Copy-Item .env.production.example .env.production   # sonra içindeki URL'yi doldur
+cd ..\desktop
+npm install
+npm run build
+```
+
+Output: `desktop/dist-desktop/GameTracker Setup x.y.z.exe`. Code signing is optional; SmartScreen may warn on first run.
 
 ## Configuration reference
 

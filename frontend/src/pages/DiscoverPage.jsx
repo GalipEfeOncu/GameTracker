@@ -5,10 +5,10 @@ import { usePreferences } from '../context/PreferencesContext';
 import { Loader2, SearchX, Flame, Star, Sparkles, Gamepad2 } from 'lucide-react';
 import GameCard from '../components/GameCard';
 import { GameCardSkeletonGrid } from '../components/GameCardSkeleton';
+import { useI18n } from '../i18n/useI18n';
 
 // IGDB genre id'leri (backend IgdbGenreCatalog ile aynı)
-const GENRES = [
-    { id: null, label: 'Tümü', emoji: '🎮' },
+const GENRE_REST = [
     { id: 25, label: 'Action', emoji: '⚔️' },
     { id: 12, label: 'RPG', emoji: '🐉' },
     { id: 5, label: 'Shooter', emoji: '🔫' },
@@ -23,22 +23,31 @@ const GENRES = [
     { id: 32, label: 'Indie', emoji: '🎨' },
 ];
 
-const MODES = [
-    { id: 'trending', label: 'Trend', icon: Flame, hint: null },
-    { id: 'top_rated', label: 'En İyi', icon: Star, hint: null },
-    { id: 'new', label: 'Yeni Çıkan', icon: Sparkles, hint: null },
-    {
-        id: 'metacritic_top',
-        label: 'Eleştiri 75+',
-        icon: Gamepad2,
-        hint: 'IGDB eleştiri özeti (aggregated_rating) 75 ve üzeri',
-    },
-];
-
 export default function DiscoverPage() {
     const [searchParams] = useSearchParams();
     const query = searchParams.get('q') || '';
     const { showNsfw } = usePreferences();
+    const { t } = useI18n();
+
+    const GENRES = useMemo(
+        () => [{ id: null, label: t('discover.genreAll'), emoji: '🎮' }, ...GENRE_REST],
+        [t],
+    );
+
+    const MODES = useMemo(
+        () => [
+            { id: 'trending', label: t('discover.modeTrend'), icon: Flame, hint: null },
+            { id: 'top_rated', label: t('discover.modeTop'), icon: Star, hint: null },
+            { id: 'new', label: t('discover.modeNew'), icon: Sparkles, hint: null },
+            {
+                id: 'metacritic_top',
+                label: t('discover.modeMeta'),
+                icon: Gamepad2,
+                hint: t('discover.modeMetaHint'),
+            },
+        ],
+        [t],
+    );
 
     const [activeGenre, setActiveGenre] = useState(null);
     const [activeMode, setActiveModeState] = useState('trending');
@@ -99,8 +108,8 @@ export default function DiscoverPage() {
                 ) : (
                     <div className="flex flex-col items-center justify-center py-32 text-gray-400">
                         <SearchX size={64} className="mb-6 opacity-30" />
-                        <h2 className="text-xl font-bold text-gray-300">Açıkçası bir şey bulamadık</h2>
-                        <p className="mt-2 text-center max-w-sm">Arama teriminizi kontrol edebilir veya farklı anahtar kelimelerle deneyebilirsiniz.</p>
+                        <h2 className="text-xl font-bold text-gray-300">{t('discover.searchEmptyTitle')}</h2>
+                        <p className="mt-2 text-center max-w-sm">{t('discover.searchEmptyHint')}</p>
                     </div>
                 )}
             </div>
@@ -180,8 +189,8 @@ export default function DiscoverPage() {
                 ) : (
                     <div className="flex flex-col items-center justify-center py-32 text-gray-400">
                         <Gamepad2 size={64} className="mb-6 opacity-30" />
-                        <h2 className="text-xl font-bold text-gray-300">Oyun bulunamadı</h2>
-                        <p className="mt-2 text-center max-w-sm">Bu kombinasyon için henüz veri yok, farklı bir mod veya tür deneyin.</p>
+                        <h2 className="text-xl font-bold text-gray-300">{t('discover.emptyTitle')}</h2>
+                        <p className="mt-2 text-center max-w-sm">{t('discover.emptyHint')}</p>
                     </div>
                 )}
 
@@ -190,7 +199,7 @@ export default function DiscoverPage() {
                     {isFetchingNextPage && (
                         <div className="flex items-center gap-3 text-gray-500 text-sm">
                             <Loader2 size={20} className="animate-spin text-blue-500" />
-                            Daha fazla yükleniyor...
+                            {t('common.loadingMore')}
                         </div>
                     )}
                 </div>

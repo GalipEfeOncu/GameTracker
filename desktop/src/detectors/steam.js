@@ -7,8 +7,27 @@
 
 const fs = require('node:fs');
 const path = require('node:path');
+const os = require('node:os');
 const { spawnSync } = require('node:child_process');
 const { parseVdf } = require('../lib/vdf');
+
+function stripUtf8Bom(text) {
+    if (typeof text !== 'string' || text.length === 0) return text;
+    return text.charCodeAt(0) === 0xfeff ? text.slice(1) : text;
+}
+
+/** Registry / VDF’den gelen yolu Windows’ta güvenilir biçime getirir ve varlığını doğrular. */
+function normalizeExistingDir(p) {
+    if (!p || typeof p !== 'string') return null;
+    let x = p.trim().replace(/^["']|["']$/g, '');
+    x = x.replace(/\//g, path.sep);
+    try {
+        x = path.normalize(x);
+        return fs.existsSync(x) ? x : null;
+    } catch {
+        return null;
+    }
+}
 
 function regQueryValue(keyPath, valueName) {
     const res = spawnSync('reg', ['query', keyPath, '/v', valueName], { encoding: 'utf8', windowsHide: true });
@@ -27,43 +46,87 @@ function findSteamRoot() {
         ['HKLM\\SOFTWARE\\Valve\\Steam', 'InstallPath'],
     ];
     for (const [key, value] of candidates) {
-        const p = regQueryValue(key, value);
-        if (p && fs.existsSync(p)) return p;
+        const raw = regQueryValue(key, value);
+        const p = normalizeExistingDir(raw);
+        if (p && fs.existsSync(path.join(p, 'steam.exe'))) return p;
     }
-    // Fallback: varsayılan yol
-    const def = 'C:\\Program Files (x86)\\Steam';
-    return fs.existsSync(def) ? def : null;
+    const pf86 = process.env['ProgramFiles(x86)'] || 'C:\\Program Files (x86)';
+    const pf = process.env.ProgramFiles || 'C:\\Program Files';
+    const fallbacks = [
+        path.join(pf86, 'Steam'),
+        path.join(pf, 'Steam'),
+        'D:\\Steam',
+        'C:\\Steam',
+        path.join(os.homedir(), 'Steam'),
+    ];
+    for (const f of fallbacks) {
+        const p = normalizeExistingDir(f);
+        if (p && fs.existsSync(path.join(p, 'steam.exe'))) return p;
+    }
+    return null;
 }
 
-function findLibraryFolders(steamRoot) {
-    const libs = new Set([path.join(steamRoot, 'steamapps')]);
-    const vdfPath = path.join(steamRoot, 'steamapps', 'libraryfolders.vdf');
+function mergeLibraryFoldersVdf(rawText, libs) {
+    let parsed;
     try {
-        if (!fs.existsSync(vdfPath)) return [...libs];
-        const parsed = parseVdf(fs.readFileSync(vdfPath, 'utf8'));
-        const container = parsed.libraryfolders || parsed.LibraryFolders;
-        if (container && typeof container === 'object') {
-            for (const value of Object.values(container)) {
-                if (value && typeof value === 'object' && value.path) {
-                    libs.add(path.join(value.path, 'steamapps'));
-                } else if (typeof value === 'string' && fs.existsSync(value)) {
-                    libs.add(path.join(value, 'steamapps'));
+        parsed = parseVdf(stripUtf8Bom(rawText));
+    } catch {
+        return;
+    }
+    const roots = [
+        parsed.libraryfolders,
+        parsed.LibraryFolders,
+        parsed.libraryfolder,
+    ].filter(Boolean);
+    for (const container of roots) {
+        if (!container || typeof container !== 'object') continue;
+        for (const value of Object.values(container)) {
+            if (!value) continue;
+            if (typeof value === 'string') {
+                const base = normalizeExistingDir(value);
+                if (base) libs.add(path.join(base, 'steamapps'));
+                continue;
+            }
+            if (typeof value === 'object') {
+                const rawPath = value.path || value.Path;
+                if (rawPath) {
+                    const base = normalizeExistingDir(String(rawPath));
+                    if (base) libs.add(path.join(base, 'steamapps'));
                 }
             }
         }
-    } catch { /* bozuk vdf → varsayılan kullan */ }
+    }
+}
+
+function findLibraryFolders(steamRoot) {
+    const libs = new Set();
+    const primary = path.join(steamRoot, 'steamapps');
+    if (fs.existsSync(primary)) libs.add(primary);
+
+    const vdfPaths = [
+        path.join(steamRoot, 'steamapps', 'libraryfolders.vdf'),
+        path.join(steamRoot, 'config', 'libraryfolders.vdf'),
+    ];
+    for (const vdfPath of vdfPaths) {
+        try {
+            if (!fs.existsSync(vdfPath)) continue;
+            mergeLibraryFoldersVdf(fs.readFileSync(vdfPath, 'utf8'), libs);
+        } catch { /* bozuk dosya → atla */ }
+    }
+
     return [...libs];
 }
 
 function readAppManifest(filePath) {
     try {
-        const parsed = parseVdf(fs.readFileSync(filePath, 'utf8'));
+        const raw = stripUtf8Bom(fs.readFileSync(filePath, 'utf8'));
+        const parsed = parseVdf(raw);
         const state = parsed.AppState || parsed.appstate;
         if (!state || typeof state !== 'object') return null;
-        const appId = state.appid;
-        const name = state.name;
-        const installDir = state.installdir;
-        if (!appId || !name || !installDir) return null;
+        const appId = state.appid ?? state.AppID;
+        const name = state.name ?? state.Name;
+        const installDir = state.installdir ?? state.InstallDir;
+        if (appId == null || name == null || installDir == null) return null;
         return { appId: String(appId), name: String(name), installDir: String(installDir) };
     } catch { return null; }
 }

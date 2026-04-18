@@ -2,18 +2,20 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import { Compass, Library, Flame, Sparkles, Settings, LogOut, Gamepad2, HardDrive } from 'lucide-react';
 import { useUser } from '../context/UserContext';
 import { isDesktop } from '../desktop/bridge';
-
-const navItems = [
-    { to: '/popular', label: 'Popüler', icon: Flame },
-    { to: '/discover', label: 'Keşfet', icon: Compass },
-    { to: '/library', label: 'Kütüphanem', icon: Library },
-    ...(isDesktop ? [{ to: '/installed', label: 'Yüklü Oyunlarım', icon: HardDrive }] : []),
-    { to: '/ai', label: 'AI Öneri', icon: Sparkles },
-];
+import { useI18n } from '../i18n/useI18n';
 
 export default function Sidebar() {
     const { user, logout } = useUser();
     const navigate = useNavigate();
+    const { t } = useI18n();
+
+    const navItems = [
+        { to: '/popular', label: t('nav.popular'), icon: Flame },
+        { to: '/discover', label: t('nav.discover'), icon: Compass },
+        { to: '/library', label: t('nav.library'), icon: Library },
+        ...(isDesktop ? [{ to: '/installed', label: t('nav.installed'), icon: HardDrive }] : []),
+        { to: '/ai', label: t('nav.ai'), icon: Sparkles },
+    ];
 
     const handleLogout = () => {
         logout();
@@ -21,7 +23,7 @@ export default function Sidebar() {
     };
 
     return (
-        <aside className="w-64 bg-[#141722] border-r border-[#1f2334] flex flex-col pt-8 pb-4 h-full shrink-0" aria-label="Uygulama menüsü">
+        <aside className="w-64 bg-[#141722] border-r border-[#1f2334] flex flex-col pt-8 pb-4 h-full shrink-0" aria-label={t('nav.appMenu')}>
             {/* Logo */}
             <div className="px-6 mb-10 flex items-center gap-3">
                 <div className="w-8 h-8 rounded-none border border-[#1f2334] bg-[#1a1e2d] flex items-center justify-center">
@@ -31,7 +33,7 @@ export default function Sidebar() {
             </div>
 
             {/* Nav */}
-            <nav className="flex-1 px-4 space-y-1" aria-label="Sayfalar">
+            <nav className="flex-1 px-4 space-y-1" aria-label={t('nav.pages')}>
                 {navItems.map((item) => {
                     const Icon = item.icon;
                     return (
@@ -77,7 +79,7 @@ export default function Sidebar() {
                     }
                 >
                     <Settings size={19} />
-                    Ayarlar
+                    {t('nav.settings')}
                 </NavLink>
                 <button
                     type="button"
@@ -85,7 +87,7 @@ export default function Sidebar() {
                     className="w-full flex items-center gap-3 px-4 py-3 rounded-none text-gray-400 hover:text-red-400 hover:bg-red-500/10 transition-all text-sm"
                 >
                     <LogOut size={19} />
-                    Çıkış Yap
+                    {t('nav.logout')}
                 </button>
             </div>
         </aside>

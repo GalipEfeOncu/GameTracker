@@ -4,6 +4,7 @@ import { Gamepad2, Loader2, AlertCircle } from 'lucide-react';
 import { loginUser } from '../api/apiClient';
 import { useUser } from '../context/UserContext';
 import { usePreferences } from '../context/PreferencesContext';
+import { useI18n } from '../i18n/useI18n';
 
 export default function LoginPage() {
     const [username, setUsername] = useState('');
@@ -14,6 +15,7 @@ export default function LoginPage() {
 
     const { login } = useUser();
     const { startPage } = usePreferences();
+    const { t } = useI18n();
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
@@ -22,7 +24,6 @@ export default function LoginPage() {
         setIsLoading(true);
 
         try {
-            // rememberMe → refresh token ömrü 30 → 90 gün. Access token her durumda kısa (15 dk).
             const user = await loginUser(username, password, rememberMe);
             const uid = user?.UserId ?? user?.id ?? user?.userId;
             const accessToken = user?.AccessToken ?? user?.accessToken;
@@ -42,13 +43,13 @@ export default function LoginPage() {
             const isGenericHttpError = typeof err.message === 'string' && /request failed with status code \d+/i.test(err.message);
 
             if (data?.code === 'EmailNotVerified' || (typeof backendMsg === 'string' && backendMsg.toLowerCase().includes('verify')))
-                setError('E-posta adresinizi doğrulayın. Kayıt sonrası gönderilen kodu kullandığınızdan emin olun.');
+                setError(t('login.errVerify'));
             else if (isLoginFailure || isGenericHttpError)
-                setError('Kullanıcı adı veya şifre hatalı.');
+                setError(t('login.errBadCreds'));
             else if (typeof backendMsg === 'string')
                 setError(backendMsg);
             else
-                setError('Kullanıcı adı veya şifre hatalı.');
+                setError(t('login.errBadCreds'));
         } finally {
             setIsLoading(false);
         }
@@ -61,8 +62,8 @@ export default function LoginPage() {
                     <div className="mb-4 flex h-12 w-12 items-center justify-center border border-[#1f2334] bg-[#1a1e2d]">
                         <Gamepad2 size={22} className="text-blue-400" />
                     </div>
-                    <h1 className="text-xl font-semibold tracking-tight text-white">Hoş Geldiniz</h1>
-                    <p className="mt-1.5 text-sm text-gray-500">GameTracker hesabınıza giriş yapın.</p>
+                    <h1 className="text-xl font-semibold tracking-tight text-white">{t('login.title')}</h1>
+                    <p className="mt-1.5 text-sm text-gray-500">{t('login.subtitle')}</p>
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-4">
@@ -73,7 +74,7 @@ export default function LoginPage() {
                     )}
 
                     <div className="space-y-1">
-                        <label htmlFor="login-username" className="text-xs font-medium uppercase tracking-wider text-gray-500">Kullanıcı Adı</label>
+                        <label htmlFor="login-username" className="text-xs font-medium uppercase tracking-wider text-gray-500">{t('login.username')}</label>
                         <input
                             id="login-username"
                             type="text"
@@ -82,16 +83,16 @@ export default function LoginPage() {
                             value={username}
                             onChange={(e) => setUsername(e.target.value)}
                             className="w-full border border-[#1f2334] bg-[#1a1e2d] px-3 py-2.5 text-sm text-white outline-none transition-colors focus:border-blue-500 placeholder:text-gray-500"
-                            placeholder="Kullanıcı adınız..."
+                            placeholder={t('login.usernamePh')}
                             required
                         />
                     </div>
 
                     <div className="space-y-1">
                         <div className="flex items-center justify-between">
-                            <label htmlFor="login-password" className="text-xs font-medium uppercase tracking-wider text-gray-500">Şifre</label>
+                            <label htmlFor="login-password" className="text-xs font-medium uppercase tracking-wider text-gray-500">{t('login.password')}</label>
                             <Link to="/forgot-password" className="text-xs text-blue-400 hover:text-blue-300">
-                                Şifremi unuttum
+                                {t('login.forgotPassword')}
                             </Link>
                         </div>
                         <input
@@ -115,9 +116,9 @@ export default function LoginPage() {
                                 onChange={(e) => setRememberMe(e.target.checked)}
                                 className="h-4 w-4 rounded-none border border-[#1f2334] bg-[#1a1e2d] text-blue-600 focus:ring-2 focus:ring-blue-500 focus:ring-offset-0"
                             />
-                            Beni hatırla
+                            {t('login.rememberMeLabel')}
                         </span>
-                        <span className="text-xs text-gray-500 sm:pl-1">Bu cihazda oturum süresini uzatır.</span>
+                        <span className="text-xs text-gray-500 sm:pl-1">{t('login.rememberMe')}</span>
                     </label>
 
                     <button
@@ -125,12 +126,13 @@ export default function LoginPage() {
                         disabled={isLoading}
                         className="mt-4 w-full border border-[#2a2f45] bg-blue-600 py-2.5 text-sm font-medium text-white transition-colors hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-50 flex items-center justify-center gap-2"
                     >
-                        {isLoading ? <Loader2 size={18} className="animate-spin" /> : 'Giriş Yap'}
+                        {isLoading ? <Loader2 size={18} className="animate-spin" /> : t('login.submit')}
                     </button>
                 </form>
 
                 <p className="mt-6 text-center text-sm text-gray-500">
-                    Hesabınız yok mu? <Link to="/register" className="text-blue-400 hover:text-blue-300 underline underline-offset-2">Kayıt olun</Link>
+                    {t('login.noAccount')}{' '}
+                    <Link to="/register" className="text-blue-400 hover:text-blue-300 underline underline-offset-2">{t('login.register')}</Link>
                 </p>
             </div>
         </div>

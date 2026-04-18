@@ -24,7 +24,8 @@ async function detect() {
     for (const entry of entries) {
         if (!entry.toLowerCase().endsWith('.item')) continue;
         try {
-            const raw = fs.readFileSync(path.join(dir, entry), 'utf8');
+            let raw = fs.readFileSync(path.join(dir, entry), 'utf8');
+            if (raw.charCodeAt(0) === 0xfeff) raw = raw.slice(1);
             const json = JSON.parse(raw);
             const name = json.DisplayName || json.AppName;
             const installLocation = json.InstallLocation;

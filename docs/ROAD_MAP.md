@@ -1,8 +1,10 @@
 # GameTracker — Yol haritası
 
+> **AI ajansları:** Bu dosyaya bakmadan önce [AGENT_HANDOFF.md](./AGENT_HANDOFF.md)'i oku — komutlar, bilinen bug'lar ve kapsam dışı liste orada.
+
 Henüz yapılmamış veya netleştirilmesi gereken işler. Tamamlanan özellikler: [FEATURES.md](./FEATURES.md).
 
-**Sıradaki odak:** [§6 Masaüstü dağıtım](#6-masaüstü-dağıtım-faz-bcd) — imzasız NSIS installer üretip `.exe` paylaşmak. §2 / §3 / §4 / §5 tamamlandı. Proje MVP ile kapatılacak: i18n, sanal liste, kod imzalama, auto-update **kapsam dışı** (kişisel hobi projesi).
+**Sıradaki odak (MVP sonrası, isteğe bağlı):** GitHub’da sürüm etiketi + elde `desktop` build’i Release’e ekleme; CI’de Windows runner artefaktı ve Authenticode **kapsam dışı** (hobi). **§6 imzasız NSIS** — tamamlandı (`assets/`, `npm run build` → `dist-desktop/`). **§7 UI dili (TR + EN)** — tamamlandı. Proje MVP: sanal liste, kod imzalama, auto-update **kapsam dışı**.
 
 **Referans:** [DEPLOY.md](./DEPLOY.md) · [DATABASE.md](./DATABASE.md) · [PLAN_WEB_DESKTOP.md](./PLAN_WEB_DESKTOP.md) · `backend/README.md`
 
@@ -27,8 +29,8 @@ Henüz yapılmamış veya netleştirilmesi gereken işler. Tamamlanan özellikle
 | 3 | Güvenlik (refresh token, kalıcı kod deposu) | ~~Tamam~~ | Access 15 dk + rotasyonlu refresh; üretim kullanıcısı için kritik kırılabilir değişiklik artık oturdu. |
 | 4 | Veri modeli (Played ↔ Completed, Gemini sayısı) | ~~Tamam~~ | `LibraryStatuses.Normalize` + migration; prompt ve `Take()` tek sabitten. |
 | 5 | Desktop özellikleri (yüklü oyun algılama + oynama süresi) | ~~Tamam~~ | Steam/Epic/GOG algılama + manuel ekleme; arka planda tanınan process için 30 sn'de bir backend'e playtime heartbeat. Tray + autostart çalışıyor. |
-| 6 | **Masaüstü dağıtım** (imzasız NSIS installer) | Açık | Sıradaki tek iş: `.exe` paylaşılabilir olsun. Auto-update / code signing kapsam dışı (hobi projesi). |
-| 7 | ~~Web UX + i18n~~ | İptal | Kapsam dışı — proje hobi amaçlı; mevcut TR UI yeterli. |
+| 6 | **Masaüstü dağıtım** (imzasız NSIS installer) | ~~Tamam~~ | `electron-builder` NSIS; `assets/icon.ico` + `tray.png`; kök `README` indirme bölümü. İmza / auto-update kapsam dışı. |
+| 7 | Web UX + **i18n (UI)** | ~~Tamam~~ | Türkçe varsayılan + İngilizce; `tr.json`/`en.json`, `PreferencesContext.locale`, Ayarlar. İçerik dili (IGDB localization) hâlâ kapalı; bkz. §7. |
 | 8 | ~~Kalite cilası~~ | İptal | Kapsam dışı — mevcut lint + CI yeterli. |
 
 ---
@@ -98,15 +100,14 @@ Masaüstü dağıtımından önce oturması gerekenler — token değişimi saha
 | Faz | İçerik | Durum |
 |-----|--------|-------|
 | A | Kabuk + PoC | [x] İskelet tamam, kapanış §2'de |
-| B | Windows installer + Authenticode | [ ] |
-| C | CI'de desktop artefakt + Release | [ ] |
-| D | Auto-update (electron-updater + GitHub Releases) | [ ] |
+| B1 | Windows NSIS (imzasız) + ikonlar | [x] `npm run build` → `GameTracker Setup x.y.z.exe` |
+| B2 | Authenticode imzalı installer | Kapsam dışı |
+| C | CI'de desktop artefakt + Release | Kapsam dışı (manuel release yeterli) |
+| D | Auto-update (electron-updater) | Kapsam dışı |
 
 - [x] **Web dağıtım olgunluğu** — GitHub Actions: `dotnet build` + test, `frontend` `npm run build` + `npm run lint`; `frontend/.env.example`.
-- [ ] **Faz B — Paket + imza** — NSIS installer (`electron-builder`); Authenticode sertifikası + CI sırları (GitHub Actions secret). Sürüm numarası hizalama (`desktop/package.json` ↔ etiket).
-- [ ] **Faz C — Desktop CI** — Windows runner'da `npm run build`; artefakt release'e upload; etiket (`v1.0.0`) → sürüm notu şablonu.
-- [ ] **Faz D — Auto-update** — `electron-updater` + güncelleme kanalı; "Yeni sürüm var" davranışı (zorunlu / isteğe bağlı) ürün kararı.
-- [ ] **Çift dağıtım (üst seviye)** — Faz B–D + §5 tamamlanınca: web üretimde + imzalı, güncellenebilir masaüstü kurulumu.
+- [x] **MVP paket — NSIS** — `desktop/package.json` `electron-builder`; `assets/icon.ico`, `assets/tray.png`; `generate:icons` ile yeniden üretim; kök `README.md` “Download (Windows desktop)”.
+- [ ] **İsteğe bağlı (ürün)** — Authenticode; CI’de Windows build; `electron-updater`; GitHub Releases otomasyonu.
 
 ---
 
@@ -114,16 +115,16 @@ Masaüstü dağıtımından önce oturması gerekenler — token değişimi saha
 
 Çekirdek akışlar (§3–§5) oturduktan sonraki cila. Boyutlar: i18n, arama/sanal liste, ince UX.
 
-### i18n (yüksek öncelik — bu bölümün içinde)
+### i18n (UI — tamamlandı)
 
 | Dil | Rol |
 |-----|-----|
 | **Türkçe** | Varsayılan / birincil. |
-| **İngilizce** | İkinci dil; seçenek her zaman sunulur. |
+| **İngilizce** | İkinci dil; **Ayarlar → Tercihler → Arayüz dili**. |
 
-- [ ] **Dil seçeneği** — Ayarlar / üst menüde TR ↔ EN; tercih `localStorage` + (oturumlu) backend profil alanı.
-- [ ] **i18n altyapısı** — `react-i18next` veya eşdeğeri; başlangıç dili: tarayıcı + kullanıcı tercihi önceliği. Tüm sabit metinler çeviri anahtarlarına taşınır.
-- [ ] **İçerik dili (opsiyonel, sonraki adım)** — IGDB `game_localizations` / API dil parametreleri. MVP'de yalnızca UI dili yeterli.
+- [x] **Dil seçeneği** — TR ↔ EN; tercih `localStorage` anahtarı `gt_preferences` içindeki `locale` (`PreferencesContext`). Backend profil alanı **yok** (bilerek sade tutuldu).
+- [x] **i18n altyapısı** — `frontend/src/i18n/t.js` (`translate`, `getStoredLocale`), `useI18n.js`, `tr.json` / `en.json`; bileşenlerde `t('anahtar')`. `document.documentElement.lang` güncellenir. Paket bağımlılığı eklenmedi.
+- [ ] **İçerik dili (opsiyonel, sonraki adım)** — IGDB `game_localizations` / API dil parametreleri. Oyun başlığı/açıklaması API dilinde kalır; yalnızca uygulama chrome'u çevrilir.
 
 ### UX ve performans
 

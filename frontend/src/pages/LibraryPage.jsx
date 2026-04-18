@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Library as LibraryIcon, PlayCircle, CheckCircle, Clock, XCircle, Loader2 } from 'lucide-react';
@@ -8,6 +8,7 @@ import GameCard from '../components/GameCard';
 import { GameCardSkeletonGrid } from '../components/GameCardSkeleton';
 import { LIBRARY_TABS } from '../constants/libraryStatus';
 import { getSessionUserId } from '../utils/sessionUser';
+import { useI18n } from '../i18n/useI18n';
 
 const TAB_ICONS = {
     null: LibraryIcon,
@@ -24,6 +25,19 @@ export default function LibraryPage() {
     const queryClient = useQueryClient();
     const userId = getSessionUserId(user);
     const [activeTab, setActiveTab] = useState(null);
+    const { t } = useI18n();
+
+    const tabs = useMemo(
+        () =>
+            LIBRARY_TABS.map((tab) => ({
+                ...tab,
+                label:
+                    tab.id === null
+                        ? t('library.tabs.all')
+                        : t(`library.status.${tab.statusId}`),
+            })),
+        [t],
+    );
 
     const { data: library, isLoading } = useQuery({
         queryKey: ['library', userId, activeTab],
@@ -51,13 +65,13 @@ export default function LibraryPage() {
         return (
             <div className="flex flex-col items-center justify-center h-full py-40">
                 <LibraryIcon size={56} className="mb-6 opacity-40 text-blue-500" />
-                <h2 className="text-xl font-bold text-white tracking-tight">Kütüphane Erişimi</h2>
-                <p className="mt-2 text-gray-500 font-medium text-sm">Lütfen oyunlarınıza ulaşmak için giriş yapın.</p>
+                <h2 className="text-xl font-bold text-white tracking-tight">{t('library.accessTitle')}</h2>
+                <p className="mt-2 text-gray-500 font-medium text-sm">{t('library.accessHint')}</p>
                 <button
                     onClick={() => navigate('/login')}
                     className="mt-6 px-6 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-none transition-all font-semibold shadow-sm text-sm"
                 >
-                    Giriş Yap
+                    {t('nav.login')}
                 </button>
             </div>
         );
@@ -67,7 +81,7 @@ export default function LibraryPage() {
         <div className="h-full overflow-y-auto px-8 pt-8 pb-20 scroll-smooth">
             <div className="mb-8">
                 <div className="flex flex-wrap items-center gap-1 bg-[#141722]/80 p-1.5 rounded-none border border-[#1f2334] w-fit">
-                    {LIBRARY_TABS.map(({ id, label }) => {
+                    {tabs.map(({ id, label }) => {
                         const Icon = TAB_ICONS[id ?? 'null'];
                         return (
                             <button
@@ -89,7 +103,7 @@ export default function LibraryPage() {
             {isLoading ? (
                 <div className="flex flex-col items-center justify-center py-32 text-gray-500">
                     <Loader2 size={40} className="animate-spin mb-6 text-blue-500" />
-                    <p className="font-semibold text-lg animate-pulse">Oyunlarınız yükleniyor...</p>
+                    <p className="font-semibold text-lg animate-pulse">{t('library.loading')}</p>
                 </div>
             ) : library && library.length > 0 ? (
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 items-start gap-x-6 gap-y-16">
@@ -106,8 +120,8 @@ export default function LibraryPage() {
             ) : (
                 <div className="flex flex-col items-center justify-center py-32 text-gray-400 bg-[#141722]/20 rounded-none border-2 border-dashed border-[#1f2334]">
                     <LibraryIcon size={64} className="mb-6 opacity-20" />
-                    <h2 className="text-xl font-bold text-gray-300">Bu bölümde henüz bir oyun yok</h2>
-                    <p className="mt-2 text-center max-w-sm font-medium">Popüler oyunlara göz atıp koleksiyonunuzu oluşturmaya başlayın!</p>
+                    <h2 className="text-xl font-bold text-gray-300">{t('library.emptyTitle')}</h2>
+                    <p className="mt-2 text-center max-w-sm font-medium">{t('library.emptyHint')}</p>
                 </div>
             )}
         </div>

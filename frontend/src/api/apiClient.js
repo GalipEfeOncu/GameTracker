@@ -1,5 +1,7 @@
 import axios from 'axios';
 import { emitToast } from '../utils/toastEvents';
+import { getResolvedApiRoot } from '../utils/apiBaseUrl';
+import { translate, getStoredLocale } from '../i18n/t';
 import { isDesktop, setDesktopSession } from '../desktop/bridge';
 
 // Üretim: .env içinde tam API kökü (örn. https://api.siteniz.com/api). Boşsa geliştirmede /api + Vite proxy kullanılır.
@@ -86,7 +88,11 @@ async function refreshAccessToken() {
                 const u = readStoredUser();
                 const uid = u?.id ?? u?.userId ?? u?.UserId;
                 if (uid) {
-                    setDesktopSession({ userId: uid, accessToken: newAccess, apiBaseUrl: baseURL }).catch(() => {});
+                    setDesktopSession({
+                        userId: uid,
+                        accessToken: newAccess,
+                        apiBaseUrl: getResolvedApiRoot() || baseURL,
+                    }).catch(() => {});
                 }
             }
             return newAccess;
@@ -111,7 +117,7 @@ apiClient.interceptors.response.use(
     (r) => r,
     async (err) => {
         if (err.response?.status === 429) {
-            emitToast('Çok fazla istek. Lütfen kısa süre sonra tekrar deneyin.', 'error');
+            emitToast(translate(getStoredLocale(), 'api.rateLimited'), 'error');
         }
         if (err.response?.status === 401) {
             const originalRequest = err.config || {};

@@ -2,14 +2,16 @@ import { createContext, useContext, useState, useCallback, useEffect } from 'rea
 
 const STORAGE_KEY = 'gt_preferences';
 /** popularListMode: 'scroll' = sonsuz kaydırma; 'paged' = sayfa sayfa (Popüler) */
-const DEFAULTS = { startPage: 'Home', showNsfw: false, popularListMode: 'scroll' };
+const DEFAULTS = { startPage: 'Home', showNsfw: false, popularListMode: 'scroll', locale: 'tr' };
 
 function loadPreferences() {
     try {
         const raw = localStorage.getItem(STORAGE_KEY);
         if (!raw) return DEFAULTS;
         const parsed = JSON.parse(raw);
-        return { ...DEFAULTS, ...parsed };
+        const merged = { ...DEFAULTS, ...parsed };
+        merged.locale = merged.locale === 'en' ? 'en' : 'tr';
+        return merged;
     } catch {
         return DEFAULTS;
     }
@@ -47,13 +49,28 @@ export function PreferencesProvider({ children }) {
         }));
     }, []);
 
+    const setLocale = useCallback((locale) => {
+        setPreferencesState((p) => ({
+            ...p,
+            locale: locale === 'en' ? 'en' : 'tr',
+        }));
+    }, []);
+
+    useEffect(() => {
+        if (typeof document !== 'undefined') {
+            document.documentElement.lang = preferences.locale === 'en' ? 'en' : 'tr';
+        }
+    }, [preferences.locale]);
+
     const value = {
         startPage: preferences.startPage,
         showNsfw: preferences.showNsfw,
         popularListMode: preferences.popularListMode === 'paged' ? 'paged' : 'scroll',
+        locale: preferences.locale === 'en' ? 'en' : 'tr',
         setStartPage,
         setShowNsfw,
         setPopularListMode,
+        setLocale,
     };
 
     return (

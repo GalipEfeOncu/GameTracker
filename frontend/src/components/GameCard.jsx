@@ -1,16 +1,9 @@
 import { memo, useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MoreVertical, Trash2, Clock3 } from 'lucide-react';
-import { getStatusLabel, LIBRARY_STATUS } from '../constants/libraryStatus';
-
-function formatPlaytime(minutes) {
-    const m = Number(minutes);
-    if (!Number.isFinite(m) || m <= 0) return null;
-    if (m < 60) return `${m} dk`;
-    const hours = Math.floor(m / 60);
-    const mins = m % 60;
-    return mins ? `${hours}s ${mins}d` : `${hours} saat`;
-}
+import { LIBRARY_STATUS } from '../constants/libraryStatus';
+import { useI18n } from '../i18n/useI18n';
+import { formatTrackedMinutes } from '../i18n/playtime';
 
 const McBadge = ({ score, scoreLabel, compactCorner = false }) => {
     const n = Number(score);
@@ -34,11 +27,13 @@ const McBadge = ({ score, scoreLabel, compactCorner = false }) => {
 
 const GameCard = memo(({ game, showLibraryStatus = false, onRemove, onStatusChange }) => {
     const navigate = useNavigate();
+    const { t } = useI18n();
     const [menuOpen, setMenuOpen] = useState(false);
     const menuRef = useRef(null);
-    const statusLabel = showLibraryStatus && game?.status ? getStatusLabel(game.status) : null;
+    const statusLabel =
+        showLibraryStatus && game?.status ? t(`library.status.${game.status}`) : null;
     const hasLibraryActions = showLibraryStatus && (onRemove || onStatusChange);
-    const playtimeLabel = showLibraryStatus ? formatPlaytime(game?.playtimeMinutes) : null;
+    const playtimeLabel = showLibraryStatus ? formatTrackedMinutes(game?.playtimeMinutes, t) : null;
 
     useEffect(() => {
         if (!hasLibraryActions) return;
@@ -62,6 +57,10 @@ const GameCard = memo(({ game, showLibraryStatus = false, onRemove, onStatusChan
         if (!menuOpen) navigate(`/game/${game.id}`);
     };
 
+    const detailPhrase = game?.name
+        ? `${game.name}, ${t('gameCard.detailSuffix')}`
+        : t('gameCard.cardLabel');
+
     return (
         <article
             tabIndex={0}
@@ -73,7 +72,7 @@ const GameCard = memo(({ game, showLibraryStatus = false, onRemove, onStatusChan
                 }
             }}
             className="group flex w-full min-w-0 cursor-pointer flex-col items-stretch rounded-none outline-none transition-transform duration-300 hover:-translate-y-1"
-            aria-label={game?.name ? `${game.name}, detay` : 'Oyun kartı'}
+            aria-label={detailPhrase}
         >
             {/* IGDB kapak ~5:7 (2:3’ten biraz geniş); görsel %103 genişlikte ortalanır — yan kırpma hafifler */}
             <div className="relative w-full aspect-[5/7] rounded-none border border-[#1f2334] transition-colors duration-300 group-hover:border-blue-500">
@@ -89,13 +88,13 @@ const GameCard = memo(({ game, showLibraryStatus = false, onRemove, onStatusChan
                         />
                     ) : (
                         <div className="w-full h-full bg-[#1a1e2d] flex items-center justify-center text-gray-600 text-xs">
-                            No Image
+                            {t('common.noImage')}
                         </div>
                     )}
                     {/* Hover overlay — görselle aynı kırpma alanında */}
                     <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center pointer-events-none z-[1]">
                         <span className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-none translate-y-2 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none">
-                            Detaylar
+                            {t('gameCard.detailsHover')}
                         </span>
                     </div>
                 </div>
@@ -111,7 +110,7 @@ const GameCard = memo(({ game, showLibraryStatus = false, onRemove, onStatusChan
                             type="button"
                             onClick={(e) => { e.stopPropagation(); setMenuOpen((v) => !v); }}
                             className="p-1.5 rounded-none bg-black/50 hover:bg-[#1a1e2d] text-gray-300 hover:text-white border border-[#1f2334] transition-colors"
-                            aria-label="Kütüphane menüsü"
+                            aria-label={t('gameCard.libraryMenu')}
                             aria-expanded={menuOpen}
                             aria-haspopup="menu"
                         >
@@ -123,7 +122,7 @@ const GameCard = memo(({ game, showLibraryStatus = false, onRemove, onStatusChan
                                 aria-orientation="vertical"
                                 className="absolute right-0 top-full mt-1 w-44 py-1 rounded-none bg-[#141722] border border-[#1f2334] shadow-lg shadow-black/40 z-50"
                             >
-                                {onStatusChange && Object.entries(LIBRARY_STATUS).map(([statusId, { label }]) => (
+                                {onStatusChange && Object.keys(LIBRARY_STATUS).map((statusId) => (
                                     <button
                                         type="button"
                                         role="menuitem"
@@ -131,7 +130,7 @@ const GameCard = memo(({ game, showLibraryStatus = false, onRemove, onStatusChan
                                         onClick={() => { onStatusChange(game.id, statusId); setMenuOpen(false); }}
                                         className={`w-full text-left px-3 py-2 text-xs font-medium transition-colors ${game.status === statusId ? 'text-blue-400 bg-blue-500/10' : 'text-gray-300 hover:bg-[#1a1e2d] hover:text-white'}`}
                                     >
-                                        {label}
+                                        {t(`library.status.${statusId}`)}
                                     </button>
                                 ))}
                                 {onRemove && (
@@ -143,7 +142,7 @@ const GameCard = memo(({ game, showLibraryStatus = false, onRemove, onStatusChan
                                             onClick={() => { onRemove(game.id); setMenuOpen(false); }}
                                             className="w-full text-left px-3 py-2 text-xs font-medium text-red-400 hover:bg-red-500/10 flex items-center gap-2"
                                         >
-                                            <Trash2 size={12} /> Kaldır
+                                            <Trash2 size={12} /> {t('gameCard.remove')}
                                         </button>
                                     </>
                                 )}

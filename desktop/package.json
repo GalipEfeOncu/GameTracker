@@ -2,11 +2,13 @@
   "name": "gametracker-desktop",
   "private": true,
   "version": "0.1.0",
+  "author": "GameTracker",
   "description": "GameTracker masaüstü kabuğu (Electron) — mevcut Vite SPA'yı yükler, uzak .NET API'ye bağlanır.",
   "main": "src/main.js",
   "scripts": {
     "start": "electron .",
     "dev": "cross-env GAMETRACKER_DEV_SERVER_URL=http://localhost:5173 electron .",
+    "generate:icons": "node scripts/generate-icons.cjs",
     "build:renderer": "cross-env VITE_DESKTOP=1 npm --prefix ../frontend run build",
     "build": "npm run build:renderer && electron-builder",
     "build:dir": "npm run build:renderer && electron-builder --dir"
@@ -14,7 +16,9 @@
   "devDependencies": {
     "cross-env": "^7.0.3",
     "electron": "^34.2.0",
-    "electron-builder": "^25.1.8"
+    "electron-builder": "^25.1.8",
+    "jimp": "^1.6.1",
+    "png-to-ico": "^3.0.1"
   },
   "build": {
     "appId": "com.gametracker.desktop",
@@ -24,6 +28,7 @@
     },
     "files": [
       "src/**/*",
+      "assets/**/*",
       "!**/*.map"
     ],
     "extraResources": [
@@ -33,17 +38,23 @@
       }
     ],
     "win": {
+      "icon": "assets/icon.ico",
       "target": [
         {
           "target": "nsis",
-          "arch": ["x64"]
+          "arch": [
+            "x64"
+          ]
         }
       ]
     },
     "nsis": {
       "oneClick": false,
       "perMachine": false,
-      "allowToChangeInstallationDirectory": true
+      "allowToChangeInstallationDirectory": true,
+      "installerIcon": "assets/icon.ico",
+      "uninstallerIcon": "assets/icon.ico",
+      "installerHeaderIcon": "assets/icon.ico"
     }
   }
 }

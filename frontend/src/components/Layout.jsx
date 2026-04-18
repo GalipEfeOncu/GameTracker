@@ -1,8 +1,12 @@
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { Search, Settings, LogOut, ChevronDown } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import Sidebar from './Sidebar';
 import { useUser } from '../context/UserContext';
+import { isDesktop, onPlaytimeUpdate } from '../desktop/bridge';
+import { getSessionUserId } from '../utils/sessionUser';
+import { useI18n } from '../i18n/useI18n';
 
 export default function Layout() {
     const [searchQuery, setSearchQuery] = useState('');
@@ -10,8 +14,11 @@ export default function Layout() {
     const profileRef = useRef(null);
     const navigate = useNavigate();
     const location = useLocation();
+    const queryClient = useQueryClient();
     const { user, logout } = useUser();
-    const displayName = user?.username ?? user?.Username ?? 'Kullanıcı';
+    const userId = getSessionUserId(user);
+    const { t } = useI18n();
+    const displayName = user?.username ?? user?.Username ?? t('common.user');
 
     useEffect(() => {
         const handleClickOutside = (e) => {
@@ -31,6 +38,14 @@ export default function Layout() {
         }
     }, [location.pathname, location.search]);
 
+    useEffect(() => {
+        if (!isDesktop || !userId) return undefined;
+        const unsub = onPlaytimeUpdate(() => {
+            queryClient.invalidateQueries({ queryKey: ['library', userId] });
+        });
+        return unsub;
+    }, [queryClient, userId]);
+
     const handleSearch = (e) => {
         const q = e.target.value;
         setSearchQuery(q);
@@ -43,17 +58,18 @@ export default function Layout() {
 
     const getPageHeaderInfo = () => {
         const path = location.pathname;
-        if (path.startsWith('/popular')) return { title: 'Popüler Oyunlar', description: 'Şu an dünyada en çok ilgi gören oyunlar.' };
+        if (path.startsWith('/popular')) return { title: t('layout.header.popularTitle'), description: t('layout.header.popularDesc') };
         if (path.startsWith('/discover')) {
             const searchParams = new URLSearchParams(location.search);
             const q = searchParams.get('q');
-            if (q) return { title: `"${q}" Sonuçları`, description: 'Arama sonuçlarınız listeleniyor.' };
-            return { title: 'Keşfet', description: 'Yeni oyunlar ve türleri keşfedin.' };
+            if (q) return { title: t('layout.header.discoverResultsTitle', { query: q }), description: t('layout.header.discoverResultsDesc') };
+            return { title: t('layout.header.discoverTitle'), description: t('layout.header.discoverDesc') };
         }
-        if (path.startsWith('/library')) return { title: 'Kütüphanem', description: 'Oynadığınız ve planladığınız oyunlar.' };
-        if (path.startsWith('/ai')) return { title: 'AI Öneri Motoru', description: 'Size özel seçtiğimiz zeka odaklı deneyimler.' };
-        if (path.startsWith('/settings')) return { title: 'Ayarlar', description: 'Uygulama ve hesap tercihleriniz.' };
-        return null; // For game details page, etc.
+        if (path.startsWith('/library')) return { title: t('layout.header.libraryTitle'), description: t('layout.header.libraryDesc') };
+        if (path.startsWith('/ai')) return { title: t('layout.header.aiTitle'), description: t('layout.header.aiDesc') };
+        if (path.startsWith('/settings')) return { title: t('layout.header.settingsTitle'), description: t('layout.header.settingsDesc') };
+        if (path.startsWith('/installed')) return { title: t('layout.header.installedTitle'), description: t('layout.header.installedDesc') };
+        return null;
     };
 
     const headerInfo = getPageHeaderInfo();
@@ -64,7 +80,7 @@ export default function Layout() {
                 href="#main-content"
                 className="sr-only left-4 top-4 z-[200] rounded-none bg-blue-600 px-4 py-2 text-sm font-medium text-white focus:not-sr-only focus:absolute focus:outline-none"
             >
-                Ana içeriğe geç
+                {t('layout.skipToContent')}
             </a>
             <Sidebar />
 
@@ -90,8 +106,8 @@ export default function Layout() {
                                 type="search"
                                 value={searchQuery}
                                 onChange={handleSearch}
-                                placeholder="Oyun ara..."
-                                aria-label="Oyun ara"
+                                placeholder={t('layout.searchPlaceholder')}
+                                aria-label={t('layout.searchAria')}
                                 className="pl-9 pr-4 py-2 w-56 bg-[#1a1e2d] border border-[#1f2334] rounded-none text-sm outline-none focus:border-blue-500 transition-colors placeholder:text-gray-500 text-gray-200"
                             />
                         </div>
@@ -103,10 +119,10 @@ export default function Layout() {
                                 className="flex items-center gap-2 rounded-none p-1 pr-2 hover:bg-[#1a1e2d] transition-colors outline-none"
                                 aria-expanded={profileOpen}
                                 aria-haspopup="menu"
-                                aria-label="Hesap menüsü"
+                                aria-label={t('layout.accountMenu')}
                             >
                                 <div className="h-8 w-8 rounded-none border border-[#1f2334] bg-[#1a1e2d] shrink-0 flex items-center justify-center overflow-hidden text-white font-bold text-sm">
-                                    {user ? displayName[0]?.toUpperCase() ?? '?' : 'G'}
+                                    {user ? displayName[0]?.toUpperCase() ?? '?' : t('common.guestInitial')}
                                 </div>
                                 <ChevronDown size={16} className={`text-gray-400 transition-transform ${profileOpen ? 'rotate-180' : ''}`} />
                             </button>
@@ -127,7 +143,7 @@ export default function Layout() {
                                                 onClick={() => { setProfileOpen(false); navigate('/settings'); }}
                                                 className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-gray-300 hover:bg-[#1a1e2d] hover:text-white transition-colors"
                                             >
-                                                <Settings size={16} /> Ayarlar
+                                                <Settings size={16} /> {t('nav.settings')}
                                             </button>
                                             <button
                                                 type="button"
@@ -135,7 +151,7 @@ export default function Layout() {
                                                 onClick={() => { setProfileOpen(false); logout(); navigate('/login'); }}
                                                 className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-red-400 hover:bg-red-500/10 transition-colors"
                                             >
-                                                <LogOut size={16} /> Çıkış Yap
+                                                <LogOut size={16} /> {t('nav.logout')}
                                             </button>
                                         </>
                                     ) : (
@@ -145,7 +161,7 @@ export default function Layout() {
                                             onClick={() => { setProfileOpen(false); navigate('/login'); }}
                                             className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-gray-300 hover:bg-[#1a1e2d] hover:text-white transition-colors"
                                         >
-                                            Giriş Yap
+                                            {t('nav.login')}
                                         </button>
                                     )}
                                 </div>

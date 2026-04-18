@@ -8,22 +8,21 @@ import { usePreferences } from '../context/PreferencesContext';
 import GameCard from '../components/GameCard';
 import { GameCardSkeletonGrid } from '../components/GameCardSkeleton';
 import { useGameGridColumns } from '../hooks/useGameGridColumns';
+import { useI18n } from '../i18n/useI18n';
 
 function PopularEmptyState({ igdbConfigured, onRetry }) {
+    const { t } = useI18n();
     return (
         <div className="flex flex-col items-center justify-center py-24 px-4 text-gray-400 max-w-lg mx-auto">
             <Flame size={56} className="mb-4 opacity-30" />
-            <h2 className="text-xl font-bold text-gray-300 text-center">Henüz oyun listelenmiyor</h2>
+            <h2 className="text-xl font-bold text-gray-300 text-center">{t('popular.emptyTitle')}</h2>
             {igdbConfigured === false ? (
                 <p className="mt-3 text-center text-sm text-gray-500 max-w-md leading-relaxed">
-                    IGDB (Twitch) API yapılandırılmamış. <code className="text-gray-400">backend</code> için{' '}
-                    <code className="text-gray-400">Igdb:ClientId</code> ve{' '}
-                    <code className="text-gray-400">Igdb:ClientSecret</code> user-secrets veya env ile tanımlayın; ayrıntı{' '}
-                    <span className="text-gray-400">docs/DEPLOY.md</span>.
+                    {t('popular.emptyIgdb')}
                 </p>
             ) : (
                 <p className="mt-2 text-center max-w-sm text-sm text-gray-500">
-                    Liste yüklenemedi veya geçici bir ağ sorunu oluştu. Tekrar deneyebilirsiniz.
+                    {t('popular.emptyNetwork')}
                 </p>
             )}
             <button
@@ -31,7 +30,7 @@ function PopularEmptyState({ igdbConfigured, onRetry }) {
                 onClick={onRetry}
                 className="mt-5 px-5 py-2 text-sm font-semibold border border-[#1f2334] text-gray-300 hover:bg-[#1a1e2d] hover:text-white transition-colors"
             >
-                Yenile
+                {t('common.refresh')}
             </button>
         </div>
     );
@@ -41,6 +40,7 @@ function PopularPageInfinite() {
     const mainRef = useRef(null);
     const fetchingRef = useRef(false);
     const { showNsfw } = usePreferences();
+    const { t } = useI18n();
     const columns = useGameGridColumns();
 
     const {
@@ -112,18 +112,18 @@ function PopularPageInfinite() {
             ) : isError ? (
                 <div className="flex flex-col items-center justify-center py-24 px-4 text-center max-w-md mx-auto">
                     <AlertCircle size={48} className="mb-4 text-red-400 opacity-90" />
-                    <h2 className="text-lg font-bold text-gray-200">Oyunlar yüklenemedi</h2>
+                    <h2 className="text-lg font-bold text-gray-200">{t('popular.loadFailedTitle')}</h2>
                     <p className="mt-2 text-sm text-gray-500">
                         {typeof errorMessage === 'string' && errorMessage.trim()
                             ? errorMessage
-                            : 'Bağlantı veya sunucu hatası. İnternetinizi kontrol edip tekrar deneyin.'}
+                            : t('popular.loadFailedHint')}
                     </p>
                     <button
                         type="button"
                         onClick={() => refetch()}
                         className="mt-6 px-5 py-2.5 text-sm font-semibold bg-blue-600 hover:bg-blue-500 text-white rounded-none border border-blue-500 transition-colors"
                     >
-                        Tekrar dene
+                        {t('common.retry')}
                     </button>
                 </div>
             ) : games.length === 0 ? (
@@ -164,7 +164,7 @@ function PopularPageInfinite() {
                 {isFetchingNextPage && (
                     <div className="flex items-center gap-3 text-gray-500 text-sm">
                         <Loader2 size={20} className="animate-spin text-blue-500" />
-                        Yeni oyunlar yükleniyor...
+                        {t('popular.loadingMore')}
                     </div>
                 )}
             </div>
@@ -174,6 +174,7 @@ function PopularPageInfinite() {
 
 function PopularPagePaged() {
     const { showNsfw } = usePreferences();
+    const { t } = useI18n();
     const [offset, setOffset] = useState(0);
     const [backStack, setBackStack] = useState([]);
 
@@ -217,18 +218,18 @@ function PopularPagePaged() {
             ) : isError ? (
                 <div className="flex flex-col items-center justify-center py-24 px-4 text-center max-w-md mx-auto">
                     <AlertCircle size={48} className="mb-4 text-red-400 opacity-90" />
-                    <h2 className="text-lg font-bold text-gray-200">Oyunlar yüklenemedi</h2>
+                    <h2 className="text-lg font-bold text-gray-200">{t('popular.loadFailedTitle')}</h2>
                     <p className="mt-2 text-sm text-gray-500">
                         {typeof errorMessage === 'string' && errorMessage.trim()
                             ? errorMessage
-                            : 'Bağlantı veya sunucu hatası. İnternetinizi kontrol edip tekrar deneyin.'}
+                            : t('popular.loadFailedHint')}
                     </p>
                     <button
                         type="button"
                         onClick={() => refetch()}
                         className="mt-6 px-5 py-2.5 text-sm font-semibold bg-blue-600 hover:bg-blue-500 text-white rounded-none border border-blue-500 transition-colors"
                     >
-                        Tekrar dene
+                        {t('common.retry')}
                     </button>
                 </div>
             ) : games.length === 0 ? (
@@ -247,10 +248,10 @@ function PopularPagePaged() {
                             disabled={backStack.length === 0 || isFetching}
                             className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium border border-[#1f2334] text-gray-300 hover:bg-[#1a1e2d] disabled:opacity-40 disabled:pointer-events-none rounded-none"
                         >
-                            <ChevronLeft size={18} /> Önceki
+                            <ChevronLeft size={18} /> {t('popular.pagePrev')}
                         </button>
                         <span className="text-sm text-gray-500 tabular-nums min-w-[5rem] text-center">
-                            Sayfa {pageNum}
+                            {t('popular.pageNum', { n: pageNum })}
                         </span>
                         <button
                             type="button"
@@ -258,13 +259,13 @@ function PopularPagePaged() {
                             disabled={!data?.hasMore || isFetching}
                             className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium border border-[#1f2334] text-gray-300 hover:bg-[#1a1e2d] disabled:opacity-40 disabled:pointer-events-none rounded-none"
                         >
-                            Sonraki <ChevronRight size={18} />
+                            {t('popular.pageNext')} <ChevronRight size={18} />
                         </button>
                     </div>
                     {isFetching && (
                         <div className="flex justify-center pb-4 text-gray-500 text-sm gap-2 items-center">
                             <Loader2 size={18} className="animate-spin text-blue-500" />
-                            Yükleniyor...
+                            {t('popular.pageLoading')}
                         </div>
                     )}
                 </>

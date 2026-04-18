@@ -1,9 +1,7 @@
 import { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import { logoutUser } from '../api/apiClient';
 import { setDesktopSession, isDesktop } from '../desktop/bridge';
-
-// Vite build'inde gömülü API kökü; desktop tracker backend'e aynı URL ile konuşur.
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
+import { getResolvedApiRoot } from '../utils/apiBaseUrl';
 
 const UserContext = createContext(null);
 
@@ -21,7 +19,7 @@ export function UserProvider({ children }) {
         if (isDesktop) {
             const uid = userData?.id ?? userData?.userId ?? userData?.UserId;
             const token = userData?.accessToken ?? userData?.AccessToken;
-            setDesktopSession({ userId: uid, accessToken: token, apiBaseUrl: API_BASE_URL }).catch(() => {});
+            setDesktopSession({ userId: uid, accessToken: token, apiBaseUrl: getResolvedApiRoot() }).catch(() => {});
         }
     }, []);
 
@@ -31,7 +29,7 @@ export function UserProvider({ children }) {
         const uid = user?.id ?? user?.userId ?? user?.UserId;
         const token = user?.accessToken ?? user?.AccessToken;
         if (uid && token) {
-            setDesktopSession({ userId: uid, accessToken: token, apiBaseUrl: API_BASE_URL }).catch(() => {});
+            setDesktopSession({ userId: uid, accessToken: token, apiBaseUrl: getResolvedApiRoot() }).catch(() => {});
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
@@ -48,7 +46,7 @@ export function UserProvider({ children }) {
         setUser(null);
 
         if (isDesktop) {
-            setDesktopSession({ userId: null, accessToken: null, apiBaseUrl: API_BASE_URL }).catch(() => {});
+            setDesktopSession({ userId: null, accessToken: null, apiBaseUrl: getResolvedApiRoot() }).catch(() => {});
         }
 
         if (refreshToken) {

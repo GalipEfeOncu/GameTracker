@@ -1,38 +1,48 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Calendar, Clock, Globe, Plus, Check, ChevronDown, ChevronUp, Trash2, Shield } from 'lucide-react';
+import { ArrowLeft, Calendar, Clock, Clock3, Globe, Plus, Check, ChevronDown, ChevronUp, Trash2, Shield } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import { getGameDetails, fetchUserLibrary, addGameToLibrary, updateGameStatus, removeGameFromLibrary, getGameScreenshots } from '../api/apiClient';
 import { useUser } from '../context/UserContext';
 import { useToast } from '../context/ToastContext';
 import GameDetailSkeleton from '../components/GameDetailSkeleton';
-import { LIBRARY_STATUS, getStatusLabel } from '../constants/libraryStatus';
+import { LIBRARY_STATUS } from '../constants/libraryStatus';
 import { getSessionUserId } from '../utils/sessionUser';
+import { useI18n } from '../i18n/useI18n';
 
-function formatLibraryMutationError(err, fallback) {
+function formatLibraryMutationError(err, t, fallbackKey) {
     const status = err.response?.status;
     const d = err.response?.data;
     if (status === 403)
-        return 'Bu işlem için yetkin yok. Oturumun süresi dolmuş olabilir — tekrar giriş yapın.';
+        return t('gameDetails.errForbidden');
     if (typeof d === 'string') {
-        if (d.includes('already exists in library')) return 'Bu oyun zaten kütüphanende. Durumunu menüden güncelleyebilirsin.';
+        if (d.includes('already exists in library')) return t('gameDetails.errDuplicate');
         return d;
     }
     if (d && typeof d.message === 'string') return d.message;
     if (d && typeof d.title === 'string') return d.title;
-    // ASP.NET model doğrulama: { errors: { "Alan": ["mesaj"] } }
     if (d && d.errors && typeof d.errors === 'object') {
         const msgs = Object.values(d.errors).flat().filter((x) => typeof x === 'string');
         if (msgs.length) return msgs.join(' ');
     }
-    return fallback;
+    return t(fallbackKey);
 }
 
-function formatPlayHours(h) {
+function formatPlayHours(h, t) {
     if (h == null || Number.isNaN(Number(h))) return null;
     const n = Number(h);
     const s = Number.isInteger(n) ? String(n) : n.toFixed(1).replace(/\.0$/, '');
-    return `${s} sa`;
+    return t('time.playHours', { n: s });
+}
+
+function formatUserPlaytimeMinutes(minutes, t) {
+    const m = Number(minutes);
+    if (!Number.isFinite(m) || m < 0) return '—';
+    if (m === 0) return t('time.userNone');
+    if (m < 60) return t('time.userMinutes', { n: m });
+    const hours = Math.floor(m / 60);
+    const mins = m % 60;
+    return mins ? t('time.userHoursMinutes', { h: hours, m: mins }) : t('time.userHoursOnly', { h: hours });
 }
 
 /** Detay hero: tek satır, kaynak + puan aynı hizada */
@@ -60,6 +70,7 @@ export default function GameDetailsPage() {
     const queryClient = useQueryClient();
     const { user } = useUser();
     const { showToast } = useToast();
+    const { t } = useI18n();
     const userId = getSessionUserId(user);
     const [isExpanded, setIsExpanded] = useState(false);
     const [libraryMenuOpen, setLibraryMenuOpen] = useState(false);
@@ -88,30 +99,30 @@ export default function GameDetailsPage() {
         mutationFn: ({ status }) => addGameToLibrary(userId, game, status),
         onSuccess: () => {
             invalidateLibrary();
-            showToast('Oyun kütüphanene eklendi.', 'success');
+            showToast(t('gameDetails.toastAdded'), 'success');
         },
         onError: (error) => {
-            showToast(formatLibraryMutationError(error, 'Oyun kütüphaneye eklenirken bir hata oluştu.'), 'error');
+            showToast(formatLibraryMutationError(error, t, 'gameDetails.errAdd'), 'error');
         },
     });
     const updateMutation = useMutation({
         mutationFn: ({ newStatus }) => updateGameStatus(userId, id, newStatus),
         onSuccess: () => {
             invalidateLibrary();
-            showToast('Oyun durumu güncellendi.', 'success');
+            showToast(t('gameDetails.toastUpdated'), 'success');
         },
         onError: (error) => {
-            showToast(formatLibraryMutationError(error, 'Oyun durumu güncellenirken bir hata oluştu.'), 'error');
+            showToast(formatLibraryMutationError(error, t, 'gameDetails.errUpdate'), 'error');
         },
     });
     const removeMutation = useMutation({
         mutationFn: () => removeGameFromLibrary(userId, id),
         onSuccess: () => {
             invalidateLibrary();
-            showToast('Oyun kütüphanenden kaldırıldı.', 'success');
+            showToast(t('gameDetails.toastRemoved'), 'success');
         },
         onError: (error) => {
-            showToast(formatLibraryMutationError(error, 'Oyun kütüphaneden kaldırılırken bir hata oluştu.'), 'error');
+            showToast(formatLibraryMutationError(error, t, 'gameDetails.errRemove'), 'error');
         },
     });
 
@@ -143,13 +154,13 @@ export default function GameDetailsPage() {
         return <GameDetailSkeleton />;
     }
 
-    if (!game) return <div className="p-8">Oyun bulunamadı.</div>;
+    if (!game) return <div className="p-8">{t('gameDetails.notFound')}</div>;
 
     const pcRequirements = game.platforms?.find(p => p.platform?.slug === 'pc')?.requirements || game.platforms?.find(p => p.platform?.slug === 'pc')?.requirements_en;
     const requirements = pcRequirements || game.platforms?.find(p => p.requirements || p.requirements_en)?.requirements || game.platforms?.find(p => p.requirements || p.requirements_en)?.requirements_en;
 
     const maxDescriptionLength = 500;
-    const descriptionHtml = game.description || game.description_raw || 'Açıklama bulunamadı.';
+    const descriptionHtml = game.description || game.description_raw || t('gameDetails.noDescription');
 
     // Basit bir tag temizleme işlemiyle uzunluk hesaplama (tam doğru olmasa da görsel uzunluk için yeterli)
     const textLength = descriptionHtml.replace(/<[^>]+>/g, '').length;
@@ -224,7 +235,7 @@ export default function GameDetailsPage() {
                                         className="h-full w-full object-cover object-center"
                                     />
                                 ) : (
-                                    <div className="flex h-full items-center justify-center text-xs text-gray-600">Kapak yok</div>
+                                    <div className="flex h-full items-center justify-center text-xs text-gray-600">{t('gameDetails.coverMissing')}</div>
                                 )}
                             </div>
                             <div className="relative mt-3 w-full" ref={libraryMenuRef}>
@@ -243,19 +254,20 @@ export default function GameDetailsPage() {
                                                 <>
                                                     <Check size={20} />
                                                     <span className="truncate">
-                                                        Kütüphanede{libraryStatus ? ` (${getStatusLabel(libraryStatus)})` : ''}
+                                                        {t('gameDetails.inLibrary')}
+                                                        {libraryStatus ? ` (${t(`library.status.${libraryStatus}`)})` : ''}
                                                     </span>
                                                 </>
                                             ) : (
                                                 <>
-                                                    <Plus size={20} /> Kütüphaneye ekle
+                                                    <Plus size={20} /> {t('gameDetails.addToLibrary')}
                                                 </>
                                             )}
                                             <ChevronDown size={18} className={`shrink-0 ${libraryMenuOpen ? 'rotate-180' : ''}`} />
                                         </button>
                                         {libraryMenuOpen && (
                                             <div className="absolute left-0 right-0 top-full z-30 mt-2 border border-[#1f2334] bg-[#141722] py-1 shadow-xl">
-                                                {Object.entries(LIBRARY_STATUS).map(([statusId, { label }]) => (
+                                                {Object.keys(LIBRARY_STATUS).map((statusId) => (
                                                     <button
                                                         key={statusId}
                                                         type="button"
@@ -263,7 +275,7 @@ export default function GameDetailsPage() {
                                                         disabled={(addMutation.isPending || updateMutation.isPending) && (isInLibrary ? libraryStatus === statusId : false)}
                                                         className={`w-full px-4 py-2.5 text-left text-sm font-medium transition-colors ${libraryStatus === statusId ? 'bg-blue-500/10 text-blue-400' : 'text-gray-300 hover:bg-[#1a1e2d] hover:text-white'}`}
                                                     >
-                                                        {label}
+                                                        {t(`library.status.${statusId}`)}
                                                     </button>
                                                 ))}
                                                 {isInLibrary && (
@@ -275,7 +287,7 @@ export default function GameDetailsPage() {
                                                             disabled={removeMutation.isPending}
                                                             className="flex w-full items-center gap-2 px-4 py-2.5 text-left text-sm font-medium text-red-400 hover:bg-red-500/10"
                                                         >
-                                                            <Trash2 size={14} /> Kütüphaneden çıkar
+                                                            <Trash2 size={14} /> {t('gameDetails.removeFromLibrary')}
                                                         </button>
                                                     </>
                                                 )}
@@ -284,17 +296,33 @@ export default function GameDetailsPage() {
                                     </>
                                 ) : (
                                     <p className="border border-[#1f2334] bg-black/30 px-3 py-3 text-center text-xs text-gray-500">
-                                        Kütüphaneye eklemek için giriş yapın.
+                                        {t('gameDetails.loginToAdd')}
                                     </p>
                                 )}
                             </div>
+                            {userId && isInLibrary ? (
+                                <div className="mt-4 border border-[#1f2334] bg-black/35 px-3 py-3">
+                                    <div className="mb-1 flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-gray-500">
+                                        <Clock3 size={14} className="shrink-0 text-blue-400" aria-hidden />
+                                        {t('gameDetails.yourPlaytime')}
+                                    </div>
+                                    <p className={`text-sm font-semibold tabular-nums ${(libraryEntry?.playtimeMinutes ?? 0) > 0 ? 'text-blue-300' : 'text-gray-500'}`}>
+                                        {formatUserPlaytimeMinutes(libraryEntry?.playtimeMinutes ?? 0, t)}
+                                    </p>
+                                    {(libraryEntry?.playtimeMinutes ?? 0) === 0 && (
+                                        <p className="mt-1.5 text-[11px] leading-relaxed text-gray-600">
+                                            {t('gameDetails.playtimeDesktopHint')}
+                                        </p>
+                                    )}
+                                </div>
+                            ) : null}
                         </aside>
 
                         <div className="min-w-0 w-full flex-1 overflow-hidden border border-[#1f2334] bg-black/50 shadow-lg">
                             {trailerId ? (
                                 <div className="aspect-video w-full">
                                     <iframe
-                                        title={`${game.name} fragmanı`}
+                                        title={t('gameDetails.trailerTitle', { name: game.name })}
                                         src={`https://www.youtube-nocookie.com/embed/${encodeURIComponent(trailerId)}?rel=0`}
                                         className="h-full w-full border-0"
                                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
@@ -303,7 +331,7 @@ export default function GameDetailsPage() {
                                 </div>
                             ) : (
                                 <div className="flex aspect-video w-full items-center justify-center bg-[#0a0c12] px-4 text-center text-sm text-gray-500">
-                                    Bu oyun için IGDB&apos;de bağlı fragman (YouTube) yok.
+                                    {t('gameDetails.noTrailer')}
                                 </div>
                             )}
                         </div>
@@ -311,7 +339,7 @@ export default function GameDetailsPage() {
                         <aside className="w-full shrink-0 space-y-5 border border-[#1f2334] bg-black/35 p-4 backdrop-blur-sm xl:w-[min(100%,280px)]">
                             {game.genres?.length ? (
                                 <div>
-                                    <h2 className="mb-2 text-[10px] font-bold uppercase tracking-widest text-gray-500">Türler</h2>
+                                    <h2 className="mb-2 text-[10px] font-bold uppercase tracking-widest text-gray-500">{t('gameDetails.genres')}</h2>
                                     <div className="flex flex-wrap gap-1.5">
                                         {game.genres.map((g) => (
                                             <span
@@ -327,12 +355,12 @@ export default function GameDetailsPage() {
 
                             {hasAnyScore ? (
                                 <div>
-                                    <h2 className="mb-2 text-[10px] font-bold uppercase tracking-widest text-gray-500">Puanlar</h2>
+                                    <h2 className="mb-2 text-[10px] font-bold uppercase tracking-widest text-gray-500">{t('gameDetails.scores')}</h2>
                                     <div className="flex flex-col gap-2">
                                         {hasMetacritic ? (
                                             <HeroScoreChip
                                                 className="w-full"
-                                                label="Metacritic"
+                                                label={t('gameDetails.labelMetacritic')}
                                                 value={game.metacritic}
                                                 accentClass="text-yellow-500/90"
                                             />
@@ -340,18 +368,18 @@ export default function GameDetailsPage() {
                                         {hasIgdbCritic ? (
                                             <HeroScoreChip
                                                 className="w-full"
-                                                label="IGDB"
+                                                label={t('gameDetails.labelCritic')}
                                                 value={game.igdb_aggregated_rating}
-                                                detail={`Eleştiri · ${game.igdb_aggregated_rating_count} kaynak`}
+                                                detail={t('gameDetails.criticSources', { n: game.igdb_aggregated_rating_count })}
                                                 accentClass="text-amber-400/90"
                                             />
                                         ) : null}
                                         {showIgdbTotalOnly ? (
                                             <HeroScoreChip
                                                 className="w-full"
-                                                label="IGDB"
+                                                label={t('gameDetails.labelOverall')}
                                                 value={game.igdb_total_rating}
-                                                detail="Toplam puan"
+                                                detail={t('gameDetails.overallDetail')}
                                                 accentClass="text-amber-400/90"
                                             />
                                         ) : null}
@@ -364,7 +392,7 @@ export default function GameDetailsPage() {
                                     <div className="flex items-start gap-2">
                                         <Shield className="mt-0.5 shrink-0 text-orange-400" size={18} strokeWidth={2} aria-hidden />
                                         <div>
-                                            <div className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Yaş sınırı</div>
+                                            <div className="text-[10px] font-bold uppercase tracking-widest text-gray-500">{t('gameDetails.ageRating')}</div>
                                             <span
                                                 className="mt-0.5 inline-flex max-w-full items-center border border-orange-500/35 bg-orange-500/10 px-2 py-1 text-xs font-bold uppercase tracking-wide text-orange-100"
                                                 title={
@@ -384,7 +412,7 @@ export default function GameDetailsPage() {
                                     <div className="flex items-center gap-2">
                                         <Calendar className="shrink-0 text-blue-400" size={18} aria-hidden />
                                         <div>
-                                            <div className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Çıkış</div>
+                                            <div className="text-[10px] font-bold uppercase tracking-widest text-gray-500">{t('gameDetails.released')}</div>
                                             <span className="tabular-nums text-gray-200">{game.released}</span>
                                         </div>
                                     </div>
@@ -393,14 +421,14 @@ export default function GameDetailsPage() {
                                     <div className="flex items-center gap-2">
                                         <Globe className="shrink-0 text-indigo-400" size={18} aria-hidden />
                                         <div>
-                                            <div className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Site</div>
+                                            <div className="text-[10px] font-bold uppercase tracking-widest text-gray-500">{t('gameDetails.site')}</div>
                                             <a
                                                 href={game.website}
                                                 target="_blank"
                                                 rel="noreferrer"
                                                 className="text-gray-200 underline-offset-2 transition-colors hover:text-white hover:underline"
                                             >
-                                                Resmi site
+                                                {t('gameDetails.officialSite')}
                                             </a>
                                         </div>
                                     </div>
@@ -411,30 +439,30 @@ export default function GameDetailsPage() {
                                 <div className="border-t border-white/10 pt-4">
                                     <div className="mb-2 flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-gray-500">
                                         <Clock className="text-emerald-400/90" size={14} aria-hidden />
-                                        How long to beat (IGDB)
+                                        {t('gameDetails.ttbTitle')}
                                     </div>
                                     <ul className="space-y-1.5 text-sm text-gray-200">
-                                        {formatPlayHours(ttb.main_story_hours) ? (
+                                        {formatPlayHours(ttb.main_story_hours, t) ? (
                                             <li className="flex justify-between gap-2">
-                                                <span className="text-gray-500">Ana hikaye</span>
-                                                <span className="tabular-nums font-semibold">{formatPlayHours(ttb.main_story_hours)}</span>
+                                                <span className="text-gray-500">{t('gameDetails.ttbMain')}</span>
+                                                <span className="tabular-nums font-semibold">{formatPlayHours(ttb.main_story_hours, t)}</span>
                                             </li>
                                         ) : null}
-                                        {formatPlayHours(ttb.main_extra_hours) ? (
+                                        {formatPlayHours(ttb.main_extra_hours, t) ? (
                                             <li className="flex justify-between gap-2">
-                                                <span className="text-gray-500">Ana + ekstra</span>
-                                                <span className="tabular-nums font-semibold">{formatPlayHours(ttb.main_extra_hours)}</span>
+                                                <span className="text-gray-500">{t('gameDetails.ttbMainExtra')}</span>
+                                                <span className="tabular-nums font-semibold">{formatPlayHours(ttb.main_extra_hours, t)}</span>
                                             </li>
                                         ) : null}
-                                        {formatPlayHours(ttb.completionist_hours) ? (
+                                        {formatPlayHours(ttb.completionist_hours, t) ? (
                                             <li className="flex justify-between gap-2">
-                                                <span className="text-gray-500">Tamamlayıcı</span>
-                                                <span className="tabular-nums font-semibold">{formatPlayHours(ttb.completionist_hours)}</span>
+                                                <span className="text-gray-500">{t('gameDetails.ttbCompletionist')}</span>
+                                                <span className="tabular-nums font-semibold">{formatPlayHours(ttb.completionist_hours, t)}</span>
                                             </li>
                                         ) : null}
                                     </ul>
                                     {ttb.submission_count != null && ttb.submission_count > 0 ? (
-                                        <p className="mt-2 text-[11px] text-gray-600">{ttb.submission_count} gönderiye dayalı ortalama</p>
+                                        <p className="mt-2 text-[11px] text-gray-600">{t('gameDetails.ttbBasedOn', { n: ttb.submission_count })}</p>
                                     ) : null}
                                 </div>
                             ) : null}
@@ -448,7 +476,7 @@ export default function GameDetailsPage() {
                     <div className="min-w-0 flex-1 xl:max-w-5xl">
                         <section>
                             <h2 className="mb-6 border-b border-[#1f2334] pb-2 text-xl font-bold uppercase tracking-widest text-white opacity-50">
-                                Hakkında
+                                {t('gameDetails.about')}
                             </h2>
                             <div className="relative">
                                 <div
@@ -467,11 +495,11 @@ export default function GameDetailsPage() {
                                 >
                                     {isExpanded ? (
                                         <>
-                                            Küçült <ChevronUp size={18} />
+                                            {t('gameDetails.collapse')} <ChevronUp size={18} />
                                         </>
                                     ) : (
                                         <>
-                                            Genişlet <ChevronDown size={18} />
+                                            {t('gameDetails.expand')} <ChevronDown size={18} />
                                         </>
                                     )}
                                 </button>
@@ -482,19 +510,19 @@ export default function GameDetailsPage() {
                     <div className="w-full shrink-0 space-y-8 xl:w-[450px]">
                         <div className="space-y-6 rounded-none border border-[#1f2334] bg-[#141722] p-6 shadow-md">
                             <div>
-                                <h3 className="mb-2 text-sm font-bold uppercase tracking-widest text-gray-500">Geliştirici</h3>
+                                <h3 className="mb-2 text-sm font-bold uppercase tracking-widest text-gray-500">{t('gameDetails.developer')}</h3>
                                 <div className="flex flex-wrap gap-2 font-semibold text-gray-200">
                                     {game.developers?.map((d) => d.name).join(', ') || '-'}
                                 </div>
                             </div>
                             <div>
-                                <h3 className="mb-2 text-sm font-bold uppercase tracking-widest text-gray-500">Yayıncı</h3>
+                                <h3 className="mb-2 text-sm font-bold uppercase tracking-widest text-gray-500">{t('gameDetails.publisher')}</h3>
                                 <div className="flex flex-wrap gap-2 font-semibold text-gray-200">
                                     {game.publishers?.map((p) => p.name).join(', ') || '-'}
                                 </div>
                             </div>
                             <div>
-                                <h3 className="mb-2 text-sm font-bold uppercase tracking-widest text-gray-500">Platformlar</h3>
+                                <h3 className="mb-2 text-sm font-bold uppercase tracking-widest text-gray-500">{t('gameDetails.platforms')}</h3>
                                 <div className="flex flex-wrap gap-2">
                                     {game.platforms?.map((p) => (
                                         <span
@@ -508,7 +536,7 @@ export default function GameDetailsPage() {
                             </div>
                             {game.stores && game.stores.length > 0 && (
                                 <div className="pt-2">
-                                    <h3 className="mb-2 text-sm font-bold uppercase tracking-widest text-gray-500">Satın Al</h3>
+                                    <h3 className="mb-2 text-sm font-bold uppercase tracking-widest text-gray-500">{t('gameDetails.buy')}</h3>
                                     <div className="flex flex-wrap gap-2">
                                         {game.stores.map((s, idx) => (
                                             <a
@@ -518,7 +546,7 @@ export default function GameDetailsPage() {
                                                 rel="noreferrer"
                                                 className="flex items-center rounded-none border border-blue-500/30 bg-blue-500/10 px-3 py-1.5 text-xs font-semibold text-blue-400 shadow-sm transition-all hover:bg-blue-500/20 hover:text-white"
                                             >
-                                                {s.store?.name || 'Mağaza'}
+                                                {s.store?.name || t('common.store')}
                                             </a>
                                         ))}
                                     </div>
@@ -528,14 +556,14 @@ export default function GameDetailsPage() {
 
                         <div className="relative overflow-hidden rounded-none border border-[#1f2334] bg-[#141722] p-6 shadow-md">
                             <h3 className="mb-6 flex items-center gap-2 border-b border-[#1f2334] pb-3 text-lg font-bold tracking-tight text-white">
-                                <Check className="text-blue-500" size={20} /> Sistem Gereksinimleri
+                                <Check className="text-blue-500" size={20} /> {t('gameDetails.sysReqTitle')}
                             </h3>
 
                             {requirements && (requirements.minimum || requirements.recommended) ? (
                                 <div className="space-y-6">
                                     {requirements.minimum && (
                                         <div>
-                                            <h4 className="mb-2 font-semibold text-gray-300">Minimum</h4>
+                                            <h4 className="mb-2 font-semibold text-gray-300">{t('gameDetails.minimum')}</h4>
                                             <p className="whitespace-pre-line rounded-none border border-[#1f2334] bg-[#0f111a] p-4 text-sm leading-relaxed text-gray-400">
                                                 {requirements.minimum.replace(/^Minimum:\s*/i, '')}
                                             </p>
@@ -543,7 +571,7 @@ export default function GameDetailsPage() {
                                     )}
                                     {requirements.recommended && (
                                         <div>
-                                            <h4 className="mb-2 font-semibold text-gray-300">Önerilen</h4>
+                                            <h4 className="mb-2 font-semibold text-gray-300">{t('gameDetails.recommended')}</h4>
                                             <p className="whitespace-pre-line rounded-none border border-[#1f2334] bg-[#0f111a] p-4 text-sm leading-relaxed text-gray-400">
                                                 {requirements.recommended.replace(/^Recommended:\s*/i, '')}
                                             </p>
@@ -552,7 +580,7 @@ export default function GameDetailsPage() {
                                 </div>
                             ) : (
                                 <p className="text-sm italic leading-relaxed text-gray-500">
-                                    Veri sağlayıcılarda belirtilmediyse sistem gereksinimleri burada görünmez.
+                                    {t('gameDetails.sysReqEmpty')}
                                 </p>
                             )}
                         </div>
@@ -563,7 +591,7 @@ export default function GameDetailsPage() {
             {/* Ekran görüntüleri */}
             {screenshots.length > 0 && (
                 <section className="px-12 py-8 border-t border-[#1f2334]">
-                    <h2 className="text-xl font-bold text-white uppercase tracking-widest mb-6 opacity-50 border-b border-[#1f2334] pb-2">Ekran Görüntüleri</h2>
+                    <h2 className="text-xl font-bold text-white uppercase tracking-widest mb-6 opacity-50 border-b border-[#1f2334] pb-2">{t('gameDetails.screenshots')}</h2>
                     <div className="flex gap-4 overflow-x-auto pb-4 scroll-smooth snap-x snap-mandatory">
                         {screenshots.map((shot) => (
                             <a

@@ -11,6 +11,9 @@
 *.sln.docstates
 *.env
 
+# Üretim Vite env — gerçek API adresi commit edilmesin
+frontend/.env.production
+
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
 

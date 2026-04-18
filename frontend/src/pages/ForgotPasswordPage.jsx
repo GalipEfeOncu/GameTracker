@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Mail, Loader2, KeyRound, AlertCircle, CheckCircle2, ArrowLeft } from 'lucide-react';
 import { requestPasswordReset, resetPasswordWithCode } from '../api/apiClient';
+import { useI18n } from '../i18n/useI18n';
 
 export default function ForgotPasswordPage() {
     const [step, setStep] = useState('email');
@@ -12,23 +13,24 @@ export default function ForgotPasswordPage() {
     const [isLoading, setIsLoading] = useState(false);
     const [message, setMessage] = useState({ type: '', text: '' });
     const navigate = useNavigate();
+    const { t } = useI18n();
 
     const handleRequestCode = async (e) => {
         e.preventDefault();
         setMessage({ type: '', text: '' });
         const trimmed = email.trim();
         if (!trimmed) {
-            setMessage({ type: 'error', text: 'E-posta adresinizi girin.' });
+            setMessage({ type: 'error', text: t('forgot.errEmail') });
             return;
         }
         setIsLoading(true);
         try {
             await requestPasswordReset(trimmed);
-            setMessage({ type: 'success', text: 'E-posta gönderildi. Gelen 6 haneli kodu girin.' });
+            setMessage({ type: 'success', text: t('forgot.successSent') });
             setStep('reset');
         } catch (err) {
-            const msg = err.response?.data?.message ?? err.response?.data ?? err.message ?? 'Kod gönderilemedi.';
-            setMessage({ type: 'error', text: typeof msg === 'string' ? msg : 'Bir hata oluştu.' });
+            const msg = err.response?.data?.message ?? err.response?.data ?? err.message ?? t('common.genericError');
+            setMessage({ type: 'error', text: typeof msg === 'string' ? msg : t('common.genericError') });
         } finally {
             setIsLoading(false);
         }
@@ -38,15 +40,15 @@ export default function ForgotPasswordPage() {
         e.preventDefault();
         setMessage({ type: '', text: '' });
         if (!code.trim()) {
-            setMessage({ type: 'error', text: 'Doğrulama kodunu girin.' });
+            setMessage({ type: 'error', text: t('forgot.errCode') });
             return;
         }
         if (newPassword.length < 8) {
-            setMessage({ type: 'error', text: 'Yeni şifre en az 8 karakter olmalı.' });
+            setMessage({ type: 'error', text: t('forgot.errPwShort') });
             return;
         }
         if (newPassword !== newPasswordAgain) {
-            setMessage({ type: 'error', text: 'Şifreler eşleşmiyor.' });
+            setMessage({ type: 'error', text: t('forgot.errPwMatch') });
             return;
         }
         setIsLoading(true);
@@ -57,11 +59,11 @@ export default function ForgotPasswordPage() {
                 newPassword,
                 newPasswordAgain,
             });
-            setMessage({ type: 'success', text: 'Şifreniz güncellendi. Giriş sayfasına yönlendiriliyorsunuz...' });
+            setMessage({ type: 'success', text: t('forgot.successReset') });
             setTimeout(() => navigate('/login'), 2000);
         } catch (err) {
-            const msg = err.response?.data?.message ?? err.response?.data ?? err.message ?? 'Şifre sıfırlanamadı.';
-            setMessage({ type: 'error', text: typeof msg === 'string' ? msg : 'Kod geçersiz veya süresi dolmuş olabilir.' });
+            const msg = err.response?.data?.message ?? err.response?.data ?? err.message ?? t('forgot.errResetFail');
+            setMessage({ type: 'error', text: typeof msg === 'string' ? msg : t('forgot.errCodeInvalid') });
         } finally {
             setIsLoading(false);
         }
@@ -74,7 +76,7 @@ export default function ForgotPasswordPage() {
                     to="/login"
                     className="inline-flex items-center gap-2 text-sm text-gray-400 hover:text-white mb-6 transition-colors"
                 >
-                    <ArrowLeft size={16} /> Girişe dön
+                    <ArrowLeft size={16} /> {t('forgot.back')}
                 </Link>
 
                 <div className="flex items-center gap-3 mb-6">
@@ -82,9 +84,9 @@ export default function ForgotPasswordPage() {
                         <KeyRound size={24} className="text-blue-500" />
                     </div>
                     <div>
-                        <h1 className="text-xl font-bold text-white tracking-tight">Şifremi Unuttum</h1>
+                        <h1 className="text-xl font-bold text-white tracking-tight">{t('forgot.title')}</h1>
                         <p className="text-gray-500 text-sm mt-0.5">
-                            {step === 'email' ? 'E-posta adresinize sıfırlama kodu göndereceğiz.' : 'Kodu ve yeni şifrenizi girin.'}
+                            {step === 'email' ? t('forgot.subtitleEmail') : t('forgot.subtitleReset')}
                         </p>
                     </div>
                 </div>
@@ -103,14 +105,14 @@ export default function ForgotPasswordPage() {
                 {step === 'email' ? (
                     <form onSubmit={handleRequestCode} className="space-y-4">
                         <div>
-                            <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">E-posta</label>
+                            <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">{t('forgot.emailLabel')}</label>
                             <div className="relative">
                                 <Mail size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
                                 <input
                                     type="email"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
-                                    placeholder="kayitli@eposta.com"
+                                    placeholder={t('forgot.emailPh')}
                                     className="w-full pl-10 pr-4 py-3 bg-[#1a1e2d] border border-[#1f2334] rounded-none text-white placeholder-gray-500 outline-none focus:border-blue-500/50"
                                     required
                                 />
@@ -122,13 +124,13 @@ export default function ForgotPasswordPage() {
                             className="w-full py-3 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white rounded-none font-bold flex items-center justify-center gap-2"
                         >
                             {isLoading ? <Loader2 size={20} className="animate-spin" /> : null}
-                            Kod Gönder
+                            {t('forgot.sendCode')}
                         </button>
                     </form>
                 ) : (
                     <form onSubmit={handleResetPassword} className="space-y-4">
                         <div>
-                            <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">E-posta</label>
+                            <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">{t('forgot.emailLabel')}</label>
                             <input
                                 type="email"
                                 value={email}
@@ -137,7 +139,7 @@ export default function ForgotPasswordPage() {
                             />
                         </div>
                         <div>
-                            <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">6 haneli kod</label>
+                            <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">{t('forgot.resetCodeLabel')}</label>
                             <input
                                 type="text"
                                 value={code}
@@ -148,7 +150,7 @@ export default function ForgotPasswordPage() {
                             />
                         </div>
                         <div>
-                            <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Yeni şifre (en az 8 karakter)</label>
+                            <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">{t('forgot.newPassLabel')}</label>
                             <input
                                 type="password"
                                 value={newPassword}
@@ -159,7 +161,7 @@ export default function ForgotPasswordPage() {
                             />
                         </div>
                         <div>
-                            <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Yeni şifre (tekrar)</label>
+                            <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">{t('forgot.newPassAgainLabel')}</label>
                             <input
                                 type="password"
                                 value={newPasswordAgain}
@@ -175,7 +177,7 @@ export default function ForgotPasswordPage() {
                                 onClick={() => setStep('email')}
                                 className="px-4 py-3 rounded-none border border-[#1f2334] text-gray-400 hover:bg-[#1a1e2d] hover:text-white transition-colors font-medium"
                             >
-                                Geri
+                                {t('forgot.backButton')}
                             </button>
                             <button
                                 type="submit"
@@ -183,14 +185,14 @@ export default function ForgotPasswordPage() {
                                 className="flex-1 py-3 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white rounded-none font-bold flex items-center justify-center gap-2"
                             >
                                 {isLoading ? <Loader2 size={20} className="animate-spin" /> : null}
-                                Şifreyi Sıfırla
+                                {t('forgot.submitReset')}
                             </button>
                         </div>
                     </form>
                 )}
 
                 <p className="mt-6 text-center text-gray-500 text-sm">
-                    <Link to="/login" className="text-blue-500 hover:text-blue-400 font-medium">Giriş sayfasına dön</Link>
+                    <Link to="/login" className="text-blue-500 hover:text-blue-400 font-medium">{t('forgot.loginReturn')}</Link>
                 </p>
             </div>
         </div>
