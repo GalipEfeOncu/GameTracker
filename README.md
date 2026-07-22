@@ -1,184 +1,136 @@
-# 🎮 GameTracker
+# GameTracker
 
-**Manage your game library. Discover new titles. Track your playtime.**
-
-GameTracker is an open-source full-stack application that lets you organize your game collection from a single hub. Build your library on the web or with the Windows desktop client, explore a rich catalog powered by IGDB and RAWG, get personalized AI-driven recommendations, and —with the desktop client— automatically track your playtime in the cloud.
+Your game library, organized. Discover titles from IGDB & RAWG, track what you play, and let AI suggest what's next — all from the browser or a lightweight Windows app.
 
 [![CI](https://github.com/GalipEfeOncu/GameTracker/actions/workflows/ci.yml/badge.svg)](https://github.com/GalipEfeOncu/GameTracker/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
-[![.NET](https://img.shields.io/badge/.NET-9-512BD4?logo=dotnet)](https://dotnet.microsoft.com/)
-[![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)](https://react.dev/)
-[![Vite](https://img.shields.io/badge/Vite-7-646CFF?logo=vite&logoColor=white)](https://vitejs.dev/)
-[![Electron](https://img.shields.io/badge/Electron-34-47848F?logo=electron&logoColor=white)](https://www.electronjs.org/)
+[![.NET 9](https://img.shields.io/badge/.NET-9-512BD4?logo=dotnet)](https://dotnet.microsoft.com/)
+[![React 19](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)](https://react.dev/)
+[![Electron 34](https://img.shields.io/badge/Electron-34-47848F?logo=electron&logoColor=white)](https://www.electronjs.org/)
 
-<table>
-<tr>
-<td><strong>🌐 Live Demo</strong></td>
-<td><a href="https://game-tracker-virid.vercel.app/">game-tracker-virid.vercel.app</a></td>
-</tr>
-<tr>
-<td><strong>⬇️ Download (Windows)</strong></td>
-<td><a href="https://github.com/GalipEfeOncu/GameTracker/releases">GitHub Releases</a> — <code>GameTracker Setup x.y.z.exe</code></td>
-</tr>
-</table>
+**[Live Demo](https://game-tracker-virid.vercel.app/)** · **[Download for Windows](https://github.com/GalipEfeOncu/GameTracker/releases)**
 
 ---
 
-## ✨ Why GameTracker?
+## What it does
 
-<table>
-<tr>
-<td width="50">📚</td>
-<td><strong>Library Management</strong><br>Organize your games by status: <em>Want to Play · Playing · Completed · Dropped · On Hold</em>. Rate them, add notes.</td>
-</tr>
-<tr>
-<td>🔍</td>
-<td><strong>Discover & Search</strong><br>Hybrid IGDB + RAWG data source — cover art, screenshots, platforms, store links, system requirements, and Metacritic scores at your fingertips.</td>
-</tr>
-<tr>
-<td>🤖</td>
-<td><strong>AI Recommendations</strong><br>Google Gemini analyzes your library and generates 15 personalized suggestions. Completely on-demand — you trigger it.</td>
-</tr>
-<tr>
-<td>⏱️</td>
-<td><strong>Playtime Tracking</strong><br>The Windows desktop client automatically detects running games and syncs playtime to the cloud in the background.</td>
-</tr>
-<tr>
-<td>🖥️</td>
-<td><strong>Installed Game Detection</strong><br>Steam, Epic Games Store, and GOG libraries are scanned automatically. Other games can be added manually.</td>
-</tr>
-<tr>
-<td>🌍</td>
-<td><strong>Multi-Language UI</strong><br>Interface available in Turkish (default) and English. Switch anytime from Settings.</td>
-</tr>
-</table>
+- **Library** — Tag every game as *Want to Play*, *Playing*, *Completed*, *Dropped*, or *On Hold*. Rate and review.
+- **Catalog** — Browse and search a hybrid IGDB + RAWG catalog: covers, screenshots, platforms, store links, system requirements, Metacritic scores.
+- **AI picks** — Hit a button and Gemini analyzes your library to suggest 15 titles you might like.
+- **Playtime** — The desktop client watches for running processes (Steam, Epic, GOG, or manually added games) and syncs playtime to your account every 30 seconds.
+- **Installed games** — Steam, Epic, and GOG libraries are detected automatically on Windows. Anything else can be linked manually.
+- **Bilingual UI** — Turkish (default) and English, switchable from Settings.
+
+### Web vs. Desktop
+
+| | Web | Desktop (Windows) |
+|-|-----|-------------------|
+| Library, catalog, AI | Yes | Yes |
+| Installed game detection | — | Yes |
+| Playtime tracking | — | Yes |
+| System tray & auto-start | — | Yes |
 
 ---
 
-## 🏗️ Platform Support
+## How it's built
 
-| Platform | Features |
-|----------|----------|
-| **Web** | Library management, game discovery, AI recommendations, ratings & status tracking |
-| **Windows Desktop** | Everything from web + installed game detection, playtime tracking, system tray, auto-start |
+| Layer | Stack |
+|-------|-------|
+| Frontend | React 19, Vite 7, Tailwind CSS 4, TanStack Query, Framer Motion |
+| API | ASP.NET Core (.NET 9), Dapper, MSSQL, JWT auth |
+| Desktop | Electron 34, NSIS installer via electron-builder |
+| Data | IGDB (Twitch) + RAWG hybrid |
+| AI | Google Gemini |
+| CI/CD | GitHub Actions, Vercel |
 
----
-
-## 🔐 Security
-
-- **JWT-based authentication** — Short-lived 15-minute access tokens + rotating refresh tokens (30 / 90 days based on "Remember Me")
-- **Email verification** — Verification code sent on registration
-- **Password reset** — Secure email-based flow
-- **Silent token refresh** — Automatic retry on 401; redirect to login on failure
+Auth uses short-lived access tokens (15 min) with rotating refresh tokens. 401s are retried silently; failed refreshes redirect to login.
 
 ---
 
-## ⚙️ Tech Stack
+# For developers
 
-| Layer | Technology |
-|-------|-----------|
-| **Frontend** | React 19, Vite 7, Tailwind CSS 4, TanStack Query, React Router, Framer Motion |
-| **Backend** | ASP.NET Core (.NET 9), Dapper, JWT, MSSQL |
-| **Desktop** | Electron 34, electron-builder (NSIS) |
-| **CI/CD** | GitHub Actions (build + test + lint), Vercel (frontend deploy) |
-| **Data Sources** | IGDB (Twitch API) + RAWG (hybrid) |
-| **AI** | Google Gemini API |
-
----
-
-# 🛠️ Developer Guide
-
-Everything below is for contributors who want to run and develop the project locally.
-
-## Project Structure
+## Layout
 
 ```
-GameTracker/
-├── backend/          → .NET 9 Web API (JWT, MSSQL, IGDB/RAWG/Gemini integrations)
-├── frontend/         → React 19 SPA (Vite 7, Tailwind CSS)
-├── desktop/          → Electron shell (installed game detection, playtime tracker)
-├── tests/            → xUnit API tests
-├── docs/             → Project documentation
-└── .github/workflows → CI pipeline
+backend/         .NET 9 Web API
+frontend/        React SPA (Vite)
+desktop/         Electron shell + playtime tracker
+tests/           xUnit API tests
+docs/            Deploy, DB, features, roadmap
 ```
 
 ## Prerequisites
 
-- [.NET SDK 9.x](https://dotnet.microsoft.com/download)
-- [Node.js](https://nodejs.org/) (LTS) and npm
+- [.NET SDK 9](https://dotnet.microsoft.com/download)
+- [Node.js LTS](https://nodejs.org/) + npm
 - SQL Server (LocalDB or remote)
 
-## Quick Start
+## Getting started
 
-### 1. Backend Secrets
-
-Configure local secrets using [User Secrets](https://learn.microsoft.com/en-us/aspnet/core/security/app-secrets):
+### 1 — Backend secrets
 
 ```bash
 cd backend
 
-# Required
 dotnet user-secrets set "ConnectionStrings:GameTrackerDB" "YOUR_CONNECTION_STRING"
 dotnet user-secrets set "Igdb:ClientId" "TWITCH_CLIENT_ID"
 dotnet user-secrets set "Igdb:ClientSecret" "TWITCH_CLIENT_SECRET"
 
-# Recommended — richer metadata
+# recommended
 dotnet user-secrets set "ApiKeys:RawgApiKey" "YOUR_RAWG_KEY"
 
-# Optional — AI recommendations
+# optional — AI recommendations
 dotnet user-secrets set "ApiKeys:GeminiApiKey" "YOUR_GEMINI_KEY"
 
-# Optional — email verification / password reset
-dotnet user-secrets set "EmailSettings:MailAddress" "example@mail.com"
+# optional — email verification & password reset
+dotnet user-secrets set "EmailSettings:MailAddress" "you@example.com"
 dotnet user-secrets set "EmailSettings:MailPassword" "APP_PASSWORD"
 
-# JWT signing key (≥32 characters)
-dotnet user-secrets set "Jwt:SigningKey" "A_SECURE_RANDOM_KEY_AT_LEAST_32_CHARS"
+# JWT signing (>= 32 chars)
+dotnet user-secrets set "Jwt:SigningKey" "SOME_LONG_RANDOM_STRING_HERE_32+"
 ```
 
-### 2. Run the API
+### 2 — Run the API
 
 ```bash
 cd backend
-dotnet run
+dotnet run            # http://localhost:5118 — Swagger at /swagger
 ```
 
-Default URL: `http://localhost:5118` · Swagger (dev mode): `/swagger`
-
-### 3. Run the Frontend
+### 3 — Run the frontend
 
 ```bash
 cd frontend
 npm install
-npm run dev          # http://localhost:5173
+npm run dev           # http://localhost:5173
 ```
 
-For production builds, set `VITE_API_BASE_URL` (must end with `/api`).
+Set `VITE_API_BASE_URL` for production builds (must end with `/api`).
 
-### 4. Run the Desktop Client
+### 4 — Run the desktop client
 
 ```bash
-# Terminal 1 — Frontend dev server
+# terminal 1
 cd frontend && npm run dev
 
-# Terminal 2 — Electron
+# terminal 2
 cd desktop
 npm install
-npm run dev          # Connects to the Vite dev server
+npm run dev
 ```
 
-Packaged build: `cd desktop && npm run build` → `desktop/dist-desktop/GameTracker Setup x.y.z.exe`
+Package an installer: `cd desktop && npm run build` → `dist-desktop/GameTracker Setup x.y.z.exe`
 
-## Configuration Reference
+## Config reference
 
-Values can be provided via `appsettings.json`, User Secrets, or environment variables (use `__` for nesting in production).
+Sourced from `appsettings.json`, User Secrets, or env vars (`__` for nesting in production).
 
 | Area | Keys |
 |------|------|
 | Database | `ConnectionStrings:GameTrackerDB` |
 | IGDB | `Igdb:ClientId`, `Igdb:ClientSecret` |
 | RAWG | `ApiKeys:RawgApiKey` |
-| Email (SMTP) | `EmailSettings:MailAddress`, `MailPassword`, `SmtpHost`, `SmtpPort` |
+| Email | `EmailSettings:MailAddress`, `MailPassword`, `SmtpHost`, `SmtpPort` |
 | Production | `Cors:AllowedOrigins`, `Jwt:SigningKey` |
 
 Full template: [`backend/appsettings.Example.json`](./backend/appsettings.Example.json)
@@ -186,31 +138,27 @@ Full template: [`backend/appsettings.Example.json`](./backend/appsettings.Exampl
 ## Tests
 
 ```bash
-dotnet test
+dotnet test            # runs tests/GameTracker.Api.Tests
 ```
 
-Test project: [`tests/GameTracker.Api.Tests`](./tests/GameTracker.Api.Tests/)
+## Deploy checklist
 
-## Deployment
+1. **API** — Deploy backend, ensure DB access, set env vars. Add your Vercel origin to `Cors__AllowedOrigins`.
+2. **Web** — Configure `frontend/.env.production` → `npm run build` → deploy `dist/`.
+3. **Desktop** — Same frontend env, then `cd desktop && npm install && npm run build`.
+4. **Release** — Tag, attach `.exe` to [GitHub Releases](https://github.com/GalipEfeOncu/GameTracker/releases).
 
-1. **API** — Deploy the backend; ensure DB is reachable and env vars are set. Add your Vercel origin to `Cors__AllowedOrigins`.
-2. **Web** — Set the live API URL in `frontend/.env.production` → `npm run build` → deploy `frontend/dist/`.
-3. **Desktop** — Same SPA env as step 2, then `cd desktop && npm install && npm run build`. Output: `GameTracker Setup x.y.z.exe`.
-4. **Release** — Create a tag and attach the `.exe` to [GitHub Releases](https://github.com/GalipEfeOncu/GameTracker/releases).
+See [`docs/DEPLOY.md`](./docs/DEPLOY.md) for the full guide.
 
-Detailed guide: [`docs/DEPLOY.md`](./docs/DEPLOY.md)
+## Docs
 
-## Documentation
-
-| File | Contents |
-|------|----------|
-| [`docs/FEATURES.md`](./docs/FEATURES.md) | Completed features list |
-| [`docs/ROAD_MAP.md`](./docs/ROAD_MAP.md) | Roadmap and planned work |
-| [`docs/DEPLOY.md`](./docs/DEPLOY.md) | Hosting, CORS, environment variables |
-| [`docs/DATABASE.md`](./docs/DATABASE.md) | SQL Server setup and migrations |
+| File | About |
+|------|-------|
+| [FEATURES.md](./docs/FEATURES.md) | Completed features |
+| [ROAD_MAP.md](./docs/ROAD_MAP.md) | Roadmap |
+| [DEPLOY.md](./docs/DEPLOY.md) | Hosting & environment |
+| [DATABASE.md](./docs/DATABASE.md) | SQL Server setup |
 
 ---
 
-## 📄 License
-
-[MIT License](./LICENSE) — Copyright © 2025 Galip Efe Öncü
+MIT — © 2025 Galip Efe Öncü
