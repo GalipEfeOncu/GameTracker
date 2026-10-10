@@ -83,6 +83,8 @@ Paketli build: `cd desktop; npm run build` → `desktop/dist-desktop/` altında 
 
 **Açık:** Yalnızca §6 **NSIS installer** — `.exe` üretip paylaşılabilir hale getirmek. Kod imzalama / auto-update / sanal liste / 2FA **kapsam dışı** (i18n artık uygulamada; bkz. yukarı).
 
+**Planlanan migration:** Render.com → Oracle Cloud VM ([MIGRATION_ORACLE_CLOUD.md](./MIGRATION_ORACLE_CLOUD.md)), Somee MSSQL → Azure SQL Free / PostgreSQL ([MIGRATION_DATABASE.md](./MIGRATION_DATABASE.md)).
+
 Detay için [ROAD_MAP.md](./ROAD_MAP.md).
 
 ---
@@ -168,6 +170,8 @@ docs/
   DATABASE.md                                   migration listesi
   DEPLOY.md                                     prod konfig
   PLAN_WEB_DESKTOP.md                           masaüstü planı
+  MIGRATION_ORACLE_CLOUD.md                     Render → Oracle Cloud VM geçiş planı
+  MIGRATION_DATABASE.md                         Somee → Azure SQL / PostgreSQL geçiş planı
 ```
 
 ---

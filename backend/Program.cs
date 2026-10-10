@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -142,6 +143,21 @@ app.UseCors("GameTrackerCors");
 app.UseRateLimiter();
 app.UseAuthentication();
 app.UseAuthorization();
+// TEMP: RAM ölçümü — sadece dev ortamında açık, canlıya geçmeden kaldır
+if (app.Environment.IsDevelopment())
+{
+    app.MapGet("/diagnostics/memory", () =>
+    {
+        using var process = Process.GetCurrentProcess();
+        return Results.Ok(new
+        {
+            workingSetMb    = Math.Round(process.WorkingSet64      / 1024d / 1024d, 2),
+            privateMemoryMb = Math.Round(process.PrivateMemorySize64 / 1024d / 1024d, 2),
+            managedHeapMb   = Math.Round(GC.GetTotalMemory(false)  / 1024d / 1024d, 2),
+        });
+    });
+}
+
 app.MapControllers();
 
 app.Run();
